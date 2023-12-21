@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useUserAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
+    const {user,authFunctions}=useUserAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const onLogout=(()=>{
+        try{
+            authFunctions?.logOut();
+        }catch(error){
+            console.log("Logout");
+        }
+    });
 
     const handleDropdownToggle = () => {
         setIsDropdownOpen(!isDropdownOpen); // Toggles dropdown visibility
@@ -92,7 +102,7 @@ const Navbar = () => {
                         </ul>
                         <ul className="py-1 text-gray-500" aria-labelledby="dropdown">
                             <li>
-                                <a href="#" className="block py-2 px-4 text-sm hover:bg-gray-100 ">Sign out</a>
+                                <p onClick={()=>{ onLogout()}}className="block py-2 px-4 text-sm hover:bg-gray-100 ">Sign out</p>
                             </li>
                         </ul>
                     </div>

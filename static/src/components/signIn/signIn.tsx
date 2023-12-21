@@ -18,7 +18,7 @@ const SignIn = () => {
     setPassword(e.target.value);
   }
 
-  const handleSubmit:React.FormEventHandler<HTMLFormElement> = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       await authFunctions?.logInWithEmailAndPassword(email, password);
@@ -39,44 +39,48 @@ const SignIn = () => {
   }
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-900 w-full h-full">
+    <section className="w-full min-h-screen">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto">
-        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+        <div className="w-full rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0 border-solid border-2 border-black">
+          <div className="p-6 space-y-4 md:space-y-4 sm:p-8">
+            <a href="/" className="flex mr-4">
+              <img src="/logo.png" className="h-12 mr-3" alt="Earthly Eco Shop Logo" />
+              <span className="self-center text-2xl font-semibold whitespace-nowrap ">Earthly Eco</span>
+            </a>
+            <h1 className="text-xl font-bold leading-tight tracking-tight text-black md:text-2xl">
               Sign in to your account
             </h1>
             {
               errorMessage &&
-              <Error error={errorMessage} />
+              <Error errorMessage={errorMessage} />
             }
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                <input type="email" name="email" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Your email</label>
+                <input type="email" name="email" id="email" className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   placeholder='xyz@gmail.com'
                   value={email} onChange={handleEmailChange} required />
               </div>
               <div>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                <label htmlFor="password" className="block mb-2 text-sm font-medium text-black ">Password</label>
                 <input type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   name="password"
                   id="password"
                   onChange={handlePasswordChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                  className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
               </div>
               <div>
-                <a href="/forgetPassword" className="text-sm text-blue-600 dark:text-blue-500 font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
+                <a href="/forgetPassword" className="text-sm text-blue-600 font-medium text-primary-600 hover:underline">Forgot password?</a>
               </div>
 
-              <button type="submit" className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ">Sign in</button>
+              <button type="submit" className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ">Sign in</button>
 
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                <span>Don’t have an account yet ?</span><a href="/signUp" className="font-medium text-blue-600 hover:underline dark:text-blue-500"> Sign up</a>
+              <p className="text-sm font-medium text-black">
+                <span>Don’t have an account yet ?</span><a href="/signUp" className="font-medium text-blue-600 hover:underline"> Sign up</a>
               </p>
             </form>
-            <button type="button" onClick={handleGoogleLogin} className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center mr-2 mb-2">
+            <button type="button" onClick={handleGoogleLogin} className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center mr-2 mb-2">
               <svg className="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
                 <path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clipRule="evenodd" />
               </svg>

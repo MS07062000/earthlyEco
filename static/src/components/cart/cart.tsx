@@ -8,7 +8,7 @@ import SuccessMessage from "../SuccessMessage";
 import ErrorMessage from "../ErrorMessage";
 import { addProductToCartOfUser } from "../products/helpers/addProductToCartOfUser";
 import { loadScript } from "./helpers/loadRazorpayScript";
-import { proceedForPayment } from "./helpers/proceedForPayment";
+import { proceedForPayment } from "./helpers/proceedForPayment.js";
 import { categoryWithProductsInfo, createOrder } from "./helpers/createOrder";
 
 interface CartProductInfo {
@@ -168,11 +168,12 @@ const Cart = () => {
 
             try {
                 const orderResponse = await createOrder(user!.uid, categoryWithProducts);
-                if (orderResponse) {
-                    loadScript().then(() => {
-                        proceedForPayment(orderResponse.id);
-                    })
-                }
+                // if (orderResponse) {
+                //     loadScript().then(() => {
+                //         proceedForPayment(orderResponse.id);
+                //     })
+                // }
+                await proceedForPayment(orderResponse.id);
             } catch (error) {
                 setErrorMessage("Unable to place order");
             }

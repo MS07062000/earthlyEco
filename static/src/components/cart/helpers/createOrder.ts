@@ -9,7 +9,7 @@ export interface categoryWithProductsInfo{
     }[]
 }
 
-export const createOrder = async (userUID:string,categoryWithProductsInfo:categoryWithProductsInfo[]) => {
+export const createOrder = async (userUID:string,categoryWithProductsInfo:categoryWithProductsInfo[],amount:number) => {
     const requestOptions = {
         method: 'post',
         url: `${BASEURL}/createOrder`,
@@ -19,6 +19,7 @@ export const createOrder = async (userUID:string,categoryWithProductsInfo:catego
         data:{
             userUID:userUID,
             categoryWithProductsInfo:categoryWithProductsInfo,
+            amount:(amount*100)
         },
         origin: ORIGIN,
     };

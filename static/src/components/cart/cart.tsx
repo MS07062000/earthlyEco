@@ -167,7 +167,7 @@ const Cart = () => {
             }, []);
 
             try {
-                const orderResponse = await createOrder(user!.uid, categoryWithProducts);
+                const orderResponse = await createOrder(user!.uid, categoryWithProducts, totalAmount);
                 // if (orderResponse) {
                 //     loadScript().then(() => {
                 //         proceedForPayment(orderResponse.id);

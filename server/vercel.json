@@ -1,0 +1,18 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "app.ts",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "app.ts",
+            "headers": {
+                "Access-Control-Allow-Origin": "https://maniecommercestore.web.app"
+            }
+        }
+    ]
+}

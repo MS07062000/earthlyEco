@@ -86,8 +86,7 @@ router.post('/wishlist', async (req: Request, res: Response) => {
 router.post('/getUserWishlist', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
-        if (userUID.length>0) {
-            await getProductDetailsOfWishlistProducts(userUID);
+        if (userUID) {
             const userWishlistInfo = await getUserWishlist(userUID);
             res.status(200).send(userWishlistInfo);
         } else {
@@ -101,7 +100,7 @@ router.post('/getUserWishlist', async (req: Request, res: Response) => {
 router.post('/getUserWishlistWithProductDetails', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
-        if (userUID.length>0) {
+        if (userUID) {
             const userWishlistWithProductDetails = await getProductDetailsOfWishlistProducts(userUID);
             res.status(200).send(userWishlistWithProductDetails);
         } else {

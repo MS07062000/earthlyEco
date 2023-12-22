@@ -12,6 +12,8 @@ import SuccessModal from "../SuccessModal";
 import ErrorModal from "../ErrorModal";
 import { isInputElement } from "react-router-dom/dist/dom";
 import { clearCartOfUser } from "./helpers/clearCartOfUser";
+import Spinner from "../Spinner";
+import InfoMessage from "../InfoMessage";
 
 interface CartProductInfo {
     name: string;
@@ -24,6 +26,7 @@ interface CartProductInfo {
 
 const Cart = () => {
     const { user } = useUserAuth();
+    const [isLoading, setLoading] = useState<boolean>(true);
     const [cartProducts, setCartProducts] = useState<CartProductInfo[]>([]);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -31,26 +34,39 @@ const Cart = () => {
     const getCartProducts = async () => {
         let totalAmountCalculated = 0;
         try {
-            getCartOfUser(user!.uid).then((data) => {
-                data.forEach(async (product: CartProductInfo, index: number) => {
+            const data = await getCartOfUser(user!.uid);
+            const updatedData = await Promise.all(
+                data.map(async (product: CartProductInfo, index: number) => {
+                    let updatedProduct = { ...product };
                     if (product.quantityByUser > product.quantityAvailable) {
-                        await removeProductFromCartOfUser(user!.uid, product.name, product.quantityByUser);
-                        await addProductToCartOfUser(user!.uid, product.name, product.quantityAvailable);
-                        data[index].quantityByUser = product.quantityAvailable;
-                        totalAmountCalculated = totalAmountCalculated + (product.price * product.quantityAvailable);
+                        await removeProductFromCartOfUser(
+                            user!.uid,
+                            product.name,
+                            product.quantityByUser
+                        );
+                        await addProductToCartOfUser(
+                            user!.uid,
+                            product.name,
+                            product.quantityAvailable
+                        );
+                        updatedProduct.quantityByUser = product.quantityAvailable;
+                        totalAmountCalculated +=
+                            product.price * product.quantityAvailable;
                     } else {
-                        totalAmountCalculated = totalAmountCalculated + (product.price * product.quantityByUser);
+                        totalAmountCalculated +=
+                            product.price * product.quantityByUser;
                     }
+                    return updatedProduct;
+                })
+            );
 
-                });
-                setCartProducts(data);
-                setTotalAmount(totalAmountCalculated);
-            });
-
+            setCartProducts(updatedData);
+            setTotalAmount(totalAmountCalculated);
+            setLoading(false);
         } catch (error) {
-            console.log(error);
+            setErrorMessage(`Unable to get cart products`);
         }
-    }
+    };
 
     useEffect(() => {
         if (user != null) {
@@ -62,7 +78,7 @@ const Cart = () => {
         if (user != null) {
             try {
                 await removeProductFromCartOfUser(user!.uid, productName, quantityByUser);
-                getCartProducts();
+                await getCartProducts();
                 setSuccessMessage(`${productName} removed from cart successfully`);
             } catch (error) {
                 setErrorMessage(`Unable to remove ${productName} from cart`);
@@ -75,7 +91,7 @@ const Cart = () => {
             try {
                 await removeProductFromCartOfUser(user!.uid, productName, quantityByUser);
                 await addOrRemoveProductToWishListOfUser(user!.uid, productName);
-                getCartProducts();
+                await getCartProducts();
                 setSuccessMessage(`${productName} moved to wishlist successfully`);
             } catch (error) {
                 setErrorMessage(`Unable to move ${productName} to wishlist`);
@@ -202,11 +218,11 @@ const Cart = () => {
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
-                            proceedForPayment(orderID).then(async(isPaymentSuccess) => {
+                            proceedForPayment(orderID).then(async (isPaymentSuccess) => {
                                 if (isPaymentSuccess) {
-                                    removeProductFromCartOfUser(user!.uid, product.name, product.quantityByUser);
-                                    setSuccessMessage(`Your order for the product ${product.name} with a quantity of ${product.quantityByUser} has been processed with order id ${orderID}.`);
+                                    await removeProductFromCartOfUser(user!.uid, product.name, product.quantityByUser);
                                     await getCartProducts();
+                                    setSuccessMessage(`Your order for the product ${product.name} with a quantity of ${product.quantityByUser} has been processed with order id ${orderID}.`);
                                 }
                             });
                         } else {
@@ -225,74 +241,80 @@ const Cart = () => {
         <div className="p-4 mt-12 min-h-screen">
             <p className="pb-2 px-2 text-2xl font-medium text-center text-gray-900 fixed z-50 top-16 inset-x-0 bg-[#fdd35b]">My Cart</p>
             {
-                cartProducts.length > 0 &&
-                <>
-                    <SortBy products={cartProducts} setProducts={setCartProducts} />
-                    <div className="w-full flex flex-row flex-wrap justify-start items-center gap-4 py-2 mb-20  mt-[5.25rem]">
-                        {
-                            cartProducts.map((product: CartProductInfo, index: number) => (
-                                <div key={product.name} className="flex flex-row flex-nowrap justify-start items-center gap-4 border-solid border-2 border-black rounded-lg p-2 w-full md:w-auto">
-                                    <div className="text-center">
-                                        <img className="max-w-[6.5rem] min-h-[6.5rem] max-h-[6.5rem] rounded-lg" loading="lazy" src={product.image} />
-                                    </div>
-                                    <div className="flex justify-around items-start flex-col flex-nowrap gap-3">
-                                        <div className="w-full">
-                                            <p className="text-lg font-semibold capitalize">{product.name}</p>
-                                            <p className="text-xl font-bold">&#x20B9;{product.price}</p>
-                                        </div>
+                isLoading
+                    ? <Spinner />
+                    :
+                    (
+                        cartProducts.length > 0 ?
+                        <>
+                            <SortBy products={cartProducts} setProducts={setCartProducts} />
+                            <div className="w-full flex flex-row flex-wrap justify-start items-center gap-4 py-2 mb-20  mt-[5.25rem]">
+                                {
+                                    cartProducts.map((product: CartProductInfo, index: number) => (
+                                        <div key={product.name} className="flex flex-row flex-nowrap justify-start items-center gap-4 border-solid border-2 border-black rounded-lg p-2 w-full md:w-auto">
+                                            <div className="text-center">
+                                                <img className="w-[6.5rem] max-w-[6.5rem] h-[6.5rem] max-h-[6.5rem] rounded-lg" loading="lazy" src={product.image} />
+                                            </div>
+                                            <div className="flex justify-around items-start flex-col flex-nowrap gap-3">
+                                                <div className="w-full">
+                                                    <p className="text-lg font-semibold capitalize">{product.name}</p>
+                                                    <p className="text-xl font-bold">&#x20B9;{product.price}</p>
+                                                </div>
 
-                                        <div className="flex items-center gap-x-1.5">
-                                            <button
-                                                type="button"
-                                                onClick={() => decrementQuantity(index)}
-                                                className="p-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 448 512" fill="currentColor"><path d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z" /></svg>
-                                            </button>
-                                            <input className="p-0 w-6 bg-transparent border-0 text-center focus:outline-none focus:ring-0 text-black " type="number"
-                                                min={1}
-                                                max={Math.min(product.quantityByUser, 10)}
-                                                value={product.quantityByUser}
-                                                disabled
-                                            />
-                                            {/*onChange={(e) => onChangeOfQuantity(e, index)*/}
-                                            <button
-                                                type="button"
-                                                onClick={() => incrementQuantity(index)}
-                                                className="p-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 448 512" fill="currentColor"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>
-                                            </button>
-                                        </div>
+                                                <div className="flex items-center gap-x-1.5">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => decrementQuantity(index)}
+                                                        className="p-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm text-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 448 512" fill="currentColor"><path d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z" /></svg>
+                                                    </button>
+                                                    <input className="p-0 w-6 bg-transparent border-0 text-center focus:outline-none focus:ring-0 text-black " type="number"
+                                                        min={1}
+                                                        max={Math.min(product.quantityByUser, 10)}
+                                                        value={product.quantityByUser}
+                                                        disabled
+                                                    />
+                                                    {/*onChange={(e) => onChangeOfQuantity(e, index)*/}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => incrementQuantity(index)}
+                                                        className="p-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm text-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 448 512" fill="currentColor"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>
+                                                    </button>
+                                                </div>
 
-                                        <div className="w-full flex flex-row justify-start flex-nowrap gap-2">
-                                            <button onClick={() => { onDeleteFromCart(product.name, product.quantityByUser) }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em" fill="currentColor" viewBox="0 0 448 512"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z" /></svg>
-                                            </button>
-                                            <button disabled={product.quantityAvailable <= 0} onClick={() => { moveFromCartToWishlist(product.name, product.quantityByUser) }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em" viewBox="0 0 512 512" fill="currentColor"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z" /></svg>
-                                            </button>
-                                            <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
-                                                className="hidden md:block w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
+                                                <div className="w-full flex flex-row justify-start flex-nowrap gap-2">
+                                                    <button onClick={() => { onDeleteFromCart(product.name, product.quantityByUser) }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em" fill="currentColor" viewBox="0 0 448 512"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z" /></svg>
+                                                    </button>
+                                                    <button disabled={product.quantityAvailable <= 0} onClick={() => { moveFromCartToWishlist(product.name, product.quantityByUser) }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em" viewBox="0 0 512 512" fill="currentColor"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z" /></svg>
+                                                    </button>
+                                                    <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
+                                                        className="hidden md:block w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
+                                                </div>
+                                                <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
+                                                    className="block md:hidden w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
+                                            </div>
+                                            {
+                                                product.quantityAvailable <= 0 &&
+                                                <div className="w-full flex absolute bg-[white] h-full opacity-[0.65] items-center justify-center left-0 top-0 rounded-lg">
+                                                    <p className="text-xl font-bold text-red-700">Out of stock</p>
+                                                </div>
+                                            }
                                         </div>
-                                        <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
-                                            className="block md:hidden w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
-                                    </div>
-                                    {
-                                        product.quantityAvailable <= 0 &&
-                                        <div className="w-full flex absolute bg-[white] h-full opacity-[0.65] items-center justify-center left-0 top-0 rounded-lg">
-                                            <p className="text-xl font-bold text-red-700">Out of stock</p>
-                                        </div>
-                                    }
-                                </div>
-                            ))
-                        }
-                    </div>
-                    <div className="fixed bottom-0 left-0 z-50 w-full h-24 bg-black text-white flex flex-col  justify-between items-stretch p-2 md:h-16 md:flex-row md:items-center">
-                        <p className="text-2xl font-medium">Subtotal: &#x20B9;{totalAmount} </p>
-                        <button type="button" onClick={() => { placeOrder() }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl p-2 text-center">
-                            Place Order
-                        </button>
-                    </div>
-                </>
+                                    ))
+                                }
+                            </div>
+                            <div className="fixed bottom-0 left-0 z-50 w-full h-24 bg-black text-white flex flex-col  justify-between items-stretch p-2 md:h-16 md:flex-row md:items-center">
+                                <p className="text-2xl font-medium">Subtotal: &#x20B9;{totalAmount} </p>
+                                <button type="button" onClick={() => { placeOrder() }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl p-2 text-center">
+                                    Place Order
+                                </button>
+                            </div>
+                        </> :
+                        <div className=" mt-[3.25rem]"><InfoMessage infoMessage="Your cart is empty"/></div>
+                    )
             }
             {
                 successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} />
@@ -305,3 +327,4 @@ const Cart = () => {
 }
 
 export default Cart;
+

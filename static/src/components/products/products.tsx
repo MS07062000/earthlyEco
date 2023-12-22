@@ -9,6 +9,7 @@ import SuccessModal from "../SuccessModal";
 import { categoryWithProductsInfo, createOrder } from "../cart/helpers/createOrder";
 import { loadScript } from "../cart/helpers/loadRazorpayScript";
 import { proceedForPayment } from "../cart/helpers/proceedForPayment";
+import InfoMessage from "../InfoMessage";
 
 interface ProductInfo {
     name: string;
@@ -116,7 +117,7 @@ const Products = () => {
             }
             <div className="flex flex-row flex-wrap content-center justify-center gap-4 mt-12">
                 {
-                    products.length > 0 &&
+                    products.length > 0 ?
                     products
                         .filter((product: ProductInfo) => product.quantityAvailable > 0) // Filter out products with quantityAvailable === 0 
                         .map((product: ProductInfo, index: number) => {
@@ -169,8 +170,10 @@ const Products = () => {
 
                             );
                         }
-                        )
-                }
+                        ) :<div className="mt-[3.25rem]">
+                            <InfoMessage infoMessage="No products found" />
+                        </div>
+                } 
             </div>
             {
                 successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} />

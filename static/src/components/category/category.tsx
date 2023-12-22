@@ -15,7 +15,7 @@ interface CategoryInfo {
 
 const Category = () => {
     const navigate = useNavigate();
-    const [isLoading, setLoading] = useState(true);
+    const [isLoading, setLoading] = useState<boolean>(true);
     const [categories, setCategories] = useState<Array<CategoryInfo>>([]);
     const [error, setError] = useState<string | null>(null);
     const fetchCategories = async () => {
@@ -48,8 +48,8 @@ const Category = () => {
                         {
                             categories.length > 0 &&
                             <>
-                                <p className="pb-4 px-2 text-2xl font-medium text-center ">Shop By Category</p>
-                                <div className="flex flex-row flex-wrap content-center justify-center gap-2 md:gap-4">
+                                <p className="pb-2 px-2 text-2xl font-medium text-center fixed z-50 top-16 inset-x-0 bg-[#fdd35b]">Shop By Category</p>
+                                <div className="mt-10 flex flex-row flex-wrap content-center justify-center gap-2 md:gap-4">
                                     {categories.map((category, index) => {
                                         const categoryName = Object.keys(category)[0];
                                         const products = category[categoryName].products;

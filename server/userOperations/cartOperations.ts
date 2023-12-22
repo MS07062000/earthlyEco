@@ -89,7 +89,8 @@ export async function addProductToCart(userUID: string, product: string, quantit
 }
 
 async function addToCart(userUID: string, product: string, quantity: number) {
-    await setDoc(doc(db, `Users/${userUID}`), {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    await setDoc(userDocRef, {
         'Cart': arrayUnion({
             'product': product,
             'quantity': quantity
@@ -100,7 +101,8 @@ async function addToCart(userUID: string, product: string, quantity: number) {
 }
 
 export async function removeFromCart(userUID: string, product: string, quantity: number) {
-    await setDoc(doc(db, `Users/${userUID}`), {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    await setDoc(userDocRef, {
         'Cart': arrayRemove({
             'product': product,
             'quantity': quantity
@@ -111,9 +113,10 @@ export async function removeFromCart(userUID: string, product: string, quantity:
 }
 
 export async function clearCartOfUser(userUID: string) {
-    await setDoc(doc(db, `Users/${userUID}`), {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    await setDoc(userDocRef, {
         'Cart': []
     }, {
-        merge: false
+        merge: true
     });
 }

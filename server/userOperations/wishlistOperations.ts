@@ -35,6 +35,7 @@ export async function getProductDetailsOfWishlistProducts(userUID:string) {
         }
     });
 
+
     return products;
 }
 
@@ -43,8 +44,11 @@ export async function getUserWishlist(userUID: string): Promise<string[]> {
     const userDocRef = doc(db, `Users/${userUID}`);
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists()) {
-        const userWishlistInfo = userDoc.data()['Wishlist'];
-        return userWishlistInfo;
+        const userWishlistInfo = await userDoc.data()['Wishlist'];
+        if(Array.isArray(userWishlistInfo)) {
+            return userWishlistInfo;
+        }
+        return [];
     }
     return [];
 }
@@ -59,7 +63,8 @@ export async function wishlist(userUID: string, product: string) {
 }
 
 async function addToWishlist(userUID: string, product: string) {
-    await setDoc(doc(db, `Users/${userUID}`), {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    await setDoc(userDocRef, {
         'Wishlist': arrayUnion(product)
     }, {
         merge: true
@@ -67,7 +72,8 @@ async function addToWishlist(userUID: string, product: string) {
 }
 
 async function removeFromWishlist(userUID: string, product: string) {
-    await setDoc(doc(db, `Users/${userUID}`), {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    await setDoc(userDocRef, {
         'Wishlist': arrayRemove(product)
     }, {
         merge: true

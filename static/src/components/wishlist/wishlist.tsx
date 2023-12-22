@@ -27,8 +27,8 @@ const Wishlist = () => {
             setWishlistProducts(data);
             setLoading(false);
         }).catch((error) => {
-            setErrorMessage(error.message);
             setLoading(false);
+            setErrorMessage("Error in getting wishlist products");
         })
     }
 

@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useUserAuth } from "../../context/AuthContext";
 import { getUserWishlistWithProductDetails } from "./helpers/getUserWishlistWithProductDetails";
 import { addOrRemoveProductToWishListOfUser } from "../products/helpers/addOrRemoveProductToWishListOfUser";
 import { addProductToCartOfUser } from "../products/helpers/addProductToCartOfUser";
 import SortBy from "../sortBy/sortBy";
-import ErrorMessage from "../ErrorMessage";
-import SuccessMessage from "../SuccessMessage";
+import SuccessModal from "../SuccessModal";
+import ErrorModal from "../ErrorModal";
 
 interface ProductInfo {
     name: string;
@@ -58,17 +58,17 @@ const Wishlist = () => {
     }
     return (
         <div className="p-4 mt-12 min-h-screen">
-            <p className="pb-2 px-2 text-2xl text-center font-medium">My Wishlist</p>
+            <p className="pb-2 px-2 text-2xl text-center font-medium fixed z-50 top-16 inset-x-0 bg-[#fdd35b]">My Wishlist</p>
             {
                 wishlistProducts.length > 0 &&
                 <>
                     <SortBy products={wishlistProducts} setProducts={setWishlistProducts} />
-                    <div className="w-full h-auto flex flex-row flex-wrap justify-start items-start gap-4 py-2">
+                    <div className="w-full h-auto flex flex-row flex-wrap justify-start items-start gap-4 py-2 mt-[5.25rem] ">
                         {
                             wishlistProducts.map((product: ProductInfo) => (
-                                <div key={product.name} className="w-full max-w-xs flex flex-row flex-nowrap justify-start items-center gap-3 border-solid border-2 rounded-lg border-black p-2 relative">
+                                <div key={product.name} className="w-full md:w-auto flex flex-row flex-nowrap justify-start items-center gap-3 border-solid border-2 rounded-lg border-black p-2 relative">
                                     <div className="text-center">
-                                        <img className="w-[6.5rem] h-[6.5rem] rounded-lg" src={product.image} />
+                                        <img className="w-[6.5rem] h-[6.5rem] rounded-lg" src={product.image} loading="lazy" />
                                     </div>
                                     <div className="flex justify-around items-center flex-col flex-nowrap gap-3">
                                         <div className="w-full">
@@ -98,10 +98,10 @@ const Wishlist = () => {
                 </>
             }
             {
-                successMessage != null && <SuccessMessage successMessage={successMessage} />
+                successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} />
             }
             {
-                errorMessage != null && <ErrorMessage errorMessage={errorMessage} />
+                errorMessage != null && <ErrorModal errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
             }
         </div>
     )

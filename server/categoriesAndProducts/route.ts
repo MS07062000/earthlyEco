@@ -1,8 +1,8 @@
-import { Router, request, response } from 'express';
+import { Router, Request, Response } from 'express';
 import { getCategoriesAndProducts } from './getCategoriesAndProducts';
 const router = Router();
 
-router.post('/getCategoriesAndProducts', async (req: typeof request, res: typeof response) => {
+router.post('/getCategoriesAndProducts', async (req: Request, res: Response) => {
     try {
         const categoriesAndProduct=await getCategoriesAndProducts();
         res.status(200).send(categoriesAndProduct);

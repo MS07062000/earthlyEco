@@ -49,7 +49,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
       name: currentUser.displayName != null ? currentUser.displayName : currentUser.email,
       email: currentUser.email
     }
-    console.log(userInfo);
+    // console.log(userInfo);
     return userInfo;
   }
 

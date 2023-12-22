@@ -110,3 +110,10 @@ export async function removeFromCart(userUID: string, product: string, quantity:
     });
 }
 
+export async function clearCartOfUser(userUID: string) {
+    await setDoc(doc(db, `Users/${userUID}`), {
+        'Cart': []
+    }, {
+        merge: false
+    });
+}

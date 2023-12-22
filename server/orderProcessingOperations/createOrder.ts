@@ -4,7 +4,8 @@ export interface categoryWithProductsInfo{
     products: {
         name: string,
         image: string,
-        quantity: number, 
+        quantity: number,
+        price: number 
     }[]
 }
 

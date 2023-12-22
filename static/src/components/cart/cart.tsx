@@ -4,12 +4,14 @@ import { getCartOfUser } from "./helpers/getCartOfUser";
 import { removeProductFromCartOfUser } from "./helpers/removeProductFromCartOfUser";
 import { addOrRemoveProductToWishListOfUser } from "../products/helpers/addOrRemoveProductToWishListOfUser";
 import SortBy from "../sortBy/sortBy";
-import SuccessMessage from "../SuccessMessage";
-import ErrorMessage from "../ErrorMessage";
 import { addProductToCartOfUser } from "../products/helpers/addProductToCartOfUser";
 import { loadScript } from "./helpers/loadRazorpayScript";
 import { proceedForPayment } from "./helpers/proceedForPayment.js";
 import { categoryWithProductsInfo, createOrder } from "./helpers/createOrder";
+import SuccessModal from "../SuccessModal";
+import ErrorModal from "../ErrorModal";
+import { isInputElement } from "react-router-dom/dist/dom";
+import { clearCartOfUser } from "./helpers/clearCartOfUser";
 
 interface CartProductInfo {
     name: string;
@@ -140,7 +142,7 @@ const Cart = () => {
     const placeOrder = async () => {
         if (user != null) {
             const categoryWithProducts: categoryWithProductsInfo[] = cartProducts.reduce((acc: categoryWithProductsInfo[], product: CartProductInfo) => {
-                if(product.quantityAvailable === 0){
+                if (product.quantityAvailable === 0) {
                     return acc;
                 }
 
@@ -151,6 +153,7 @@ const Cart = () => {
                         name: product.name,
                         image: product.image,
                         quantity: product.quantityByUser,
+                        price: product.price
                     });
                 } else {
                     acc.push({
@@ -159,6 +162,7 @@ const Cart = () => {
                             name: product.name,
                             image: product.image,
                             quantity: product.quantityByUser,
+                            price: product.price
                         }],
                     });
                 }
@@ -167,13 +171,22 @@ const Cart = () => {
             }, []);
 
             try {
-                const orderResponse = await createOrder(user!.uid, categoryWithProducts, totalAmount);
-                // if (orderResponse) {
-                //     loadScript().then(() => {
-                //         proceedForPayment(orderResponse.id);
-                //     })
-                // }
-                await proceedForPayment(orderResponse.id);
+                const orderID = await createOrder(user!.uid, categoryWithProducts, totalAmount);
+                if (orderID) {
+                    loadScript().then((isScriptLoaded) => {
+                        if (isScriptLoaded) {
+                            proceedForPayment(orderID).then(async (isPaymentSuccess) => {
+                                if (isPaymentSuccess) {
+                                    await clearCartOfUser(user!.uid);
+                                    await getCartProducts();
+                                    setSuccessMessage(`Your order has been processed with order id ${orderID}.`);
+                                }
+                            });
+                        } else {
+                            setErrorMessage("We are unable to load our payment provider");
+                        }
+                    })
+                }
             } catch (error) {
                 setErrorMessage("Unable to place order");
             }
@@ -181,21 +194,46 @@ const Cart = () => {
         }
     }
 
+    const onBuyNowFromCart = async (product: CartProductInfo) => {
+        if (user != null) {
+            const categoryWithProducts: categoryWithProductsInfo[] = [{ category: product.category, products: [{ name: product.name, image: product.image, quantity: product.quantityByUser, price: product.price }] }];
+            try {
+                const orderID = await createOrder(user!.uid, categoryWithProducts, product.quantityByUser * product.price);
+                if (orderID) {
+                    loadScript().then((isScriptLoaded) => {
+                        if (isScriptLoaded) {
+                            proceedForPayment(orderID).then(async(isPaymentSuccess) => {
+                                if (isPaymentSuccess) {
+                                    removeProductFromCartOfUser(user!.uid, product.name, product.quantityByUser);
+                                    setSuccessMessage(`Your order for the product ${product.name} with a quantity of ${product.quantityByUser} has been processed with order id ${orderID}.`);
+                                    await getCartProducts();
+                                }
+                            });
+                        } else {
+                            setErrorMessage("We are unable to load our payment provider");
+                        }
+                    })
+                }
+            } catch (error) {
+                setErrorMessage("Unable to place order");
+            }
 
+        }
+    }
 
     return (
         <div className="p-4 mt-12 min-h-screen">
-            <p className="pb-2 px-2 text-2xl font-medium text-center text-gray-900">My Cart</p>
+            <p className="pb-2 px-2 text-2xl font-medium text-center text-gray-900 fixed z-50 top-16 inset-x-0 bg-[#fdd35b]">My Cart</p>
             {
                 cartProducts.length > 0 &&
                 <>
                     <SortBy products={cartProducts} setProducts={setCartProducts} />
-                    <div className="w-full flex flex-row flex-wrap justify-start items-center gap-4 py-2">
+                    <div className="w-full flex flex-row flex-wrap justify-start items-center gap-4 py-2 mb-20  mt-[5.25rem]">
                         {
                             cartProducts.map((product: CartProductInfo, index: number) => (
-                                <div key={product.name} className="w-full max-w-xs flex flex-row flex-nowrap justify-start items-center gap-4 border-solid border-2 border-black rounded-lg p-2">
+                                <div key={product.name} className="flex flex-row flex-nowrap justify-start items-center gap-4 border-solid border-2 border-black rounded-lg p-2 w-full md:w-auto">
                                     <div className="text-center">
-                                        <img className="w-[6.5rem] h-[6.5rem] rounded-lg" src={product.image} />
+                                        <img className="max-w-[6.5rem] min-h-[6.5rem] max-h-[6.5rem] rounded-lg" loading="lazy" src={product.image} />
                                     </div>
                                     <div className="flex justify-around items-start flex-col flex-nowrap gap-3">
                                         <div className="w-full">
@@ -232,7 +270,11 @@ const Cart = () => {
                                             <button disabled={product.quantityAvailable <= 0} onClick={() => { moveFromCartToWishlist(product.name, product.quantityByUser) }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em" viewBox="0 0 512 512" fill="currentColor"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z" /></svg>
                                             </button>
+                                            <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
+                                                className="hidden md:block w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
                                         </div>
+                                        <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
+                                            className="block md:hidden w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
                                     </div>
                                     {
                                         product.quantityAvailable <= 0 &&
@@ -253,10 +295,10 @@ const Cart = () => {
                 </>
             }
             {
-                successMessage != null && <SuccessMessage successMessage={successMessage} />
+                successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} />
             }
             {
-                errorMessage != null && <ErrorMessage errorMessage={errorMessage} />
+                errorMessage != null && <ErrorModal errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
             }
         </div >
     )

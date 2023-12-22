@@ -6,6 +6,7 @@ export interface categoryWithProductsInfo{
         name: string,
         image: string,
         quantity: number, 
+        price: number,
     }[]
 }
 

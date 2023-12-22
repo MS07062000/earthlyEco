@@ -1,9 +1,9 @@
-import { Router, request, response } from 'express';
+import { Router, Request, Response} from 'express';
 import { getProductDetailsOfWishlistProducts, getUserWishlist, wishlist } from './wishlistOperations';
-import { getCartOfUserWithProductDetails,addProductToCart,removeFromCart } from './cartOperations';
+import { getCartOfUserWithProductDetails,addProductToCart,removeFromCart, clearCartOfUser } from './cartOperations';
 const router = Router();
 
-router.post('/addToCart', async (req: typeof request, res: typeof response) => {
+router.post('/addToCart', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
         const product = req.body?.product;
@@ -20,7 +20,7 @@ router.post('/addToCart', async (req: typeof request, res: typeof response) => {
     }
 });
 
-router.post('/removeFromCart', async (req: typeof request, res: typeof response) => {
+router.post('/removeFromCart', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
         const product = req.body?.product;
@@ -37,7 +37,7 @@ router.post('/removeFromCart', async (req: typeof request, res: typeof response)
     }
 });
 
-router.post('/getUserCart', async (req: typeof request, res: typeof response) => {
+router.post('/getUserCart', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
 
@@ -52,7 +52,22 @@ router.post('/getUserCart', async (req: typeof request, res: typeof response) =>
     }
 });
 
-router.post('/wishlist', async (req: typeof request, res: typeof response) => {
+router.post('/clearCartOfUser', async (req: Request, res: Response) => {
+    try {
+        const userUID = req.body?.userUID;
+
+        if (userUID) {
+            await clearCartOfUser(userUID);
+            res.sendStatus(200);
+        } else {
+           res.status(400).send('Invalid request body');
+        }
+    } catch (error) {
+        res.sendStatus(400);
+    }
+});
+
+router.post('/wishlist', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
         const product = req.body?.product;
@@ -68,7 +83,7 @@ router.post('/wishlist', async (req: typeof request, res: typeof response) => {
     }
 });
 
-router.post('/getUserWishlist', async (req: typeof request, res: typeof response) => {
+router.post('/getUserWishlist', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
         if (userUID.length>0) {
@@ -83,12 +98,11 @@ router.post('/getUserWishlist', async (req: typeof request, res: typeof response
     }
 });
 
-router.post('/getUserWishlistWithProductDetails', async (req: typeof request, res: typeof response) => {
+router.post('/getUserWishlistWithProductDetails', async (req: Request, res: Response) => {
     try {
         const userUID = req.body?.userUID;
         if (userUID.length>0) {
             const userWishlistWithProductDetails = await getProductDetailsOfWishlistProducts(userUID);
-            console.log(userWishlistWithProductDetails);
             res.status(200).send(userWishlistWithProductDetails);
         } else {
             res.status(400).send('Invalid request body');

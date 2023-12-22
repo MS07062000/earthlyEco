@@ -35,7 +35,6 @@ export async function getProductDetailsOfWishlistProducts(userUID:string) {
         }
     });
 
-    console.log(products);
     return products;
 }
 

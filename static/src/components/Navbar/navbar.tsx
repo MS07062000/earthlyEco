@@ -27,25 +27,8 @@ const Navbar = () => {
                                 <img src="/logo.png" className="h-12  mr-3" alt="Earthly Eco Shop Logo" />
                                 <span className="self-center text-2xl font-semibold whitespace-nowrap ">Earthly Eco</span>
                             </a>
-
-                            <form action="#" method="GET" className="hidden lg:block lg:pl-2">
-                                <label htmlFor="topbar-search" className="sr-only">Search</label>
-                                <div className="relative mt-1 lg:w-96">
-                                    <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                        <svg className="w-4 h-4 text-gray-500 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"> <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" /> </svg>
-                                    </div>
-                                    <input type="text" name="email" id="topbar-search" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5" placeholder="Search" />
-                                </div>
-                            </form>
                         </div>
                         <div className="flex items-center lg:order-2">
-                            <button id="toggleSidebarMobileSearch" type="button" className="hidden text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2 text-center mr-2">
-                                <span className="sr-only">Search</span>
-                                {/* Search icon */}
-                                <svg className="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </button>
                             {/* Wishlist */}
                             <Link to="/wishlist">
                                 <button type="button" className="hidden md:inline-block text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2 text-center mr-2">
@@ -76,15 +59,17 @@ const Navbar = () => {
 
                 {/* Dropdown menu for user profile */}
                 {isDropdownOpen &&
-                    <div className="-mt-1.5 absolute right-2 z-50 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow " id="dropdown">
+                    <div className="-mt-1.5 absolute right-2 z-50 w-56 text-base list-none bg-gradient-to-t from-blue-500 via-blue-600 to-blue-700 rounded divide-y divide-gray-100 shadow " id="dropdown">
                         <div className="py-3 px-4">
-                            <span className="block text-sm font-semibold text-gray-900 ">Neil sims</span>
-                            <span className="block text-sm text-gray-500 truncate ">name@flowbite.com</span>
+                            {
+                                user?.name !== user?.email &&  <span className="block text-sm font-semibold text-white ">{user?.name}</span>
+                            }
+                            <span className="block text-sm text-white font-bold truncate ">{user?.email}</span>
                         </div>
 
-                        <ul className="md:hidden py-1 text-gray-500 " aria-labelledby="dropdown">
+                        <ul className="md:hidden py-1 text-white " aria-labelledby="dropdown">
                             <li>
-                                <Link to="/wishlist" className=" flex items-center py-2 px-4 text-sm hover:bg-gray-100  ">
+                                <Link to="/wishlist" className=" flex items-center py-2 px-4 hover:bg-gray-100  ">
                                     <svg className="w-6 h-6 text-gray-800  mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                                         <path d="M17.947 2.053a5.209 5.209 0 0 0-3.793-1.53A6.414 6.414 0 0 0 10 2.311 6.482 6.482 0 0 0 5.824.5a5.2 5.2 0 0 0-3.8 1.521c-1.915 1.916-2.315 5.392.625 8.333l7 7a.5.5 0 0 0 .708 0l7-7a6.6 6.6 0 0 0 2.123-4.508 5.179 5.179 0 0 0-1.533-3.793Z" />
                                     </svg>
@@ -92,7 +77,7 @@ const Navbar = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/cart" className="flex items-center py-2 px-4 text-sm hover:bg-gray-100 ">
+                                <Link to="/cart" className="flex items-center py-2 px-4 hover:bg-gray-100 ">
                                     <svg className="w-6 h-6 text-gray-800  mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0h8m-8 0-1-4m9 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-9-4h10l2-7H3m2 7L3 4m0 0-.792-3H1" />
                                     </svg>
@@ -100,9 +85,9 @@ const Navbar = () => {
                                 </Link>
                             </li>
                         </ul>
-                        <ul className="py-1 text-gray-500" aria-labelledby="dropdown">
+                        <ul className="py-1 text-white" aria-labelledby="dropdown">
                             <li>
-                                <p onClick={()=>{ onLogout()}}className="block py-2 px-4 text-sm hover:bg-gray-100 ">Sign out</p>
+                                <p onClick={()=>{ onLogout()}}className="block py-2 px-4 hover:bg-gray-100 ">Sign out</p>
                             </li>
                         </ul>
                     </div>

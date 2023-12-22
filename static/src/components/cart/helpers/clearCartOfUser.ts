@@ -2,17 +2,15 @@ import axios from 'axios';
 import { BASEURL, ORIGIN } from '../../../config';
 
 
-export const addProductToCartOfUser = async (userUID:string,product:string,quantity:number) => {
+export const clearCartOfUser = async (userUID:string) => {
     const requestOptions = {
         method: 'post',
-        url: `${BASEURL}/addToCart`,
+        url: `${BASEURL}/clearCartOfUser`,
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
         },
         data:{
             userUID:userUID,
-            product:product,
-            quantity:quantity
         },
         origin: ORIGIN,
     };

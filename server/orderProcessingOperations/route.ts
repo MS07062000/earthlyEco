@@ -20,7 +20,7 @@ router.use('/createOrder', async (req: Request, res: Response) => {
 
 router.use('/orderPaymentProcessing', async (req: Request, res: Response) => {
     try {
-        console.log(JSON.stringify(req));
+        console.log(JSON.stringify(req.body));
         await orderPaymentProcessing(req);
         res.sendStatus(200);
     } catch (error) {

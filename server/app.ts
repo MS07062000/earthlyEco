@@ -13,7 +13,7 @@ const port = 5000;
 const corsOptions: cors.CorsOptions = {
     origin: function (origin, callback) {
         const environment = process.env.VITE_APP_ENVIRONMENT;
-        const allowedOrigins: string[] = environment === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : ['https://maniecommercestore.web.app'];
+        const allowedOrigins: string[] = environment === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : ['http://localhost:5173', 'http://127.0.0.1:5173','https://maniecommercestore.web.app'];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {

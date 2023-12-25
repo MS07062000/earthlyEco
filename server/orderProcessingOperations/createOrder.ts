@@ -29,13 +29,14 @@ export async function createOrderInRazorPay(amount: number, userUID: string) {
 }
 
 export async function createOrderInDatabase(amount: number, userUID: string, categoryWithProductsInfo: categoryWithProductsInfo[]) {
-    const orderID = await createOrderInRazorPay(amount, userUID);
+    // const orderID = await createOrderInRazorPay(amount, userUID);
+    // console.log(orderID);
     const userDoc = doc(db, `Users/${userUID}`);
     await setDoc(userDoc, {
-        'ordersCreated': arrayUnion({
-            orderID: orderID,
-            categoryWithProductsInfo: categoryWithProductsInfo
+        'Orders Created': arrayUnion({
+            orderID: "order_NGjK7qMJalc88d",
+            categoryWithProducts: categoryWithProductsInfo
         }),
     }, { merge: true });
-    return orderID;
+    return "order_NGjK7qMJalc88d";
 }

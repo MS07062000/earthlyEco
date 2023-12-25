@@ -7,7 +7,7 @@ export async function getUserRefunds(userUID: string) {
     const userDocSnapshot = await getDoc(userDocRef);
 
     if (userDocSnapshot.exists()) {
-        const refundsProcessed: refund[] = userDocSnapshot.data()['refundsProcessed'];
+        const refundsProcessed: refund[] = userDocSnapshot.data()['Refunds Processed'];
         return refundsProcessed;
     }
 

@@ -88,7 +88,7 @@ async function getOrderDetails(userUID: string, orderID: string) {
     const userDocRef = doc(db, `Users/${userUID}`);
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists()) {
-        const userOrders = userDoc.data()['ordersCreated'];
+        const userOrders = userDoc.data()['Orders Created'];
         if (Array.isArray(userOrders)) {
             const orderDetails: order = userOrders.find((order: order) => order.orderID === orderID);
             return orderDetails;
@@ -102,13 +102,13 @@ async function updateOrders(userUID: string, orderDetails: order) {
     const userDocRef = doc(db, `Users/${userUID}`);
     
     await setDoc(userDocRef, {
-        'ordersProcessed': arrayUnion(orderDetails)
+        'Orders Processed': arrayUnion(orderDetails)
     }, {
         merge: true
     });
 
     await setDoc(userDocRef, {
-        'ordersCreated': arrayRemove(orderDetails)
+        'Orders Created': arrayRemove(orderDetails)
     }, {
         merge: true
     });

@@ -28,13 +28,13 @@ async function updateRefund(userUID: string, refundDetails: refund) {
     const userDocRef = doc(db, `Users/${userUID}`);
 
     await setDoc(userDocRef, {
-        'refundsProcessed': arrayUnion(refundDetails)
+        'Refunds Processed': arrayUnion(refundDetails)
     }, {
         merge: true
     });
 
     await setDoc(userDocRef, {
-        'refundsCreated': arrayRemove(refundDetails)
+        'Refunds Created': arrayRemove(refundDetails)
     }, {
         merge: true
     });
@@ -45,7 +45,7 @@ async function getRefundDetails(userUID: string, refundID: string, paymentID: st
     const userDocRef = doc(db, `Users/${userUID}`);
     const userDocSnapshot = await getDoc(userDocRef);
     if (userDocSnapshot.exists()) {
-        const userRefunds = userDocSnapshot.data()['refundsCreated'];
+        const userRefunds = userDocSnapshot.data()['Refunds Created'];
         const refundDetails = userRefunds.find((refund: refund) => refund.refundID === refundID && refund.paymentID === paymentID);
         return refundDetails;
     }

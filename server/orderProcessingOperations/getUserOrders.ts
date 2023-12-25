@@ -7,7 +7,7 @@ export async function getUserOrders(userUID: string) {
     const userDocSnapshot = await getDoc(userDocRef);
 
     if (userDocSnapshot.exists()) {
-        const ordersProcessed: order[] = userDocSnapshot.data()['ordersProcessed'];
+        const ordersProcessed: order[] = userDocSnapshot.data()['Orders Processed'];
         return ordersProcessed;
     }
 

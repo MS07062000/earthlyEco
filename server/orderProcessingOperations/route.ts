@@ -8,12 +8,14 @@ const router = Router();
 
 router.use('/createOrder', async (req: Request, res: Response) => {
     try {
+        console.log
         const amount: number = req.body?.amount
         const userUID: string = req.body?.userUID;
-        const categoryWithProductsAndItsQuantity: categoryWithProductsInfo[] = req.body?.categoryWithProductsAndItsQuantity
-        const orderID = await createOrderInDatabase(amount, userUID, categoryWithProductsAndItsQuantity);
+        const categoryWithProductsInfo: categoryWithProductsInfo[] = req.body?.categoryWithProductsInfo
+        const orderID = await createOrderInDatabase(amount, userUID, categoryWithProductsInfo);
         res.status(200).send(orderID);
     } catch (error) {
+        console.log(error);
         res.sendStatus(400);
     }
 });
@@ -38,7 +40,7 @@ router.use('/redundProcessed', async (req: Request, res: Response) => {
     }
 });
 
-router.use('/getUserOrders', async(req: Request, res: Response) => {
+router.use('/getUserOrders', async (req: Request, res: Response) => {
     try {
         const userUID: string = req.body?.userUID;
         const getUserOrdersResponse = await getUserOrders(userUID);
@@ -48,7 +50,7 @@ router.use('/getUserOrders', async(req: Request, res: Response) => {
     }
 });
 
-router.use('/getUserRefunds', async(req: Request, res: Response) => {
+router.use('/getUserRefunds', async (req: Request, res: Response) => {
     try {
         const userUID: string = req.body?.userUID;
         const getUserOrdersResponse = await getUserRefunds(userUID);

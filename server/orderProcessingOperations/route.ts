@@ -23,8 +23,8 @@ router.use('/createOrder', async (req: Request, res: Response) => {
 router.use('/orderPaid', async (req: Request, res: Response) => {
     try {
         console.log(JSON.stringify(req.body));
-        await orderPaid(req);
-        res.sendStatus(200);
+        const response = await orderPaid(req);
+        res.status(200).send(response);
     } catch (error) {
         res.sendStatus(400);
     }

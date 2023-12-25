@@ -38,6 +38,7 @@ export async function orderPaid(response: any) {
                     await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
                 }
             }
+            return ispaymentValidated;
         }
     }else{
         throw Error("Invalid event received");

@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { categoryWithProductsInfo, createOrder } from './createOrder';
-import { orderPaymentProcessing } from './orderPaymentProcessing';
+import { categoryWithProductsInfo, createOrderInDatabase } from './createOrder';
+import { orderPaid } from './orderPaid';
 import { getUserOrders } from './getUserOrders';
 import { getUserRefunds } from './getUserRefund';
+import { redundProcessed } from './redundProcessed';
 const router = Router();
 
 router.use('/createOrder', async (req: Request, res: Response) => {
@@ -10,18 +11,27 @@ router.use('/createOrder', async (req: Request, res: Response) => {
         const amount: number = req.body?.amount
         const userUID: string = req.body?.userUID;
         const categoryWithProductsAndItsQuantity: categoryWithProductsInfo[] = req.body?.categoryWithProductsAndItsQuantity
-        const createOrderResponse = await createOrder(amount, userUID, categoryWithProductsAndItsQuantity);
-        const orderID = createOrderResponse.id;
+        const orderID = await createOrderInDatabase(amount, userUID, categoryWithProductsAndItsQuantity);
         res.status(200).send(orderID);
     } catch (error) {
         res.sendStatus(400);
     }
 });
 
-router.use('/orderPaymentProcessing', async (req: Request, res: Response) => {
+router.use('/orderPaid', async (req: Request, res: Response) => {
     try {
         console.log(JSON.stringify(req.body));
-        await orderPaymentProcessing(req);
+        await orderPaid(req);
+        res.sendStatus(200);
+    } catch (error) {
+        res.sendStatus(400);
+    }
+});
+
+router.use('/redundProcessed', async (req: Request, res: Response) => {
+    try {
+        console.log(JSON.stringify(req.body));
+        await redundProcessed(req);
         res.sendStatus(200);
     } catch (error) {
         res.sendStatus(400);

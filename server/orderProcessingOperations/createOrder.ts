@@ -1,22 +1,41 @@
+import { arrayUnion, doc, setDoc } from "firebase/firestore";
 import { instance } from "./razorpay";
-export interface categoryWithProductsInfo{
+import { db } from "../firebase";
+export interface categoryWithProductsInfo {
     category: string,
     products: {
         name: string,
         image: string,
         quantity: number,
-        price: number 
+        price: number
     }[]
 }
 
+export interface order{
+    orderID: string,
+    categoryWithProductsInfo: categoryWithProductsInfo[]
+}
 
-export async function createOrder(amount: number, userUID: string, categoryWithProductsInfo: categoryWithProductsInfo[]) {
-    return await instance.orders.create({
+export async function createOrderInRazorPay(amount: number, userUID: string) {
+    const orderCreatedResponse= await instance.orders.create({
         amount: amount,
         currency: "INR",
         notes: {
-            userUID: userUID,
-            categoryWithProductsInfo: JSON.stringify(categoryWithProductsInfo)
+            userUID: userUID
         }
     });
+    
+    return orderCreatedResponse.id;
+}
+
+export async function createOrderInDatabase(amount: number, userUID: string, categoryWithProductsInfo: categoryWithProductsInfo[]) {
+    const orderID = await createOrderInRazorPay(amount, userUID);
+    const userDoc = doc(db, `Users/${userUID}`);
+    await setDoc(userDoc, {
+        'ordersCreated': arrayUnion({
+            orderID: orderID,
+            categoryWithProductsInfo: categoryWithProductsInfo
+        }),
+    }, { merge: true });
+    return orderID;
 }

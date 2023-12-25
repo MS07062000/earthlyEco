@@ -1,8 +1,8 @@
-import { arrayUnion, collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 import { db } from "../firebase";
-import { categoryWithProductsInfo } from "./createOrder";
-import { createRefund } from "./createRefund";
+import { categoryWithProductsInfo, order } from "./createOrder";
+import { createRefundInDatabase } from "./createRefund";
 import { validatePayment } from "./validatePayment";
 
 export interface productInfoOfInsufficientQuantity {
@@ -12,30 +12,36 @@ export interface productInfoOfInsufficientQuantity {
     image: string;
 }
 
-
-export async function orderPaymentProcessing(response:any) {
-    const orderDetails = response.body;
-    if (orderDetails.event === "order.paid") {
-        if (orderDetails.contains.includes("order") && orderDetails.contains.includes("payment")) {
-            const paymentId = orderDetails.payload.payment.entity.id;
-            const orderID = orderDetails.payload.order.entity.id;
+export async function orderPaid(response: any) {
+    const processedOrderInfo = response.body;
+    if (processedOrderInfo.event === "order.paid") {
+        if (processedOrderInfo.contains.includes("order") && processedOrderInfo.contains.includes("payment")) {
+            const paymentId = processedOrderInfo.payload.payment.entity.id;
+            const orderID = processedOrderInfo.payload.order.entity.id;
             const signature = response.headers['x-razorpay-signature'];
             const ispaymentValidated = validatePayment(orderID, paymentId, signature);
             if (ispaymentValidated) {
-                const notes = JSON.parse(orderDetails.payload.order.entity.notes);
-                const productWithQuantity = JSON.parse(notes.products);
-                const insufficientQuantities = await modifyQuantityAvailable(productWithQuantity);
-                const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
+                const notes = JSON.parse(processedOrderInfo.payload.order.entity.notes);
                 const userUID = notes.userUID;
-                await updateUserOrders(userUID, orderID);
+                const orderDetails = await getOrderDetails(userUID, orderID);
+
+                if (orderDetails != null) {
+                    throw Error("Order details not found");
+                    return; //handle case where we could not find order in user's orders
+                }
+
+                const insufficientQuantities = await modifyQuantityAvailable(orderDetails!.categoryWithProductsInfo);
+                const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
+
+                await updateOrders(userUID, orderDetails!);
+
                 if (totalAmountToBeRefunded > 0) {
-                    const refundResponse=await createRefund(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
-                    if(refundResponse.payment_id && refundResponse.id){
-                        await updateUserRefund(userUID,refundResponse.id,refundResponse.payment_id);
-                    }
+                    await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
                 }
             }
         }
+    }else{
+        throw Error("Invalid event received");
     }
 }
 
@@ -77,23 +83,38 @@ async function modifyQuantityAvailable(categoryWithProductsAndItsQuantity: categ
     return insufficientQuantities;
 }
 
-async function updateUserOrders(userUID: string, order_id: string) {
-    const userDocRef= doc(db, `Users/${userUID}`);
+
+async function getOrderDetails(userUID: string, orderID: string) {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+        const userOrders = userDoc.data()['ordersCreated'];
+        if (Array.isArray(userOrders)) {
+            const orderDetails: order = userOrders.find((order: order) => order.orderID === orderID);
+            return orderDetails;
+        }
+    }
+    return null;
+}
+
+
+async function updateOrders(userUID: string, orderDetails: order) {
+    const userDocRef = doc(db, `Users/${userUID}`);
+    
     await setDoc(userDocRef, {
-        'orders': arrayUnion(order_id)
+        'ordersProcessed': arrayUnion(orderDetails)
+    }, {
+        merge: true
+    });
+
+    await setDoc(userDocRef, {
+        'ordersCreated': arrayRemove(orderDetails)
     }, {
         merge: true
     });
 }
 
-async function updateUserRefund(userUID: string, refundID: string,paymentID:string) {
-    const userDocRef= doc(db, `Users/${userUID}`);
-    await setDoc(userDocRef, {
-        'refunds': arrayUnion({refundID,paymentID})
-    }, {
-        merge: true
-    });
-}
+
 
 function calculateTotalAmountToBeRefunded(listOfProductInfoWithInsufficientQuantity: productInfoOfInsufficientQuantity[]): number {
     let totalAmountToBeRefunded: number = 0

@@ -1,5 +1,4 @@
 import { arrayRemove, arrayUnion, collection, doc, getDoc, setDoc } from "firebase/firestore";
-import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 import { db } from "../firebase";
 import { categoryWithProductsInfo, order } from "./createOrder";
 import { createRefundInDatabase } from "./createRefund";
@@ -21,13 +20,13 @@ export async function orderPaid(response: any) {
             const signature = response.headers['x-razorpay-signature'];
             const ispaymentValidated = validatePayment(orderID, paymentId, signature);
             if (ispaymentValidated) {
-                const notes = JSON.parse(processedOrderInfo.payload.order.entity.notes);
-                const userUID = notes.userUID;
+                const notes = processedOrderInfo.payload.order.entity.notes;
+                const userUID = notes["userUID"]; //userUID;
                 const orderDetails = await getOrderDetails(userUID, orderID);
 
                 if (orderDetails != null) {
                     throw Error("Order details not found");
-                    return; //handle case where we could not find order in user's orders
+                    //handle case where we could not find order in user's orders
                 }
 
                 const insufficientQuantities = await modifyQuantityAvailable(orderDetails!.categoryWithProductsInfo);

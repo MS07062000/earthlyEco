@@ -23,14 +23,17 @@ router.use('/createOrder', async (req: Request, res: Response) => {
 router.use('/orderPaid', async (req: Request, res: Response) => {
     try {
         console.log(JSON.stringify(req.body));
+        console.log(req.headers['x-razorpay-signature']);
+        console.log(JSON.stringify(req));
         const response = await orderPaid(req);
+        console.log(response);
         res.status(200).send(response);
     } catch (error) {
         res.sendStatus(400);
     }
 });
 
-router.use('/redundProcessed', async (req: Request, res: Response) => {
+router.use('/refundProcessed', async (req: Request, res: Response) => {
     try {
         console.log(JSON.stringify(req.body));
         await redundProcessed(req);

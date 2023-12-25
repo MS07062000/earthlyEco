@@ -11,7 +11,7 @@ const ErrorModal = ({ errorMessage,setErrorMessage }: ErrorModalProps) => {
         <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center mx-1">
             <div className="mt-14 relative p-4 w-full max-w-xs max-h-full">
                 <div className="relative bg-black rounded-lg shadow">
-                    <button type="button" className="absolute top-3 end-2.5  rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300">
+                    <button type="button" onClick={closeModal} className="absolute top-3 end-2.5  rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300">
                         <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                         </svg>
@@ -24,7 +24,7 @@ const ErrorModal = ({ errorMessage,setErrorMessage }: ErrorModalProps) => {
                         <h3 className="mb-2 text-lg font-normal text-white">{
                             errorMessage
                         }</h3>
-                        <button type="button" className="p-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md text-center">
+                        <button type="button" onClick={closeModal} className="p-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md text-center">
                             Close
                         </button>
                     </div>

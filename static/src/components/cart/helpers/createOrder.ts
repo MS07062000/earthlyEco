@@ -20,7 +20,7 @@ export const createOrder = async (userUID:string,categoryWithProductsInfo:catego
         data:{
             userUID:userUID,
             categoryWithProductsInfo:categoryWithProductsInfo,
-            amount:(amount*100)
+            amount:amount
         },
         origin: ORIGIN,
     };

@@ -13,33 +13,32 @@ export interface productInfoOfInsufficientQuantity {
 
 export async function orderPaid(response: any) {
     const processedOrderInfo = response.body;
-    if (processedOrderInfo.event === "order.paid") {
-        if (processedOrderInfo.contains.includes("order") && processedOrderInfo.contains.includes("payment")) {
-            const paymentId = processedOrderInfo.payload.payment.entity.id;
-            const orderID = processedOrderInfo.payload.order.entity.id;
-            const signature = response.headers['x-razorpay-signature'];
-            const ispaymentValidated = validatePayment(orderID, paymentId, signature);
-            // if (ispaymentValidated) {
-            const notes = processedOrderInfo.payload.order.entity.notes;
-            const userUID = notes["userUID"]; //userUID;
-            const orderDetails = await getOrderDetails(userUID, orderID);
+    if (processedOrderInfo.event === "order.paid" && processedOrderInfo.contains.includes("order") && processedOrderInfo.contains.includes("payment")) {
+        const paymentId = processedOrderInfo.payload.payment.entity.id;
+        const orderID = processedOrderInfo.payload.order.entity.id;
+        const signature = response.headers['x-razorpay-signature'];
+        const ispaymentValidated = validatePayment(orderID, paymentId, signature);
+        // if (ispaymentValidated) {
+        const notes = processedOrderInfo.payload.order.entity.notes;
+        const userUID = notes["userUID"]; //userUID;
+        const orderDetails = await getOrderDetails(userUID, orderID);
 
-            if (orderDetails != null) {
-                throw Error("Order details not found");
-                //handle case where we could not find order in user's orders
-            }
-
-            const insufficientQuantities = await modifyQuantityAvailable(orderDetails!["categoryWithProducts"]);
-            const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
-
-            await updateOrders(userUID, orderDetails!);
-
-            if (totalAmountToBeRefunded > 0) {
-                await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
-            }
-            // }
-            // return ispaymentValidated;
+        if (orderDetails != null) {
+            throw Error("Order details not found");
+            //handle case where we could not find order in user's orders
         }
+
+        const insufficientQuantities = await modifyQuantityAvailable(orderDetails!["categoryWithProducts"]);
+        const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
+
+        await updateOrders(userUID, orderDetails!);
+
+        if (totalAmountToBeRefunded > 0) {
+            await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
+        }
+        // }
+        // return ispaymentValidated;
+
     } else {
         throw Error("Invalid event received");
     }

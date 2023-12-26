@@ -18,7 +18,7 @@ export interface order{
 
 export async function createOrderInRazorPay(amount: number, userUID: string) {
     const orderCreatedResponse= await instance.orders.create({
-        amount: amount,
+        amount: amount*100,
         currency: "INR",
         notes: {
             userUID: userUID

@@ -5,7 +5,7 @@ import { db } from "../firebase";
 
 export async function createRefundInRazorPay(paymentID: string, amount: number, userUID: string) {
     const refundCreatedResponse = await instance.payments.refund(paymentID, {
-        amount: amount,
+        amount: amount*100,
         speed: "optimum",
         notes: {
             userUID: userUID,

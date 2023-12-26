@@ -29,7 +29,7 @@ export async function orderPaid(response: any) {
                 //handle case where we could not find order in user's orders
             }
 
-            const insufficientQuantities = await modifyQuantityAvailable(orderDetails!.categoryWithProductsInfo);
+            const insufficientQuantities = await modifyQuantityAvailable(orderDetails!["categoryWithProducts"]);
             const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
 
             await updateOrders(userUID, orderDetails!);

@@ -13,7 +13,7 @@ export interface categoryWithProductsInfo {
 
 export interface order{
     orderID: string,
-    categoryWithProductsInfo: categoryWithProductsInfo[]
+    categoryWithProducts: categoryWithProductsInfo[]
 }
 
 export async function createOrderInRazorPay(amount: number, userUID: string) {

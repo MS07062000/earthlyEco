@@ -19,28 +19,28 @@ export async function orderPaid(response: any) {
             const orderID = processedOrderInfo.payload.order.entity.id;
             const signature = response.headers['x-razorpay-signature'];
             const ispaymentValidated = validatePayment(orderID, paymentId, signature);
-            if (ispaymentValidated) {
-                const notes = processedOrderInfo.payload.order.entity.notes;
-                const userUID = notes["userUID"]; //userUID;
-                const orderDetails = await getOrderDetails(userUID, orderID);
+            // if (ispaymentValidated) {
+            const notes = processedOrderInfo.payload.order.entity.notes;
+            const userUID = notes["userUID"]; //userUID;
+            const orderDetails = await getOrderDetails(userUID, orderID);
 
-                if (orderDetails != null) {
-                    throw Error("Order details not found");
-                    //handle case where we could not find order in user's orders
-                }
-
-                const insufficientQuantities = await modifyQuantityAvailable(orderDetails!.categoryWithProductsInfo);
-                const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
-
-                await updateOrders(userUID, orderDetails!);
-
-                if (totalAmountToBeRefunded > 0) {
-                    await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
-                }
+            if (orderDetails != null) {
+                throw Error("Order details not found");
+                //handle case where we could not find order in user's orders
             }
-            return ispaymentValidated;
+
+            const insufficientQuantities = await modifyQuantityAvailable(orderDetails!.categoryWithProductsInfo);
+            const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
+
+            await updateOrders(userUID, orderDetails!);
+
+            if (totalAmountToBeRefunded > 0) {
+                await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);
+            }
+            // }
+            // return ispaymentValidated;
         }
-    }else{
+    } else {
         throw Error("Invalid event received");
     }
 }
@@ -100,7 +100,7 @@ async function getOrderDetails(userUID: string, orderID: string) {
 
 async function updateOrders(userUID: string, orderDetails: order) {
     const userDocRef = doc(db, `Users/${userUID}`);
-    
+
     await setDoc(userDocRef, {
         'Orders Processed': arrayUnion(orderDetails)
     }, {

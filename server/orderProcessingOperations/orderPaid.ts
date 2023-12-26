@@ -22,8 +22,9 @@ export async function orderPaid(response: any) {
         const notes = processedOrderInfo.payload.order.entity.notes;
         const userUID = notes["userUID"]; //userUID;
         const orderDetails = await getOrderDetails(userUID, orderID);
+        console.log(orderDetails);
 
-        if (orderDetails != null) {
+        if (orderDetails === null) {
             throw Error("Order details not found");
             //handle case where we could not find order in user's orders
         }

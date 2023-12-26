@@ -92,7 +92,7 @@ const Products = () => {
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
-                            proceedForPayment(orderID).then((isPaymentSuccess) => {
+                            proceedForPayment(user.email,orderID).then((isPaymentSuccess) => {
                                 if (isPaymentSuccess) {
                                     setSuccessMessage(`Your order for the product ${product.name} with a quantity of ${quantityOfEachProduct[index]} has been processed with order id ${orderID}.`);
                                 }

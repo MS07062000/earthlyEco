@@ -1,6 +1,7 @@
-import { Router, Request, Response} from 'express';
+import { Router, Request, Response } from 'express';
 import { getProductDetailsOfWishlistProducts, getUserWishlist, wishlist } from './wishlistOperations';
-import { getCartOfUserWithProductDetails,addProductToCart,removeFromCart, clearCartOfUser } from './cartOperations';
+import { getCartOfUserWithProductDetails, addProductToCart, removeFromCart, clearCartOfUser } from './cartOperations';
+
 const router = Router();
 
 router.post('/addToCart', async (req: Request, res: Response) => {
@@ -13,7 +14,7 @@ router.post('/addToCart', async (req: Request, res: Response) => {
             await addProductToCart(userUID, product, quantity);
             res.sendStatus(200);
         } else {
-           res.status(400).send('Invalid request body');
+            res.status(400).send('Invalid request body');
         }
     } catch (error) {
         res.sendStatus(400);
@@ -30,7 +31,7 @@ router.post('/removeFromCart', async (req: Request, res: Response) => {
             await removeFromCart(userUID, product, quantity);
             res.sendStatus(200);
         } else {
-           res.status(400).send('Invalid request body');
+            res.status(400).send('Invalid request body');
         }
     } catch (error) {
         res.sendStatus(400);
@@ -60,7 +61,7 @@ router.post('/clearCartOfUser', async (req: Request, res: Response) => {
             await clearCartOfUser(userUID);
             res.sendStatus(200);
         } else {
-           res.status(400).send('Invalid request body');
+            res.status(400).send('Invalid request body');
         }
     } catch (error) {
         res.sendStatus(400);

@@ -24,7 +24,7 @@ router.use('/orderPaid', async (req: Request, res: Response) => {
     try {
         // console.log(JSON.stringify(req.body));
         console.log(req.headers['x-razorpay-signature']);
-        console.log(JSON.stringify(req));
+        console.log(JSON.stringify(req.headers));
         const response = await orderPaid(req);
         console.log(response);
         res.status(200).send(response);

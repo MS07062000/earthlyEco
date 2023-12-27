@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { useUserAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
-    const {user,authFunctions}=useUserAuth();
+    const { user, authFunctions } = useUserAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const onLogout=(()=>{
-        try{
+    const onLogout = (() => {
+        try {
             authFunctions?.logOut();
-        }catch(error){
+        } catch (error) {
             console.log("Logout");
         }
     });
@@ -29,6 +29,9 @@ const Navbar = () => {
                             </a>
                         </div>
                         <div className="flex items-center lg:order-2">
+                            <Link to="/ordersAndRefunds">
+                                <button type="button" className="hidden md:inline-block text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2 text-center mr-2">Orders & Refunds </button>
+                            </Link>
                             {/* Wishlist */}
                             <Link to="/wishlist">
                                 <button type="button" className="hidden md:inline-block text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2 text-center mr-2">
@@ -62,7 +65,7 @@ const Navbar = () => {
                     <div className="-mt-1.5 absolute right-2 z-50 w-56 text-base list-none bg-gradient-to-t from-blue-500 via-blue-600 to-blue-700 rounded divide-y divide-gray-100 shadow " id="dropdown">
                         <div className="py-3 px-4">
                             {
-                                user?.name !== user?.email &&  <span className="block text-sm font-semibold text-white ">{user?.name}</span>
+                                user?.name !== user?.email && <span className="block text-sm font-semibold text-white ">{user?.name}</span>
                             }
                             <span className="block text-sm text-white font-bold truncate ">{user?.email}</span>
                         </div>
@@ -86,8 +89,13 @@ const Navbar = () => {
                             </li>
                         </ul>
                         <ul className="py-1 text-white" aria-labelledby="dropdown">
+                            <Link to="/ordersAndRefunds" className="md:hidden">
+                                <li>
+                                    <p className="block py-2 px-4 hover:bg-gray-100 ">Orders & Refunds</p>
+                                </li>
+                            </Link>
                             <li>
-                                <p onClick={()=>{ onLogout()}}className="block py-2 px-4 hover:bg-gray-100 ">Sign out</p>
+                                <p onClick={() => { onLogout() }} className="block py-2 px-4 hover:bg-gray-100 ">Sign out</p>
                             </li>
                         </ul>
                     </div>

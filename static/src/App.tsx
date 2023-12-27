@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom';
 import ShoppingCart from './pages/shoppingCart';
 import Wishlist from './pages/wishlist';
-
+import OrdersAndRefunds from './pages/ordersAndRefunds';
 
 export default function App() {
   return (
@@ -22,6 +22,7 @@ export default function App() {
       <Route path='/products' element={<Product/>}/>
       <Route path='/wishlist' element={<Wishlist/>}/>
       <Route path='/cart' element={<ShoppingCart/>}/>
+      <Route path='/ordersAndRefunds' element={<OrdersAndRefunds/>}/>
     </Routes>
   )
 }

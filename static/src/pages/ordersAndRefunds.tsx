@@ -1,14 +1,14 @@
 import { AuthContextProvider } from "../context/AuthContext"
 import Navbar from '../components/Navbar/navbar';
-import Products from "../components/products/products";
+import OrdersAndRefunds from "../components/orderAndRefund/ordersAndRefunds";
 
-const OrderAndRefundPage = () => {
+const OrdersAndRefundsPage = () => {
   return (
     <AuthContextProvider>
       <Navbar />
-      <Products />
+      <OrdersAndRefunds />
     </AuthContextProvider>
   )
 }
 
-export default OrderAndRefundPage;
+export default OrdersAndRefundsPage;

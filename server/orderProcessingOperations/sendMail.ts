@@ -53,8 +53,9 @@ export const sendEmail = async (
     }
 
     const bodyHTML = `
-    <p style="font-weight: bold;">${messageHeader}</p>
-    <p></p>
+    <p>Dear user,</p>
+    <p>${messageHeader}</p>
+    <br/>
     <table style="border-collapse: collapse; width: 100%;">
         <thead>
           <tr style="border: 1px solid black;">
@@ -83,7 +84,7 @@ export const sendEmail = async (
     const data = {
         receiver: receiverMail,
         subject: `Your EarthlyEco ${processType} has been processed (${processID})`,
-        bodyMessage: 'Dear User',
+        bodyMessage: '',
         bodyHTML: bodyHTML
         // Add other required fields as needed
     };

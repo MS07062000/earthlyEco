@@ -1,5 +1,6 @@
 import { categoryWithProductsInfo } from "./createOrder";
 import { productInfoOfInsufficientQuantity } from "./orderPaid";
+require('dotenv').config({ path: '../../.env' });
 
 type ProcessType = "order" | "refund";
 

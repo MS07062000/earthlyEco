@@ -3,6 +3,7 @@ import { db } from "../firebase";
 import { categoryWithProductsInfo, order } from "./createOrder";
 import { createRefundInDatabase } from "./createRefund";
 import { validatePayment } from "./validatePayment";
+import { sendEmail } from "./sendMail";
 
 export interface productInfoOfInsufficientQuantity {
     name: string;
@@ -21,6 +22,8 @@ export async function orderPaid(response: any) {
         // if (ispaymentValidated) {
         const notes = processedOrderInfo.payload.order.entity.notes;
         const userUID = notes["userUID"]; //userUID;
+        const email=processedOrderInfo.payload.payment.entity.email;
+
         const orderDetails = await getOrderDetails(userUID, orderID);
         console.log(orderDetails);
 
@@ -33,6 +36,7 @@ export async function orderPaid(response: any) {
         const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(insufficientQuantities);
 
         await updateOrders(userUID, orderDetails!);
+        await sendEmail(email, "order", orderID, orderDetails!["categoryWithProducts"]);
 
         if (totalAmountToBeRefunded > 0) {
             await createRefundInDatabase(paymentId, totalAmountToBeRefunded, userUID, insufficientQuantities);

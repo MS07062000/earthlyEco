@@ -11,20 +11,20 @@ export interface categoryWithProductsInfo {
     }[]
 }
 
-export interface order{
+export interface order {
     orderID: string,
     categoryWithProducts: categoryWithProductsInfo[]
 }
 
 export async function createOrderInRazorPay(amount: number, userUID: string) {
-    const orderCreatedResponse= await instance.orders.create({
-        amount: amount*100,
+    const orderCreatedResponse = await instance.orders.create({
+        amount: amount * 100,
         currency: "INR",
         notes: {
-            userUID: userUID
+            userUID: userUID,
         }
     });
-    
+
     return orderCreatedResponse.id;
 }
 

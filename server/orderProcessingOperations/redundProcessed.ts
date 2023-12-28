@@ -1,6 +1,7 @@
 import { arrayRemove, arrayUnion, doc, getDoc, setDoc } from "firebase/firestore";
 import { productInfoOfInsufficientQuantity } from "./orderPaid";
 import { db } from "../firebase";
+import { sendEmail } from "./sendMail";
 export interface refund {
     refundID: string;
     paymentID: string;
@@ -19,6 +20,8 @@ export async function redundProcessed(response: any) {
             throw Error("Refund details not found");
         }
         await updateRefund(userUID, refundDetails);
+        const email=processedRefundInfo.payload.payment.entity.email;
+        await sendEmail(email, "refund", refundID, refundDetails.insufficientQuantities);
     }else{
         throw Error("Invalid event received");
     }

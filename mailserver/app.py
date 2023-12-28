@@ -1,9 +1,9 @@
 # Using flask to make an api 
 # import necessary libraries and functions 
 from flask import Flask, request 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
-load_dotenv('../.env')
+# load_dotenv('../.env')
 
 # creating a Flask app 
 app = Flask(__name__) 

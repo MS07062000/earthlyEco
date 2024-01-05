@@ -11,6 +11,9 @@ import {
 import ShoppingCart from './pages/shoppingCart';
 import Wishlist from './pages/wishlist';
 import OrdersAndRefunds from './pages/ordersAndRefunds';
+import Address from './pages/address';
+import EditAddress from './pages/editAddressForm';
+import AddAddress from './pages/addAddressForm';
 
 export default function App() {
   return (
@@ -23,6 +26,9 @@ export default function App() {
       <Route path='/wishlist' element={<Wishlist/>}/>
       <Route path='/cart' element={<ShoppingCart/>}/>
       <Route path='/ordersAndRefunds' element={<OrdersAndRefunds/>}/>
+      <Route path='/addAddress' element={<AddAddress/>}/>
+      <Route path='/editAddress' element={<EditAddress/>}/>
+      <Route path='/addresses' element={<Address/>}/>
     </Routes>
   )
 }

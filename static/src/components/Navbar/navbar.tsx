@@ -70,9 +70,9 @@ const Navbar = () => {
                             <span className="block text-sm text-white font-bold truncate ">{user?.email}</span>
                         </div>
 
-                        <ul className="md:hidden py-1 text-white " aria-labelledby="dropdown">
+                        <ul className="py-1 text-white " aria-labelledby="dropdown">
                             <li>
-                                <Link to="/wishlist" className=" flex items-center py-2 px-4 hover:bg-gray-100  ">
+                                <Link to="/wishlist" className="md:hidden flex items-center py-2 px-4 hover:bg-gray-100  ">
                                     <svg className="w-6 h-6 text-red-500  mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                                         <path d="M17.947 2.053a5.209 5.209 0 0 0-3.793-1.53A6.414 6.414 0 0 0 10 2.311 6.482 6.482 0 0 0 5.824.5a5.2 5.2 0 0 0-3.8 1.521c-1.915 1.916-2.315 5.392.625 8.333l7 7a.5.5 0 0 0 .708 0l7-7a6.6 6.6 0 0 0 2.123-4.508 5.179 5.179 0 0 0-1.533-3.793Z" />
                                     </svg>
@@ -80,11 +80,19 @@ const Navbar = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/cart" className="flex items-center py-2 px-4 hover:bg-gray-100 ">
+                                <Link to="/cart" className="md:hidden flex items-center py-2 px-4 hover:bg-gray-100 ">
                                     <svg className="w-6 h-6 text-white  mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0h8m-8 0-1-4m9 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-9-4h10l2-7H3m2 7L3 4m0 0-.792-3H1" />
                                     </svg>
                                     My Cart
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/addresses" className="flex items-center py-2 px-4 hover:bg-gray-100 ">
+                                    <svg className="w-6 h-6 text-white  mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 576 512">
+                                        <path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm80 256h64c44.2 0 80 35.8 80 80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16c0-44.2 35.8-80 80-80zm-32-96a64 64 0 1 1 128 0 64 64 0 1 1 -128 0zm256-32H496c8.8 0 16 7.2 16 16s-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H496c8.8 0 16 7.2 16 16s-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H496c8.8 0 16 7.2 16 16s-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s7.2-16 16-16z" />
+                                    </svg>
+                                    My Addresses
                                 </Link>
                             </li>
                         </ul>

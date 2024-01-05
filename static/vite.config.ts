@@ -9,5 +9,6 @@ export default defineConfig({
     alias: {
       util: 'util/',
     },
-  }
+  },
+  build: { chunkSizeWarningLimit: 1600 }
 })

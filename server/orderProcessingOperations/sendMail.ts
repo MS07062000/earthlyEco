@@ -74,17 +74,18 @@ export const sendEmail = async (
   if (shippingAddress != null) {
     deliveryAddress = `
         <p>Shipping Address:</p>
-        <p><strong>${shippingAddress.fullname.toUpperCase()}</strong></p>
-        <p>${shippingAddress.addressLine1}</p>
+        <p style="margin:0"><strong>${shippingAddress.fullname.toUpperCase()}</strong></p>
+        <p style="margin:0">${shippingAddress.addressLine1}</p>
         ${
           shippingAddress.addressLine2
             ? `<p>${shippingAddress.addressLine2}</p>`
             : ""
         }
         ${shippingAddress.landmark ? `<p>${shippingAddress.landmark}</p>` : ""}
-        <p>${shippingAddress.city}, ${shippingAddress.state}, ${
+        <p style="margin:0">${shippingAddress.city}, ${shippingAddress.state}, ${
       shippingAddress.country
     }-${shippingAddress.pincode}</p>
+        <p style="margin:0">Phone Number: ${shippingAddress.mobileNumber}</p>
     `;
   }
 

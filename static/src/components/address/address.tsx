@@ -29,9 +29,13 @@ const Address = () => {
         if (user != null) {
             getAddressesOfUser(user!.uid).then((data) => {
                 setLoading(false);
-                setListOfAddressInfo(data);
-                const defaultAddress = data.find((address: addressCard) => address.isDefault === true);
-                setDefaultAddress(defaultAddress || null);
+                const defaultAddr = data.find((address: addressCard) => address.isDefault === true);
+                const updatedList = data.filter((address: addressCard) => address !== defaultAddr);
+                if (defaultAddr) {
+                    updatedList.unshift(defaultAddr);
+                }
+                setListOfAddressInfo(updatedList);
+                setDefaultAddress(defaultAddr || null);
             }).catch((error) => {
                 setLoading(false);
                 setErrorMessage("Error in getting addresses");
@@ -50,7 +54,7 @@ const Address = () => {
                 <div className="w-full flex flex-row flex-wrap justify-start items-stretch gap-4 p-2">
                     {
                         listOfAddressInfo.map((address: addressCard, index: number) =>
-                            <AddressCard key={index} addressInfo={address} defaultAddress={defaultAddress}/>
+                            <AddressCard key={index} addressInfo={address} defaultAddress={defaultAddress} showButtons={true}/>
                         )
                     }
                 </div>

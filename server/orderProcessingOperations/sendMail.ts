@@ -1,61 +1,98 @@
+import { addressCard } from "../userAddress/addressOperations";
 import { categoryWithProductsInfo } from "./createOrder";
 import { productInfoOfInsufficientQuantity } from "./orderPaid";
-require('dotenv').config({ path: '../../.env' });
+require("dotenv").config({ path: "../../.env" });
 
 type ProcessType = "order" | "refund";
 
 export const sendEmail = async (
-    receiverMail: string,
-    processType: ProcessType,
-    processID: string,
-    categoryWithProductsInfo?: categoryWithProductsInfo[],
-    productInfoOfInsufficientQuantity?: productInfoOfInsufficientQuantity[]
+  receiverMail: string,
+  processType: ProcessType,
+  processID: string,
+  shippingAddress?: addressCard,
+  categoryWithProductsInfo?: categoryWithProductsInfo[],
+  productInfoOfInsufficientQuantity?: productInfoOfInsufficientQuantity[]
 ) => {
-    const url = process.env.VITE_EMAIL_SERVER_URL as string; // Replace this with your email API endpoint
+  const url = process.env.VITE_EMAIL_SERVER_URL as string; // Replace this with your email API endpoint
 
-    let invoiceTableHTML = '';
-    let messageHeader = '';
-    let amount = 0;
+  let invoiceTableHTML = "";
+  let messageHeader = "";
+  let amount = 0;
+  let deliveryAddress = "";
 
-    if (processType === "order") {
-        messageHeader = `Thank you for shopping with us. Your order has been successfully placed. Your order ID is ${processID}.`;
-        if (categoryWithProductsInfo) {
-            categoryWithProductsInfo.forEach((category) => {
-                category.products.forEach((item, index) => {
-                    amount += item.quantity * item.price;
-                    invoiceTableHTML += `
+  if (processType === "order") {
+    messageHeader = `Thank you for shopping with us. Your order has been successfully placed. Your order ID is ${processID}.`;
+    if (categoryWithProductsInfo) {
+      categoryWithProductsInfo.forEach((category) => {
+        category.products.forEach((item, index) => {
+          amount += item.quantity * item.price;
+          invoiceTableHTML += `
             <tr>
               <td style="border: 1px solid black; text-align: left; padding: 8px;">${index}</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">${item.name}</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">${item.quantity}</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${item.price}</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${item.quantity * item.price}</td>
+              <td style="border: 1px solid black; text-align: left; padding: 8px;">${
+                item.name
+              }</td>
+              <td style="border: 1px solid black; text-align: left; padding: 8px;">${
+                item.quantity
+              }</td>
+              <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
+                item.price
+              }</td>
+              <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
+                item.quantity * item.price
+              }</td>
             </tr>
           `;
-                });
-            });
-        }
-    } else if (processType === "refund") {
-        messageHeader = `Thank you for shopping with us. We are sorry to inform you that some products has went out of stock. Your refund has been successfully processed. Your refund ID is ${processID}.`;
-        if (productInfoOfInsufficientQuantity) {
-            productInfoOfInsufficientQuantity.forEach((product, index) => {
-                amount += product.quantity * product.price;
-                invoiceTableHTML += `
+        });
+      });
+    }
+  } else if (processType === "refund") {
+    messageHeader = `Thank you for shopping with us. We are sorry to inform you that some products has went out of stock. Your refund has been successfully processed. Your refund ID is ${processID}.`;
+    if (productInfoOfInsufficientQuantity) {
+      productInfoOfInsufficientQuantity.forEach((product, index) => {
+        amount += product.quantity * product.price;
+        invoiceTableHTML += `
           <tr>
             <td style="border: 1px solid black; text-align: left; padding: 8px;">${index}</td>
-            <td style="border: 1px solid black; text-align: left; padding: 8px;">${product.name}</td>
-            <td style="border: 1px solid black; text-align: left; padding: 8px;">${product.quantity}</td>
-            <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${product.price}</td>
-            <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${product.quantity * product.price}</td>
+            <td style="border: 1px solid black; text-align: left; padding: 8px;">${
+              product.name
+            }</td>
+            <td style="border: 1px solid black; text-align: left; padding: 8px;">${
+              product.quantity
+            }</td>
+            <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
+              product.price
+            }</td>
+            <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
+              product.quantity * product.price
+            }</td>
           </tr>`;
-            });
-        }
+      });
     }
+  }
 
-    const bodyHTML = `
+  if (shippingAddress != null) {
+    deliveryAddress = `
+        <p>Shipping Address:</p>
+        <p><strong>${shippingAddress.fullname.toUpperCase()}</strong></p>
+        <p>${shippingAddress.addressLine1}</p>
+        ${
+          shippingAddress.addressLine2
+            ? `<p>${shippingAddress.addressLine2}</p>`
+            : ""
+        }
+        ${shippingAddress.landmark ? `<p>${shippingAddress.landmark}</p>` : ""}
+        <p>${shippingAddress.city}, ${shippingAddress.state}, ${
+      shippingAddress.country
+    }-${shippingAddress.pincode}</p>
+    `;
+  }
+
+  const bodyHTML = `
     <p>Dear user,</p>
     <p>${messageHeader}</p>
     <br/>
+    ${deliveryAddress.length > 0 ? `${deliveryAddress}<br/>` : ""} 
     <table style="border-collapse: collapse; width: 100%;">
         <thead>
           <tr style="border: 1px solid black;">
@@ -81,25 +118,25 @@ export const sendEmail = async (
     <p>Happy shopping!<br/>Team EarthlyEco</p>
   `;
 
-    const data = {
-        receiver: receiverMail,
-        subject: `Your EarthlyEco ${processType} has been processed (${processID})`,
-        bodyMessage: '',
-        bodyHTML: bodyHTML
-        // Add other required fields as needed
-    };
+  const data = {
+    receiver: receiverMail,
+    subject: `Your EarthlyEco ${processType} has been processed (${processID})`,
+    bodyMessage: "",
+    bodyHTML: bodyHTML,
+    // Add other required fields as needed
+  };
 
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    };
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  };
 
-    try {
-        await fetch(url, requestOptions);
-    } catch (error) {
-        console.error('Error sending email:', error);
-    }
+  try {
+    await fetch(url, requestOptions);
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
 };

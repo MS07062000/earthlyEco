@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { BASEURL, ORIGIN } from '../../../config';
+import { addressCard } from '../../address/address';
 export interface categoryWithProductsInfo{
     category: string,
     products: {
@@ -10,7 +11,7 @@ export interface categoryWithProductsInfo{
     }[]
 }
 
-export const createOrder = async (userUID:string,categoryWithProductsInfo:categoryWithProductsInfo[],amount:number) => {
+export const createOrder = async (userUID:string,categoryWithProductsInfo:categoryWithProductsInfo[],amount:number,deliveryAddress:addressCard) => {
     const requestOptions = {
         method: 'post',
         url: `${BASEURL}/createOrder`,
@@ -20,7 +21,8 @@ export const createOrder = async (userUID:string,categoryWithProductsInfo:catego
         data:{
             userUID:userUID,
             categoryWithProductsInfo:categoryWithProductsInfo,
-            amount:amount
+            amount:amount,
+            deliveryAddress:deliveryAddress
         },
         origin: ORIGIN,
     };

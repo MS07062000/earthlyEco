@@ -4,7 +4,7 @@ import { addressCard } from "../address/address";
 import { deleteAddress } from "./helpers/deleteAddress";
 import { editAddress } from "../addressForm/helpers/editAddress";
 
-const AddressCard = ({ addressInfo, defaultAddress }: { addressInfo: addressCard, defaultAddress: addressCard | null }) => {
+const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo: addressCard, defaultAddress: addressCard | null, showButtons: boolean }) => {
     const { user } = useUserAuth();
     const navigate = useNavigate();
     const handleEdit = () => {
@@ -21,18 +21,18 @@ const AddressCard = ({ addressInfo, defaultAddress }: { addressInfo: addressCard
 
     const handleDefault = async () => {
         if (user != null) {
-            if(defaultAddress != null){
+            if (defaultAddress != null) {
                 await editAddress(user.uid, defaultAddress, { ...defaultAddress, isDefault: false });
             }
-           
+
             await editAddress(user.uid, addressInfo, { ...addressInfo, isDefault: true });
             navigate(0);
         }
     }
 
     return (
-        <div className="rounded-lg border-2 border-black bg-card text-card-foreground shadow-sm w-full max-w-sm p-5 flex flex-col justify-evenly">
-            {addressInfo.isDefault && <p className="text-sm font-bold py-2">Default</p>}
+        <div className="rounded-lg border-2 border-black bg-card text-card-foreground shadow-sm w-full max-w-sm p-2 flex flex-col justify-evenly">
+            {addressInfo.isDefault && <p className="text-sm font-bold pb-2">Default</p>}
             <p className="text-xl font-bold pb-2">{addressInfo.fullname}</p>
             <div className="space-y-1">
                 <p className="text-sm">
@@ -61,13 +61,17 @@ const AddressCard = ({ addressInfo, defaultAddress }: { addressInfo: addressCard
                     Phone Number: {addressInfo.mobileNumber}
                 </p>
             </div>
-            <div className="flex justify-between pt-2">
-                <button onClick={handleEdit} className="w-1/2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center mr-2">Edit</button>
-                <button onClick={handleDelete} className="w-1/2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Remove</button>
-            </div>
-            <div className="pt-2">
-                {!addressInfo.isDefault && <button onClick={handleDefault} className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center mr-2">Make Default</button>}
-            </div>
+            {showButtons &&
+                <>
+                    <div className="flex justify-between pt-2">
+                        <button onClick={handleEdit} className="w-1/2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center mr-2">Edit</button>
+                        <button onClick={handleDelete} className="w-1/2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Remove</button>
+                    </div>
+                    <div className="pt-2">
+                        {!addressInfo.isDefault && <button onClick={handleDefault} className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center mr-2">Make Default</button>}
+                    </div>
+                </>
+            }
         </div>
     );
 }

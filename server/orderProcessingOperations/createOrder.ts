@@ -1,6 +1,7 @@
 import { arrayUnion, doc, setDoc } from "firebase/firestore";
 import { instance } from "./razorpay";
 import { db } from "../firebase";
+import { addressCard } from "../userAddress/addressOperations";
 export interface categoryWithProductsInfo {
     category: string,
     products: {
@@ -13,7 +14,8 @@ export interface categoryWithProductsInfo {
 
 export interface order {
     orderID: string,
-    categoryWithProducts: categoryWithProductsInfo[]
+    categoryWithProducts: categoryWithProductsInfo[],
+    deliveryAddress:addressCard
 }
 
 export async function createOrderInRazorPay(amount: number, userUID: string) {
@@ -28,13 +30,14 @@ export async function createOrderInRazorPay(amount: number, userUID: string) {
     return orderCreatedResponse.id;
 }
 
-export async function createOrderInDatabase(amount: number, userUID: string, categoryWithProductsInfo: categoryWithProductsInfo[]) {
+export async function createOrderInDatabase(amount: number, userUID: string, categoryWithProductsInfo: categoryWithProductsInfo[],deliveryAddress:addressCard) {
     const orderID = await createOrderInRazorPay(amount, userUID);
     const userDoc = doc(db, `Users/${userUID}`);
     await setDoc(userDoc, {
         'Orders Created': arrayUnion({
             orderID: orderID,
-            categoryWithProducts: categoryWithProductsInfo
+            categoryWithProducts: categoryWithProductsInfo,
+            deliveryAddress:deliveryAddress
         }),
     }, { merge: true });
     return orderID;

@@ -4,6 +4,7 @@ import { orderPaid } from './orderPaid';
 import { getUserOrders } from './getUserOrders';
 import { getUserRefunds } from './getUserRefund';
 import { redundProcessed } from './redundProcessed';
+import { addressCard } from '../userAddress/addressOperations';
 const router = Router();
 
 router.use('/createOrder', async (req: Request, res: Response) => {
@@ -12,7 +13,8 @@ router.use('/createOrder', async (req: Request, res: Response) => {
         const amount: number = req.body?.amount
         const userUID: string = req.body?.userUID;
         const categoryWithProductsInfo: categoryWithProductsInfo[] = req.body?.categoryWithProductsInfo
-        const orderID = await createOrderInDatabase(amount, userUID, categoryWithProductsInfo);
+        const deliveryAddress: addressCard = req.body?.deliveryAddress
+        const orderID = await createOrderInDatabase(amount, userUID, categoryWithProductsInfo,deliveryAddress);
         res.status(200).send(orderID);
     } catch (error) {
         console.log(error);

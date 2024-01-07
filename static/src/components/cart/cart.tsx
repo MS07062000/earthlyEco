@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { MouseEvent, SetStateAction, useEffect, useState } from "react";
 import { useUserAuth } from "../../context/AuthContext";
 import { getCartOfUser } from "./helpers/getCartOfUser";
 import { removeProductFromCartOfUser } from "./helpers/removeProductFromCartOfUser";
@@ -14,6 +14,9 @@ import { isInputElement } from "react-router-dom/dist/dom";
 import { clearCartOfUser } from "./helpers/clearCartOfUser";
 import Spinner from "../Spinner";
 import InfoMessage from "../InfoMessage";
+import { addressCard } from "../address/address";
+import { getAddressesOfUser } from "../address/helpers/getAddressesOfUser";
+import SelectAddressModal from "./selectAddressModal";
 
 interface CartProductInfo {
     name: string;
@@ -31,6 +34,11 @@ const Cart = () => {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [totalAmount, setTotalAmount] = useState(0);
+    const [selectAddress, setSelectAddress] = useState<addressCard | null>(null);
+    const [listOfAddressInfo, setListOfAddressInfo] = useState<addressCard[]>([]);
+    const [showSelectAddressModal, setShowSelectAddressModal] = useState<boolean>(false);
+    const [singleProduct, setSingleProduct] = useState<CartProductInfo | null>(null);
+
     const getCartProducts = async () => {
         let totalAmountCalculated = 0;
         try {
@@ -71,8 +79,23 @@ const Cart = () => {
     useEffect(() => {
         if (user != null) {
             getCartProducts();
+            getListOfAddressesOfUser();
         }
     }, [user]);
+
+    const getListOfAddressesOfUser = () => {
+        getAddressesOfUser(user!.uid).then((data) => {
+            const defaultAddr = data.find((address: addressCard) => address.isDefault === true);
+            const updatedList = data.filter((address: addressCard) => address !== defaultAddr);
+            if (defaultAddr) {
+                updatedList.unshift(defaultAddr);
+            }
+            setListOfAddressInfo(updatedList);
+            if(updatedList.length > 0){
+                setSelectAddress(updatedList[0]);
+            }
+        });
+    }
 
     const onDeleteFromCart = async (productName: string, quantityByUser: number) => {
         if (user != null) {
@@ -187,7 +210,7 @@ const Cart = () => {
             }, []);
 
             try {
-                const orderID = await createOrder(user!.uid, categoryWithProducts, totalAmount);
+                const orderID = await createOrder(user!.uid, categoryWithProducts, totalAmount,selectAddress!);
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
@@ -210,19 +233,19 @@ const Cart = () => {
         }
     }
 
-    const onBuyNowFromCart = async (product: CartProductInfo) => {
-        if (user != null) {
-            const categoryWithProducts: categoryWithProductsInfo[] = [{ category: product.category, products: [{ name: product.name, image: product.image, quantity: product.quantityByUser, price: product.price }] }];
+    const onBuyNowFromCart = async () => {
+        if (user != null && singleProduct != null) {
+            const categoryWithProducts: categoryWithProductsInfo[] = [{ category: singleProduct.category, products: [{ name: singleProduct.name, image: singleProduct.image, quantity: singleProduct.quantityByUser, price: singleProduct.price }] }];
             try {
-                const orderID = await createOrder(user!.uid, categoryWithProducts, product.quantityByUser * product.price);
+                const orderID = await createOrder(user!.uid, categoryWithProducts, singleProduct.quantityByUser * singleProduct.price,selectAddress!);
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
-                            proceedForPayment(user.email,orderID).then(async (isPaymentSuccess) => {
+                            proceedForPayment(user.email, orderID).then(async (isPaymentSuccess) => {
                                 if (isPaymentSuccess) {
-                                    await removeProductFromCartOfUser(user!.uid, product.name, product.quantityByUser);
+                                    await removeProductFromCartOfUser(user!.uid, singleProduct.name, singleProduct.quantityByUser);
                                     await getCartProducts();
-                                    setSuccessMessage(`Your order for the product ${product.name} with a quantity of ${product.quantityByUser} has been processed with order id ${orderID}.`);
+                                    setSuccessMessage(`Your order for the product ${singleProduct.name} with a quantity of ${singleProduct.quantityByUser} has been processed with order id ${orderID}.`);
                                 }
                             });
                         } else {
@@ -232,9 +255,28 @@ const Cart = () => {
                 }
             } catch (error) {
                 setErrorMessage("Unable to place order");
+            } finally {
+                setSingleProduct(null);
             }
 
         }
+    }
+
+    const processBuyNow = (product: CartProductInfo) => {
+        if(listOfAddressInfo.length === 0){
+           setErrorMessage("Please add address for delivery in your profile.");
+            return;
+        }
+        setSingleProduct(product);
+        setShowSelectAddressModal(true);
+    }
+
+    const processCompleteOrder = () => {
+        if(listOfAddressInfo.length === 0){
+            setErrorMessage("Please add address for delivery in your profile.");
+            return;
+         }
+        setShowSelectAddressModal(true);
     }
 
     return (
@@ -290,10 +332,10 @@ const Cart = () => {
                                                         <button disabled={product.quantityAvailable <= 0} onClick={() => { moveFromCartToWishlist(product.name, product.quantityByUser) }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center">
                                                             <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" width="1.5em" viewBox="0 0 512 512" fill="currentColor"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z" /></svg>
                                                         </button>
-                                                        <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
+                                                        <button disabled={product.quantityAvailable <= 0} onClick={() => { processBuyNow(product) }}
                                                             className="hidden md:block w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
                                                     </div>
-                                                    <button disabled={product.quantityAvailable <= 0} onClick={() => { onBuyNowFromCart(product) }}
+                                                    <button disabled={product.quantityAvailable <= 0} onClick={() => { processBuyNow(product) }}
                                                         className="block md:hidden w-auto text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Buy now</button>
                                                 </div>
                                                 {
@@ -308,7 +350,7 @@ const Cart = () => {
                                 </div>
                                 <div className="fixed bottom-0 left-0 z-50 w-full h-24 bg-black text-white flex flex-col  justify-between items-stretch p-2 md:h-16 md:flex-row md:items-center">
                                     <p className="text-2xl font-medium">Subtotal: &#x20B9;{totalAmount} </p>
-                                    <button type="button" onClick={() => { placeOrder() }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl p-2 text-center">
+                                    <button type="button" onClick={() => { processCompleteOrder() }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl p-2 text-center">
                                         Place Order
                                     </button>
                                 </div>
@@ -321,6 +363,15 @@ const Cart = () => {
             }
             {
                 errorMessage != null && <ErrorModal errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
+            }
+            {
+                showSelectAddressModal
+                    ?
+                    singleProduct != null ?
+                        <SelectAddressModal listOfAddressInfo={listOfAddressInfo} selectAddress={selectAddress} setSelectAddress={setSelectAddress} setShowSelectAddressModal={setShowSelectAddressModal} handleProceedToCheckOut={onBuyNowFromCart} />
+                        :
+                        <SelectAddressModal listOfAddressInfo={listOfAddressInfo} selectAddress={selectAddress} setSelectAddress={setSelectAddress} setShowSelectAddressModal={setShowSelectAddressModal} handleProceedToCheckOut={placeOrder} />
+                    : null
             }
         </div >
     )

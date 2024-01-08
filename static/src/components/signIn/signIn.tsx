@@ -22,7 +22,7 @@ const SignIn = () => {
     event.preventDefault();
     try {
       await authFunctions?.logInWithEmailAndPassword(email, password);
-      navigate("/")
+      navigate("/",{replace:true});
     } catch (error) {
       setErrorMessage("Error in signin with Email and Password");
     }
@@ -31,7 +31,7 @@ const SignIn = () => {
   const handleGoogleLogin = async () => {
     try {
       await authFunctions?.signInWithGoogle();
-      navigate("/")
+      navigate("/",{replace:true});
     } catch (error) {
       setErrorMessage("Error in google signin");
     }

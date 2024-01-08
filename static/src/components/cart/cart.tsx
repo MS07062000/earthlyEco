@@ -348,9 +348,9 @@ const Cart = () => {
                                         ))
                                     }
                                 </div>
-                                <div className="fixed bottom-0 left-0 z-50 w-full h-24 bg-black text-white flex flex-col  justify-between items-stretch p-2 md:h-16 md:flex-row md:items-center">
-                                    <p className="text-2xl font-medium">Subtotal: &#x20B9;{totalAmount} </p>
-                                    <button type="button" onClick={() => { processCompleteOrder() }} className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xl p-2 text-center">
+                                <div className="fixed bottom-0 left-0 z-50 w-full h-24 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700  flex flex-col  justify-between items-stretch p-2 md:h-16 md:flex-row md:items-center">
+                                    <p className="text-2xl font-medium text-white">Subtotal: &#x20B9;{totalAmount} </p>
+                                    <button type="button" onClick={() => { processCompleteOrder() }} className="text-black bg-[#fdd35b] focus:ring-4 focus:outline-none hover:bg-yellow-300 focus:ring-yellow-200 font-medium rounded-lg text-xl p-2 text-center">
                                         Place Order
                                     </button>
                                 </div>

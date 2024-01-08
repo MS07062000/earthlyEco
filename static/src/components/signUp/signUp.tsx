@@ -43,7 +43,7 @@ const SignUp = () => {
 
     try {
       await authFunctions?.registerWithEmailAndPassword(email, password);
-      navigate('/')
+      navigate('/',{replace:true})
     } catch (error) {
       setErrorMessage("Error in registering user");
     }

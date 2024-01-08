@@ -5,8 +5,10 @@ import { editAddress } from "./helpers/editAddress";
 import ErrorModal from "../ErrorModal";
 import { useUserAuth } from "../../context/AuthContext";
 import SuccessModal from "../SuccessModal";
+import { useNavigate } from "react-router-dom";
 
 const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressInfo?: addressCard }) => {
+    const navigate = useNavigate();
     const initialAddress: addressCard = isAdd ? {
         fullname: '',
         mobileNumber: '',
@@ -55,13 +57,19 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                 if (isAdd) {
                     await addNewAddress(user.uid, addressCard);
                     setSuccessMessage('Address added successfully');
+
                 } else {
                     await editAddress(user.uid, initialAddress, addressCard);
                     setSuccessMessage('Address edited successfully');
                 }
             }
         }
+
     };
+
+    const postProcessingFunction = () => {
+        navigate('/addresses', { replace: true });
+    }
 
     const handleChange = <K extends keyof addressCard>(
         key: K,
@@ -163,7 +171,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                             </div>
                         </div>
                         <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 ">State</label>
-                        <select id="states" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" defaultValue={addressCard.state} required>
+                        <select id="states" defaultValue={addressCard.state} onChange={(e) => handleChange('state', e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"  required>
                             <option value=''>Choose a state</option>
                             <option value="MP">MP</option>
                             <option value="UP">UP</option>
@@ -172,7 +180,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                             <option value="Kerala">Kerala</option>
                         </select>
                         <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 ">Country</label>
-                        <select id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" defaultValue={addressCard.country} required>
+                        <select id="countries" defaultValue={addressCard.country} onChange={(e) => handleChange('country', e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                             <option value="United States">United States</option>
                             <option value="Canada">Canada</option>
                             <option value="France">France</option>
@@ -185,7 +193,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                             {isAdd ? "Add" : "Save"} Address
                         </button>
                         {
-                            successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} />
+                            successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} postProcessingFunction={postProcessingFunction} />
                         }
                         {
                             errorMessage != null && <ErrorModal errorMessage={errorMessage} setErrorMessage={setErrorMessage} />

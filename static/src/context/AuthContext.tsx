@@ -109,7 +109,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
           currentPath === '/signUp' ||
           currentPath === '/forgetPassword'
         ) {
-          navigate('/');
+          navigate('/', { replace: true });
         }
       } else {
         const currentPath = window.location.pathname;
@@ -118,7 +118,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
           currentPath !== '/signUp' &&
           currentPath !== '/forgetPassword'
         ) {
-          navigate('/signUp');
+          navigate('/signUp', { replace: true });
         }
       }
     });

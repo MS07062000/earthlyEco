@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserAuth } from '../../context/AuthContext';
-import Error from '../ErrorMessage';
+import Message from '../Message';
+import Icon from '../Icon';
+import Button from '../Button';
 const SignIn = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -22,7 +24,7 @@ const SignIn = () => {
     event.preventDefault();
     try {
       await authFunctions?.logInWithEmailAndPassword(email, password);
-      navigate("/",{replace:true});
+      navigate("/", { replace: true });
     } catch (error) {
       setErrorMessage("Error in signin with Email and Password");
     }
@@ -31,7 +33,7 @@ const SignIn = () => {
   const handleGoogleLogin = async () => {
     try {
       await authFunctions?.signInWithGoogle();
-      navigate("/",{replace:true});
+      navigate("/", { replace: true });
     } catch (error) {
       setErrorMessage("Error in google signin");
     }
@@ -52,7 +54,7 @@ const SignIn = () => {
             </h1>
             {
               errorMessage &&
-              <Error errorMessage={errorMessage} />
+              <Message type="error" message={errorMessage} />
             }
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
@@ -73,20 +75,12 @@ const SignIn = () => {
               <div>
                 <a href="/forgetPassword" className="text-sm text-blue-600 font-medium text-primary-600 hover:underline">Forgot password?</a>
               </div>
-
-              <button type="submit" className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ">Sign in</button>
-
+              <Button type='submit' text="Sign in" isTextVisible={true} buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
               <p className="text-sm font-medium text-black">
                 <span>Don’t have an account yet ?</span><a href="/signUp" className="font-medium text-blue-600 hover:underline"> Sign up</a>
               </p>
             </form>
-            <button type="button" onClick={handleGoogleLogin} className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center mr-2 mb-2">
-              <svg className="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
-                <path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clipRule="evenodd" />
-              </svg>
-              Sign in with Google
-            </button>
-
+            <Button text="Sign in with Google" icon={<Icon type="google" iconClass="h-4 w-4 mr-2" />} buttonClass="w-full text-sm px-5 py-2.5 mr-2 mb-2 inline-flex items-center justify-center" isTextVisible={true} onClick={handleGoogleLogin} />
           </div>
         </div>
       </div>

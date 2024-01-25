@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getCategories } from "./helpers/fetchCategories";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Spinner";
-import ErrorMessage from "../ErrorMessage";
+import Message from "../Message";
 
 interface ProductInfo {
     image: string;
@@ -44,7 +44,7 @@ const Category = () => {
                 isLoading
                     ? <Spinner />
                     : <>
-                        {error != null && <ErrorMessage errorMessage={error} />}
+                        {error != null && <Message type="error" message={error} />}
                         {
                             categories.length > 0 &&
                             <>

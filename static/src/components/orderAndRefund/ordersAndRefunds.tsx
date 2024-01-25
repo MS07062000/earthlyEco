@@ -4,7 +4,7 @@ import Spinner from "../Spinner";
 import { getOrderProcessed } from "./helpers/getOrderProcessed";
 import { getRefundProcessed } from "./helpers/getRefundProcessed";
 import { categoryWithProductsInfo } from "../cart/helpers/createOrder";
-import ErrorMessage from "../ErrorMessage";
+import Message from "../Message";
 
 interface order {
     orderID: string;
@@ -112,7 +112,7 @@ const OrdersAndRefunds = () => {
                 </div>
             }
             {
-                errorMessage !=null && <ErrorMessage errorMessage={errorMessage} />
+                errorMessage !=null && <Message type="error" message={errorMessage} />
             }
         </>
     );

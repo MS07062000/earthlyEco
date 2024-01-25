@@ -3,6 +3,7 @@ import { useUserAuth } from "../../context/AuthContext";
 import { addressCard } from "../address/address";
 import { deleteAddress } from "./helpers/deleteAddress";
 import { editAddress } from "../addressForm/helpers/editAddress";
+import Button from "../Button";
 
 const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo: addressCard, defaultAddress: addressCard | null, showButtons: boolean }) => {
     const { user } = useUserAuth();
@@ -64,11 +65,11 @@ const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo
             {showButtons &&
                 <>
                     <div className="flex justify-between pt-2">
-                        <button onClick={handleEdit} className="w-1/2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center mr-2">Edit</button>
-                        <button onClick={handleDelete} className="w-1/2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Remove</button>
+                        <Button text="Edit Address" isTextVisible={true} onClick={handleEdit} buttonClass="w-1/2 text-md p-2 mr-2"/>
+                        <Button text="Delete Address" isTextVisible={true} onClick={handleDelete} buttonClass="w-1/2 text-md p-2" />
                     </div>
                     <div className="pt-2">
-                        {!addressInfo.isDefault && <button onClick={handleDefault} className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center mr-2">Make Default</button>}
+                        {!addressInfo.isDefault &&  <Button text="Make Default" isTextVisible={true} onClick={handleDefault} buttonClass="w-full text-md p-2" />}
                     </div>
                 </>
             }

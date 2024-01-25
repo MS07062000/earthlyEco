@@ -2,10 +2,27 @@ import { useState } from "react";
 import { addressCard } from "../address/address";
 import { addNewAddress } from "./helpers/addNewAddress";
 import { editAddress } from "./helpers/editAddress";
-import ErrorModal from "../ErrorModal";
 import { useUserAuth } from "../../context/AuthContext";
-import SuccessModal from "../SuccessModal";
+import MessageModal from "../MessageModal";
 import { useNavigate } from "react-router-dom";
+import Button from "../Button";
+interface InputProps {
+    id: string;
+    label: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    required?: boolean;
+    type?: string;
+    pattern?: string;
+}
+interface SelectProps {
+    id: string;
+    label: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    options: string[];
+    required?: boolean;
+}
 
 const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressInfo?: addressCard }) => {
     const navigate = useNavigate();
@@ -36,12 +53,6 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
     const [addressCard, setAddressCard] = useState<addressCard>(initialAddress);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    // const [fullname, setFullName] = useState<string | undefined>(isAdd ? '' : editAddress?.fullname);
-    // const [mobileNumber, setMobileNumber] = useState<string | undefined>(isAdd ? '' : editAddress?.mobileNumber);
-    // const [addressLine1, setAddressLine1] = useState<string | undefined>(isAdd ? '' : editAddress?.addressLine1);
-    // const [addressLine2, setAddressLine2] = useState<string | undefined>(isAdd ? '' : editAddress?.addressLine2);
-    // const [landmark, setLandmark] = useState<string | undefined>(isAdd ? '' : editAddress?.landmark);
-    // const [pincode, setPincode] = useState<string | undefined>(isAdd ? '' : editAddress?.pincode);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -90,114 +101,66 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                 <div className="rounded-lg md:border-solid md:border-2 md:border-black  bg-card text-card-foreground shadow-sm" data-v0-t="card">
                     <div className="p-2 md:p-6 space-y-4">
                         <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-black" htmlFor="full-name">Full Name</label>
-                                <input
-                                    className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                    id="full-name"
-                                    placeholder="Enter your full name"
-                                    value={addressCard.fullname}
-                                    onChange={(e) => handleChange('fullname', e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-black" htmlFor="mobile-number">Mobile Number</label>
-                                <input
-                                    className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                    id="mobile-number"
-                                    placeholder="Enter your mobile number"
-                                    value={addressCard.mobileNumber}
-                                    onChange={(e) => handleChange('mobileNumber', e.target.value)}
-                                    required
-                                    type="tel"
-                                />
-                            </div>
+                            <Input id="full-name"
+                                value={addressCard.fullname}
+                                onChange={(e) => handleChange('fullname', e.target.value)}
+                                label={"Full Name"}
+                                required={true} />
+                            <Input id="mobile-number"
+                                type="tel"
+                                value={addressCard.mobileNumber}
+                                onChange={(e) => handleChange('mobileNumber', e.target.value)}
+                                label={"Mobile Number"}
+                                required={true} />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-black" htmlFor="flat-house">Flat, House No., Building, Company, Apartment</label>
-                            <input
-                                className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                id="flat-house"
-                                placeholder="Enter your flat, house no., building, company, apartment"
-                                value={addressCard.addressLine1}
-                                onChange={(e) => handleChange('addressLine1', e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-black" htmlFor="area-street">Area, Street, Sector, Village</label>
-                            <input
-                                className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                id="area-street"
-                                placeholder="Enter your area, street, sector, village"
-                                value={addressCard.addressLine2}
-                                onChange={(e) => handleChange('addressLine2', e.target.value)}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-black" htmlFor="landmark">Landmark</label>
-                            <input
-                                className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                id="landmark"
-                                placeholder="E.g. near Apollo Hospital"
-                                value={addressCard.landmark}
-                                onChange={(e) => handleChange('landmark', e.target.value)}
-                            />
-                        </div>
+                        {[{ id: 'flat-house', label: 'Flat, House No., Building, Company, Apartment', value: addressCard.addressLine1, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('addressLine1', e.target.value), required: true },
+                        { id: 'area-street', label: 'Area, Street, Sector, Village', value: addressCard.addressLine2, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('addressLine2', e.target.value), required:false },
+                        { id: 'landmark', label: 'Landmark', value: addressCard.landmark, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('landmark', e.target.value),required:false },]
+                            .map(({ id, label, value, onChange, required }) => (<Input
+                                id={id}
+                                label={label}
+                                value={value}
+                                onChange={onChange}
+                                required={required}
+                            />))}
                         <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-black" htmlFor="pincode">Pincode</label>
-                                <input
-                                    className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                    id="pincode"
-                                    pattern="[0-9]{6}"
-                                    placeholder="Enter your pincode"
-                                    value={addressCard.pincode}
-                                    onChange={(e) => handleChange('pincode', e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-black" htmlFor="town-city">Town/City</label>
-                                <input
-                                    className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                                    id="town-city"
-                                    placeholder="Enter your town/city"
-                                    value={addressCard.city}
-                                    onChange={(e) => handleChange('city', e.target.value)}
-                                    required
-                                />
-                            </div>
+                            <Input id="pincode"
+                                value={addressCard.pincode}
+                                onChange={(e) => handleChange('fullname', e.target.value)}
+                                label={"Pincode"}
+                                pattern="[0-9]{6}"
+                                required={true} />
+                            <Input id="town-city"
+                                label={"Town/City"}
+                                value={addressCard.city}
+                                onChange={(e) => handleChange('city', e.target.value)}
+                                required={true}
+                            />
                         </div>
-                        <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 ">State</label>
-                        <select id="states" defaultValue={addressCard.state} onChange={(e) => handleChange('state', e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"  required>
-                            <option value=''>Choose a state</option>
-                            <option value="MP">MP</option>
-                            <option value="UP">UP</option>
-                            <option value="Telangana">Telangana</option>
-                            <option value="Maharashtra">Maharashtra</option>
-                            <option value="Kerala">Kerala</option>
-                        </select>
-                        <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 ">Country</label>
-                        <select id="countries" defaultValue={addressCard.country} onChange={(e) => handleChange('country', e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <option value="United States">United States</option>
-                            <option value="Canada">Canada</option>
-                            <option value="France">France</option>
-                            <option value="Germany">Germany</option>
-                            <option value="India">India</option>
-                        </select>
-                        <button type="submit"
-                            className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                        >
-                            {isAdd ? "Add" : "Save"} Address
-                        </button>
+                        <Select
+                            id="states"
+                            label="State"
+                            value={addressCard.state}
+                            onChange={(e) => handleChange('state', e.target.value)}
+                            options={['MP', 'UP', 'Telangana', 'Maharashtra', 'Kerala']}
+                            required={true}
+                        />
+                        <Select
+                            id="countries"
+                            label="Country"
+                            value={addressCard.country}
+                            onChange={(e) => handleChange('country', e.target.value)}
+                            options={['United States', 'Canada', 'France', 'Germany', 'India']}
+                            required={true}
+                        />
+                        <Button type="submit" text={isAdd ? "Add Address" : "Save Address"} isTextVisible={true} buttonClass="w-full text-sm px-5 py-2.5" />
                         {
-                            successMessage != null && <SuccessModal successMessage={successMessage} setSuccessMessage={setSuccessMessage} postProcessingFunction={postProcessingFunction} />
-                        }
-                        {
-                            errorMessage != null && <ErrorModal errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
-                        }
+                successMessage != null && <MessageModal isSuccess={true} message={successMessage} setMessage={setSuccessMessage} postProcessingFunction={postProcessingFunction} />
+            }
+            {
+                errorMessage != null && <MessageModal isSuccess={false} message={errorMessage} setMessage={setErrorMessage} />
+            }
+                      
                     </div>
                 </div>
             </form>
@@ -206,3 +169,41 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
     );
 }
 export default AddressForm;
+
+const Input: React.FC<InputProps> = ({ id, label, value, onChange, required, type, pattern }) => {
+    return (
+        <div key={id} className="space-y-2">
+            <label className="text-sm font-medium text-black" htmlFor={id}>{label}</label>
+            <input
+                className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
+                id={id}
+                placeholder={`Enter your ${label.toLowerCase()}`}
+                value={value}
+                onChange={onChange}
+                required={required}
+                type={type}
+                pattern={pattern}
+            />
+        </div>
+    );
+};
+
+const Select: React.FC<SelectProps> = ({ id, label, value, onChange, options, required }) => {
+    return (
+        <div className="space-y-2">
+            <label htmlFor={id} className="block mb-2 text-sm font-medium text-gray-900">{label}</label>
+            <select
+                id={id}
+                value={value}
+                onChange={onChange}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required={required}
+            >
+                <option value=''>Choose {label.toLowerCase()}</option>
+                {options.map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                ))}
+            </select>
+        </div>
+    );
+};

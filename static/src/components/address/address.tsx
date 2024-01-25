@@ -4,7 +4,8 @@ import { useUserAuth } from "../../context/AuthContext";
 import { getAddressesOfUser } from "./helpers/getAddressesOfUser";
 import AddressCard from "../addressCard/addressCard";
 import Spinner from "../Spinner";
-import ErrorMessage from "../ErrorMessage";
+import Message from "../Message";
+import Button from "../Button";
 
 export interface addressCard {
     fullname: string,
@@ -60,11 +61,11 @@ const Address = () => {
                     </div>
                     <div className="fixed bottom-0 right-0 z-50 bg-[#fdd35b] p-2">
                         <Link to="/addAddress">
-                            <button className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-md p-2 text-center">Add Address</button>
+                            <Button text="Add Address" isTextVisible={true} buttonClass="text-md p-2"/>
                         </Link>
                     </div>
                     {
-                        errorMessage != null && <ErrorMessage errorMessage={errorMessage} />
+                        errorMessage != null && <Message type="error" message={errorMessage} />
                     }
                 </div>
             }

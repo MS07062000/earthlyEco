@@ -46,7 +46,7 @@ const SignIn = () => {
         <div className="w-full rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0 border-solid border-2 border-black">
           <div className="p-6 space-y-4 md:space-y-4 sm:p-8">
             <a href="/" className="flex mr-4">
-              <img src="/logo.png" className="h-12 mr-3" alt="Earthly Eco Shop Logo" />
+              <img src="/logo.png" className="h-12 w-12 mr-3" alt="Earthly Eco Shop Logo" />
               <span className="self-center text-2xl font-semibold whitespace-nowrap ">Earthly Eco</span>
             </a>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-black md:text-2xl">
@@ -77,7 +77,7 @@ const SignIn = () => {
               </div>
               <Button type='submit' text="Sign in" isTextVisible={true} buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
               <p className="text-sm font-medium text-black">
-                <span>Don’t have an account yet ?</span><a href="/signUp" className="font-medium text-blue-600 hover:underline"> Sign up</a>
+                <span>Don’t have an account yet ?</span><a href="/signUp" className="font-bold text-blue-700 hover:underline"> Sign up</a>
               </p>
             </form>
             <Button text="Sign in with Google" icon={<Icon type="google" iconClass="h-4 w-4 mr-2" />} buttonClass="w-full text-sm px-5 py-2.5 mr-2 mb-2 inline-flex items-center justify-center" isTextVisible={true} onClick={handleGoogleLogin} />

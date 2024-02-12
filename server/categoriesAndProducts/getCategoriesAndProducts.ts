@@ -2,47 +2,59 @@ import { collection, getDocs, DocumentData } from "firebase/firestore";
 import { db } from "../firebase";
 
 interface ProductInfo {
-    name: string;
-    image: string;
-    quantityAvailable: number;
-    price: number;
+  name: string;
+  image: string;
+  quantityAvailable: number;
+  price: number;
 }
 
-interface CategoryInfo {
-    [key: string]: {
-        image: string;
-        products: ProductInfo[];
-    };
+interface Category {
+  name: string;
+  image: string;
 }
 
-export async function getCategoriesAndProducts(): Promise<CategoryInfo[]> {
-    const categories: CategoryInfo[] = [];
+export async function getCategories(): Promise<Category[]> {
+  const categories: Category[] = [];
 
-    const categoriesCollectionRef = collection(db, `Categories`);
-    const categoriesSnapshot = await getDocs(categoriesCollectionRef);
+  const categoriesCollectionRef = collection(db, `Categories`);
+  const categoriesSnapshot = await getDocs(categoriesCollectionRef);
 
-    categoriesSnapshot.forEach((categoryDoc) => {
-        if (categoryDoc.exists()) {
-            const categoryData = categoryDoc.data() as DocumentData;
-            const productsData = categoryData['Products'];
+  categoriesSnapshot.forEach((categoryDoc) => {
+    if (categoryDoc.exists()) {
+      const categoryData = categoryDoc.data() as DocumentData;
+      const category: Category = {
+        name: categoryDoc.id.toLowerCase(),
+        image: categoryData["category image"] ?? "",
+      };
 
-            const products: ProductInfo[] = productsData.map((product: DocumentData) => ({
-                name: product['Name'] ?? '',
-                image: product['Image'] ?? '',
-                quantityAvailable: product['Quantity Available'] ?? 0,
-                price: product['Price'] ?? 0,
-            }));
+      categories.push(category);
+    }
+  });
 
-            const category: CategoryInfo = {
-                [categoryDoc.id.toLowerCase()]: {
-                    image: categoryData['category image'] ?? '',
-                    products: products,
-                },
-            };
+  return categories;
+}
 
-            categories.push(category);
-        }
-    });
+export async function getProducts(category: string): Promise<ProductInfo[]> {
+  const categoriesCollectionRef = collection(db, `Categories`);
+  const categoriesSnapshot = await getDocs(categoriesCollectionRef);
+  const products: ProductInfo[] = [];
 
-    return categories;
+  categoriesSnapshot.forEach((categoryDoc) => {
+    if (
+      categoryDoc.exists() &&
+      categoryDoc.id.toLowerCase() === category.toLowerCase()
+    ) {
+      const categoryData = categoryDoc.data() as DocumentData;
+      const productsData = categoryData["Products"];
+      products.push(
+        ...productsData.map((product: DocumentData) => ({
+          name: product["Name"] ?? "",
+          image: product["Image"] ?? "",
+          quantityAvailable: product["Quantity Available"] ?? 0,
+          price: product["Price"] ?? 0,
+        }))
+      );
+    }
+  });
+  return products;
 }

@@ -1,11 +1,20 @@
 import { Router, Request, Response } from 'express';
-import { getCategoriesAndProducts } from './getCategoriesAndProducts';
+import { getCategories, getProducts } from './getCategoriesAndProducts';
 const router = Router();
 
-router.post('/getCategoriesAndProducts', async (req: Request, res: Response) => {
+router.post('/getCategories', async (req: Request, res: Response) => {
     try {
-        const categoriesAndProduct=await getCategoriesAndProducts();
-        res.status(200).send(categoriesAndProduct);
+        const categories=await getCategories();
+        res.status(200).send(categories);
+    } catch (error) {
+        res.sendStatus(400);
+    }
+});
+
+router.post('/getProducts', async (req: Request, res: Response) => {
+    try {
+        const products=await getProducts(req.body.category);
+        res.status(200).send(products);
     } catch (error) {
         res.sendStatus(400);
     }

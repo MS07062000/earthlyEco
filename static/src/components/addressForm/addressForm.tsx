@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { addressCard } from "../address/address";
-import { addNewAddress } from "./helpers/addNewAddress";
-import { editAddress } from "./helpers/editAddress";
+import { addNewAddress } from "../../store/api/addNewAddress";
+import { editAddress } from "../../store/api/editAddress";
 import { useUserAuth } from "../../context/AuthContext";
-import MessageModal from "../MessageModal";
+import { Button, MessageModal } from "..";
 import { useNavigate } from "react-router-dom";
-import Button from "../Button";
+import { Address } from "../../store/interfaces";
 interface InputProps {
     id: string;
     label: string;
@@ -24,9 +23,9 @@ interface SelectProps {
     required?: boolean;
 }
 
-const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressInfo?: addressCard }) => {
+const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressInfo?: Address }) => {
     const navigate = useNavigate();
-    const initialAddress: addressCard = isAdd ? {
+    const initialAddress: Address = isAdd ? {
         fullname: '',
         mobileNumber: '',
         addressLine1: '',
@@ -50,7 +49,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
         isDefault: false
     };
     const { user } = useUserAuth();
-    const [addressCard, setAddressCard] = useState<addressCard>(initialAddress);
+    const [addressCard, setAddressCard] = useState<Address>(initialAddress);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -82,9 +81,9 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
         navigate('/addresses', { replace: true });
     }
 
-    const handleChange = <K extends keyof addressCard>(
+    const handleChange = <K extends keyof Address>(
         key: K,
-        value: addressCard[K]
+        value: Address[K]
     ) => {
         setAddressCard(prevAddressCard => ({
             ...prevAddressCard,
@@ -114,8 +113,8 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                                 required={true} />
                         </div>
                         {[{ id: 'flat-house', label: 'Flat, House No., Building, Company, Apartment', value: addressCard.addressLine1, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('addressLine1', e.target.value), required: true },
-                        { id: 'area-street', label: 'Area, Street, Sector, Village', value: addressCard.addressLine2, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('addressLine2', e.target.value), required:false },
-                        { id: 'landmark', label: 'Landmark', value: addressCard.landmark, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('landmark', e.target.value),required:false },]
+                        { id: 'area-street', label: 'Area, Street, Sector, Village', value: addressCard.addressLine2, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('addressLine2', e.target.value), required: false },
+                        { id: 'landmark', label: 'Landmark', value: addressCard.landmark, onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange('landmark', e.target.value), required: false },]
                             .map(({ id, label, value, onChange, required }) => (<Input
                                 id={id}
                                 label={label}
@@ -155,12 +154,12 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                         />
                         <Button type="submit" text={isAdd ? "Add Address" : "Save Address"} isTextVisible={true} buttonClass="w-full text-sm px-5 py-2.5" />
                         {
-                successMessage != null && <MessageModal isSuccess={true} message={successMessage} setMessage={setSuccessMessage} postProcessingFunction={postProcessingFunction} />
-            }
-            {
-                errorMessage != null && <MessageModal isSuccess={false} message={errorMessage} setMessage={setErrorMessage} />
-            }
-                      
+                            successMessage != null && <MessageModal isSuccess={true} message={successMessage} setMessage={setSuccessMessage} postProcessingFunction={postProcessingFunction} />
+                        }
+                        {
+                            errorMessage != null && <MessageModal isSuccess={false} message={errorMessage} setMessage={setErrorMessage} />
+                        }
+
                     </div>
                 </div>
             </form>

@@ -1,11 +1,8 @@
-import { AuthContextProvider } from "../context/AuthContext"
-import SignIn from '../components/signIn/signIn';
+import { SignIn } from '../components';
 
 const SignInPage = () => {
   return (
-    <AuthContextProvider>
-      <SignIn />
-    </AuthContextProvider>
+    <SignIn />
   )
 }
 

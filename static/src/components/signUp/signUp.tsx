@@ -1,31 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserAuth } from '../../context/AuthContext';
-import Message from '../Message';
-import Icon from '../Icon';
-import Button from '../Button';
+import { signInWithGoogle, signUpWithEmailAndPassword } from '../../store/actions/authActions';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { Button, Icon, Message } from '..';
+
+type SignUpField = "email" | "password" | "confirmPassword";
+
 const SignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const { auth } = useAppSelector((state) => state);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [signUpFormData, setSignUpFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
-  const { authFunctions } = useUserAuth();
 
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  }
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  }
-
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmPassword(e.target.value);
-  }
+  const handleSignUpFormDataChange = (signUpField: SignUpField, e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignUpFormData((prevFormData) => ({
+      ...prevFormData,
+      [signUpField]: e.target.value
+    }));
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -37,29 +35,18 @@ const SignUp = () => {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Check if password and confirmPassword match
-    if (password !== confirmPassword) {
-      setErrorMessage("Password and Confirm Password do not match");
-      return;
-    }
-
-    try {
-      await authFunctions?.registerWithEmailAndPassword(email, password);
-      navigate('/', { replace: true })
-    } catch (error) {
-      setErrorMessage("Error in registering user");
-    }
+    dispatch(signUpWithEmailAndPassword(signUpFormData.email, signUpFormData.password, signUpFormData.confirmPassword));
   }
 
   const handleGoogleSignUp = async () => {
-    try {
-      await authFunctions?.signInWithGoogle();
-      navigate("/")
-    } catch (error) {
-      setErrorMessage("Error in google signup");
-    }
-
+    dispatch(signInWithGoogle());
   }
+
+  useEffect(() => {
+    if (auth.user != null) {
+      navigate("/", { replace: true });
+    }
+  }, [auth])
 
   return (
     <section className="w-full min-h-screen">
@@ -74,17 +61,17 @@ const SignUp = () => {
               Create a account
             </h1>
             {
-              errorMessage &&
-              <Message type="error" message={errorMessage} />
+              auth.errorMessage &&
+              <Message type="error" message={auth.errorMessage} />
             }
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Your email</label>
+                <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Email</label>
                 <input
                   type="email"
                   placeholder="xyz@gmail.com"
-                  value={email}
-                  onChange={handleEmailChange}
+                  value={signUpFormData.email}
+                  onChange={(e) => handleSignUpFormDataChange("email", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
               </div>
               <div>
@@ -92,8 +79,8 @@ const SignUp = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  value={password}
-                  onChange={handlePasswordChange}
+                  value={signUpFormData.password}
+                  onChange={(e) => handleSignUpFormDataChange("password", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
               </div>
               <div>
@@ -101,8 +88,8 @@ const SignUp = () => {
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
+                  value={signUpFormData.confirmPassword}
+                  onChange={(e) => handleSignUpFormDataChange("confirmPassword", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
               </div>
               <Button type='submit' isTextVisible={true} text="Create an account" buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />

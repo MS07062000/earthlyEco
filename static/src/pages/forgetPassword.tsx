@@ -1,11 +1,8 @@
-import { AuthContextProvider } from "../context/AuthContext";
-import ForgetPassword from '../components/forgetPassword/forgetPassword';
+import { ForgetPassword } from "../components";
 
 const ForgetPasswordPage = () => {
   return (
-    <AuthContextProvider>
-      <ForgetPassword/>
-    </AuthContextProvider>
+    <ForgetPassword />
   )
 }
 

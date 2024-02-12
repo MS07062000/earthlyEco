@@ -1,32 +1,33 @@
 import { useNavigate } from "react-router-dom";
-import { useUserAuth } from "../../context/AuthContext";
-import { addressCard } from "../address/address";
-import { deleteAddress } from "./helpers/deleteAddress";
-import { editAddress } from "../addressForm/helpers/editAddress";
-import Button from "../Button";
+import { deleteAddress } from "../../store/api/deleteAddress";
+import { editAddress } from "../../store/api/editAddress";
+import { Address } from "../../store/interfaces";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { Button } from "..";
 
-const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo: addressCard, defaultAddress: addressCard | null, showButtons: boolean }) => {
-    const { user } = useUserAuth();
+const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo: Address, defaultAddress: Address | null, showButtons: boolean }) => {
+    const auth = useAppSelector((state) => state.auth);
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const handleEdit = () => {
-        if (user != null) {
+        if (auth.user != null) {
             navigate('/editAddress', { state: { address: addressInfo } });
         }
     }
 
     const handleDelete = async () => {
-        if (user != null) {
-            await deleteAddress(user.uid, addressInfo);
+        if (auth.user != null) {
+            await deleteAddress(auth.user.uid, addressInfo);
         }
     }
 
     const handleDefault = async () => {
-        if (user != null) {
+        if (auth.user != null) {
             if (defaultAddress != null) {
-                await editAddress(user.uid, defaultAddress, { ...defaultAddress, isDefault: false });
+                await editAddress(auth.user.uid, defaultAddress, { ...defaultAddress, isDefault: false });
             }
 
-            await editAddress(user.uid, addressInfo, { ...addressInfo, isDefault: true });
+            await editAddress(auth.user.uid, addressInfo, { ...addressInfo, isDefault: true });
             navigate(0);
         }
     }
@@ -65,11 +66,11 @@ const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo
             {showButtons &&
                 <>
                     <div className="flex justify-between pt-2">
-                        <Button text="Edit Address" isTextVisible={true} onClick={handleEdit} buttonClass="w-1/2 text-md p-2 mr-2"/>
+                        <Button text="Edit Address" isTextVisible={true} onClick={handleEdit} buttonClass="w-1/2 text-md p-2 mr-2" />
                         <Button text="Delete Address" isTextVisible={true} onClick={handleDelete} buttonClass="w-1/2 text-md p-2" />
                     </div>
                     <div className="pt-2">
-                        {!addressInfo.isDefault &&  <Button text="Make Default" isTextVisible={true} onClick={handleDefault} buttonClass="w-full text-md p-2" />}
+                        {!addressInfo.isDefault && <Button text="Make Default" isTextVisible={true} onClick={handleDefault} buttonClass="w-full text-md p-2" />}
                     </div>
                 </>
             }

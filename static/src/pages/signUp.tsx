@@ -1,11 +1,8 @@
-import { AuthContextProvider } from "../context/AuthContext"
-import SignUp from '../components/signUp/signUp';
+import { SignUp } from '../components';
 
 const SignUpPage = () => {
   return (
-    <AuthContextProvider>
-      <SignUp />
-    </AuthContextProvider>
+    <SignUp />
   )
 }
 

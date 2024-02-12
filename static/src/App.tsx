@@ -14,21 +14,29 @@ import OrdersAndRefunds from './pages/ordersAndRefunds';
 import Address from './pages/address';
 import EditAddress from './pages/editAddressForm';
 import AddAddress from './pages/addAddressForm';
+import { useEffect } from 'react';
+import { authStateChange } from './store/actions/authActions';
+import { useAppDispatch } from './store/hooks';
 
 export default function App() {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(authStateChange());
+  }, []);
+
   return (
     <Routes>
-      <Route path="/signUp" element={<SignUp/>} />
+      <Route path="/signUp" element={<SignUp />} />
       <Route path="/signIn" element={<SignIn />} />
       <Route path="/forgetPassword" element={<ForgetPassword />} />
-      <Route path='/' element={<Home/>}/>
-      <Route path='/products' element={<Product/>}/>
-      <Route path='/wishlist' element={<Wishlist/>}/>
-      <Route path='/cart' element={<ShoppingCart/>}/>
-      <Route path='/ordersAndRefunds' element={<OrdersAndRefunds/>}/>
-      <Route path='/addAddress' element={<AddAddress/>}/>
-      <Route path='/editAddress' element={<EditAddress/>}/>
-      <Route path='/addresses' element={<Address/>}/>
+      <Route path='/' element={<Home />} />
+      <Route path='/products' element={<Product />} />
+      <Route path='/wishlist' element={<Wishlist />} />
+      <Route path='/cart' element={<ShoppingCart />} />
+      <Route path='/ordersAndRefunds' element={<OrdersAndRefunds />} />
+      <Route path='/addAddress' element={<AddAddress />} />
+      <Route path='/editAddress' element={<EditAddress />} />
+      <Route path='/addresses' element={<Address />} />
     </Routes>
   )
 }

@@ -1,13 +1,11 @@
-import { AuthContextProvider } from "../context/AuthContext"
-import Navbar from '../components/Navbar/navbar';
-import Wishlist from "../components/wishlist/wishlist";
+import { Navbar, Wishlist } from '../components';
 
 const WishlistPage = () => {
   return (
-    <AuthContextProvider>
+    <>
       <Navbar />
-      <Wishlist/>
-    </AuthContextProvider>
+      <Wishlist />
+    </>
   )
 }
 

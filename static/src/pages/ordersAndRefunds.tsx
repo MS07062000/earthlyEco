@@ -1,13 +1,11 @@
-import { AuthContextProvider } from "../context/AuthContext"
-import Navbar from '../components/Navbar/navbar';
-import OrdersAndRefunds from "../components/orderAndRefund/ordersAndRefunds";
+import { Navbar, OrdersAndRefunds } from '../components';
 
 const OrdersAndRefundsPage = () => {
   return (
-    <AuthContextProvider>
+    <>
       <Navbar />
       <OrdersAndRefunds />
-    </AuthContextProvider>
+    </>
   )
 }
 

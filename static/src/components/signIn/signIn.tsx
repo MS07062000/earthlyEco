@@ -1,44 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserAuth } from '../../context/AuthContext';
-import Message from '../Message';
-import Icon from '../Icon';
-import Button from '../Button';
+import { Button, Icon, Message } from '..';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { loginWithEmailAndPassword, signInWithGoogle } from '../../store/actions/authActions';
+
+type SignInField = "email" | "password" | "confirmPassword";
+
 const SignIn = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const auth = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { authFunctions } = useUserAuth();
+  const [signInFormData, setSignInFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  }
 
-  const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  }
+  const handleSignInFormDataChange = (signInField: SignInField, e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignInFormData((prevFormData) => ({
+      ...prevFormData,
+      [signInField]: e.target.value,
+    }));
+  };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    try {
-      await authFunctions?.logInWithEmailAndPassword(email, password);
-      navigate("/", { replace: true });
-    } catch (error) {
-      setErrorMessage("Error in signin with Email and Password");
-    }
+    dispatch(loginWithEmailAndPassword(signInFormData.email, signInFormData.password));
   }
 
   const handleGoogleLogin = async () => {
-    try {
-      await authFunctions?.signInWithGoogle();
-      navigate("/", { replace: true });
-    } catch (error) {
-      setErrorMessage("Error in google signin");
-    }
-
+    dispatch(signInWithGoogle());
   }
+
+  useEffect(() => {
+    if (auth.user != null) {
+      navigate("/", { replace: true });
+    }
+  }, [auth.user])
 
   return (
     <section className="w-full min-h-screen">
@@ -53,15 +52,17 @@ const SignIn = () => {
               Sign in to your account
             </h1>
             {
-              errorMessage &&
-              <Message type="error" message={errorMessage} />
+              auth.errorMessage &&
+              <Message type="error" message={auth.errorMessage} />
             }
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Your email</label>
+                <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Email</label>
                 <input type="email" name="email" id="email" className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   placeholder='xyz@gmail.com'
-                  value={email} onChange={handleEmailChange} required />
+                  value={signInFormData.email}
+                  onChange={(e) => handleSignInFormDataChange("email", e)}
+                  required />
               </div>
               <div>
                 <label htmlFor="password" className="block mb-2 text-sm font-medium text-black ">Password</label>
@@ -69,7 +70,8 @@ const SignIn = () => {
                   placeholder="••••••••"
                   name="password"
                   id="password"
-                  onChange={handlePasswordChange}
+                  value={signInFormData.password}
+                  onChange={(e) => handleSignInFormDataChange("password", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
               </div>
               <div>

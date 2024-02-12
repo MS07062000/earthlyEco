@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useUserAuth } from "../../context/AuthContext";
-import Icon from "../Icon";
-import Button from "../Button";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { logout } from "../../store/actions/authActions";
+import { Button, Icon } from "..";
 interface DropdownMenuItemProps {
     to: string;
     text: string;
@@ -10,22 +10,24 @@ interface DropdownMenuItemProps {
     iconColor: string;
 }
 
-
 const Navbar: React.FC = () => {
-    const { user, authFunctions } = useUserAuth();
+    const { auth } = useAppSelector((state) => state);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const onLogout = (() => {
-        try {
-            authFunctions?.logOut();
-        } catch (error) {
-            console.log("Logout");
-        }
+        dispatch(logout());
     });
 
     const handleDropdownToggle = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
+
+    useEffect(() => {
+        if (auth.user == null) {
+            navigate('/signIn');
+        }
+    }, [auth])
 
     return (
         <>
@@ -60,9 +62,9 @@ const Navbar: React.FC = () => {
                     <div className="-mt-1.5 absolute right-2 z-50 w-56 text-base list-none bg-gradient-to-t from-blue-500 via-blue-600 to-blue-700 rounded divide-y divide-gray-100 shadow " id="dropdown">
                         <div className="py-3 px-4">
                             {
-                                user?.name !== user?.email && <span className="block text-sm font-semibold text-white ">{user?.name}</span>
+                                auth.user?.name !== auth.user?.email && <span className="block text-sm font-semibold text-white ">{auth.user?.name}</span>
                             }
-                            <span className="block text-sm text-white font-bold truncate ">{user?.email}</span>
+                            <span className="block text-sm text-white font-bold truncate ">{auth.user?.email}</span>
                         </div>
 
                         <ul className="py-1 md:py-0 text-white " aria-labelledby="dropdown">

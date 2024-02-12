@@ -1,28 +1,28 @@
-import { useState } from 'react';
-import { useUserAuth } from '../../context/AuthContext';
-import Message from '../Message';
-import Button from '../Button';
+import { useEffect, useState } from 'react';
+import { forgetPassword } from '../../store/actions/authActions';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useNavigate } from 'react-router-dom';
+import { Button, Message } from '..';
 const ForgetPassword = () => {
+  const { auth } = useAppSelector((state) => state);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
-  const [successMessage, setSucessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { authFunctions } = useUserAuth();
+
   const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const message = await authFunctions?.sendPasswordReset(email);
-      if (message && typeof message === 'string' && message !== '') {
-        setErrorMessage(null);
-        setSucessMessage(message);
-      }
-    } catch (error) {
-      setErrorMessage("Error in sending password reset link");
-    };
+    dispatch(forgetPassword(email));
   }
+
+  useEffect(() => {
+    if (auth.user === null) {
+      navigate('/signIn');
+    }
+  }, [auth])
 
   return (
     <section className="w-full min-h-screen">
@@ -41,9 +41,9 @@ const ForgetPassword = () => {
                   onChange={handleEmailChange}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mb-4"
                   required />
-                {errorMessage != null && <Message type="error" message={errorMessage} />}
-                {successMessage!= null && <Message type="success" message={successMessage} />}
-                <Button type="submit" text="Continue"  isTextVisible={true} buttonClass='w-full w-full mr-2 mb-2 px-5 py-2.5 text-sm'/>
+                {auth.errorMessage != null && <Message type="error" message={auth.errorMessage} />}
+                {auth.successMessage!= null && <Message type="success" message={auth.successMessage} />}
+                <Button type="submit" text="Continue" isTextVisible={true} buttonClass='w-full w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
               </div>
             </form>
             <p className="text-sm font-medium text-primary-600 hover:underline">

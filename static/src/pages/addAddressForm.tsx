@@ -1,13 +1,11 @@
-import { AuthContextProvider } from "../context/AuthContext"
-import Navbar from '../components/Navbar/navbar';
-import AddressForm from "../components/addressForm/addressForm";
+import { Navbar, AddressForm } from "../components"
 
 const AddAddressFormPage = () => {
   return (
-    <AuthContextProvider>
+    <>
       <Navbar />
-      <AddressForm isAdd={true}/>
-    </AuthContextProvider>
+      <AddressForm isAdd={true} />
+    </>
   )
 }
 

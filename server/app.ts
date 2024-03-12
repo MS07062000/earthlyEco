@@ -18,8 +18,6 @@ const corsOptions: cors.CorsOptions = {
       environment === "development"
         ? ["http://localhost:5173", "http://127.0.0.1:5173"]
         : [
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
             "https://maniecommercestore.web.app",
           ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {

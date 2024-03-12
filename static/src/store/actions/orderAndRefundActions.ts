@@ -4,10 +4,8 @@ import {
   fetchOrdersAndRefundsOfUserInitiated,
   fetchOrdersAndRefundsOfUserSuccess,
 } from "../slices/userOrdersAndRedundsSlice";
-import { getOrderProcessed } from "../api/getOrderProcessed";
-import { getRefundProcessed } from "../api/getRefundProcessed";
-import Refund from "../interfaces/refund";
-import Order from "../interfaces/order";
+import { getUserOrders, getUserRefunds } from "../api";
+import { Refund, Order } from "../interfaces";
 
 export const fetchOrdersAndRefunds =
   (userUID: string) =>
@@ -20,8 +18,8 @@ export const fetchOrdersAndRefunds =
   ) => {
     dispatch(fetchOrdersAndRefundsOfUserInitiated());
     try {
-      const orders: Order[] = await getOrderProcessed(userUID);
-      const refunds: Refund[] = await getRefundProcessed(userUID);
+      const orders: Order[] = await getUserOrders(userUID);
+      const refunds: Refund[] = await getUserRefunds(userUID);
       dispatch(fetchOrdersAndRefundsOfUserSuccess({ orders, refunds }));
     } catch (error) {
       dispatch(

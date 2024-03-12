@@ -3,10 +3,11 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchOrdersAndRefunds } from "../../store/actions/orderAndRefundActions";
 import { Order, Refund, RefundProductInfo, CategoryWithProductsInfo } from "../../store/interfaces";
 import { Message, Spinner } from "..";
+import { memoizedOrdersAndRefundsSelectors } from "../../store/selectors";
 
 const OrdersAndRefunds = () => {
     const dispatch = useAppDispatch();
-    const { auth, ordersAndRefunds } = useAppSelector(state => state);
+    const { auth, ordersAndRefunds } = useAppSelector(memoizedOrdersAndRefundsSelectors);
     useEffect(() => {
         if (auth.user != null) {
             dispatch(fetchOrdersAndRefunds(auth.user.uid));

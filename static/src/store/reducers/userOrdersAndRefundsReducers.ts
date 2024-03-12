@@ -1,7 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import UserOrdersAndRefundsState from "../interfaces/userOrdersAndRefunds";
-import Refund from "../interfaces/refund";
-import Order from "../interfaces/order";
+import { UserOrdersAndRefundsState, Order, Refund } from "../interfaces";
 
 export default {
   fetchOrdersAndRefundsOfUserInitiated(state: UserOrdersAndRefundsState) {

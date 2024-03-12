@@ -11,6 +11,7 @@ router.post('/addToCart', async (req: Request, res: Response) => {
         const quantity = req.body?.quantity;
 
         if (userUID && product && quantity) {
+            console.log("Adding to cart:",userUID, product, quantity);
             await addProductToCart(userUID, product, quantity);
             res.sendStatus(200);
         } else {
@@ -28,6 +29,7 @@ router.post('/removeFromCart', async (req: Request, res: Response) => {
         const quantity = req.body?.quantity;
 
         if (userUID && product && quantity) {
+            console.log("Removing from cart:",userUID, product, quantity);
             await removeFromCart(userUID, product, quantity);
             res.sendStatus(200);
         } else {

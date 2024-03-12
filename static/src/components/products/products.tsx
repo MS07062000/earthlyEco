@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { createOrder } from "../../store/api/createOrder";
+import { createOrder } from "../../store/api";
 import { loadScript } from "../../helpers/loadRazorpayScript";
 import { proceedForPayment } from "../../helpers/proceedForPayment";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
@@ -9,14 +9,15 @@ import { addToOrRemoveFromWishlist, fetchWishlist } from "../../store/actions/wi
 import { addProductToCart, fetchProducts, setProductErrorMessage, setProductSuccessMessage } from "../../store/actions/productActions";
 import { Address, ProductInfo, CategoryWithProductsInfo } from "../../store/interfaces";
 import { Button, Icon, Message, MessageModal, SelectAddressModal } from "..";
+import { memoizedProductSelectors } from "../../store/selectors";
 
 const Products = () => {
-    const { auth, wishlist, address, product } = useAppSelector(state => state);
+    const { auth, wishlist, address, product } = useAppSelector(memoizedProductSelectors);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(window.location.search);
     const category: string = searchParams.get("category") ?? "nuts";
-    const [quantityOfEachProduct, setQuantityOfEachProduct] = useState<any>([]);
+    const [quantityOfEachProduct, setQuantityOfEachProduct] = useState<number[]>([]);
     const [selectAddress, setSelectAddress] = useState<Address | null>(null);
     const [showSelectAddressModal, setShowSelectAddressModal] = useState<boolean>(false);
     const [singleProduct, setSingleProduct] = useState<ProductInfo | null>(null);
@@ -48,13 +49,14 @@ const Products = () => {
     useEffect(() => {
         setQuantityOfEachProduct(Array(product.products.length).fill(1));
     }, [product.products]);
-    const checkWishlist = (productName: string) => {
-        return (wishlist.products.filter((product) => product.name === productName).length > 0);
-    }
 
-    const onWishlist = async (productName: string) => {
+    const productsPresentInWishlist = product.products.map(product =>
+        wishlist.products.some(wishlistProduct => wishlistProduct.name === product.name)
+    );
+
+    const onWishlist = async (productName: string, index: number) => {
         if (auth.user != null) {
-            dispatch(addToOrRemoveFromWishlist(auth.user.uid, productName, true));//logic check needed here also
+            dispatch(addToOrRemoveFromWishlist(auth.user.uid, productName, productsPresentInWishlist[index]));
         }
     }
 
@@ -147,8 +149,8 @@ const Products = () => {
                                     <div key={product.name} className="max-w-xs flex flex-col justify-between items-start rounded-lg border-solid border-2 border-black  p-2">
                                         <div className='group relative z-1 '>
                                             <img className="h-[320px] w-[320px] rounded-lg text-center" loading="lazy" src={product.image} />
-                                            <button onClick={() => { onWishlist(product.name) }} className="hidden group-hover:block absolute -translate-x-1/4 -translate-y-1/4 right-0 top-4" >
-                                                {checkWishlist(product.name) ? <Icon type="red_heart" iconClass="w-8 h-8 text-red-500" /> : <Icon type="heart_outline" iconClass="w-8 h-8" />}
+                                            <button onClick={() => { onWishlist(product.name, index) }} className="hidden group-hover:block absolute -translate-x-1/4 -translate-y-1/4 right-0 top-4" >
+                                                {productsPresentInWishlist[index] ? <Icon type="red_heart" iconClass="w-8 h-8 text-red-500" /> : <Icon type="heart_outline" iconClass="w-8 h-8" />}
                                             </button>
                                         </div>
                                         <p className="text-lg capitalize font-semibold pt-1">{product.name}</p>
@@ -162,7 +164,7 @@ const Products = () => {
                                                 <input className="p-0 w-6 bg-transparent border-0 text-center focus:outline-none focus:ring-0 text-black " type="number"
                                                     min={1}
                                                     max={Math.min(product.quantityAvailable, 10)}
-                                                    value={quantityOfEachProduct[index]}
+                                                    value={quantityOfEachProduct[index] ?? 1}
                                                     readOnly={true}
                                                 />
                                                 {/*onChange={(e) => onChangeOfQuantity(e, index)}*/}

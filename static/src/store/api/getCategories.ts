@@ -1,6 +1,6 @@
 import makeApiRequest from "../../utils/apiUtils";
 
-export const getCategories = async () => {
+export default async () => {
   const requestOptions = {
     url: "getCategories",
   };

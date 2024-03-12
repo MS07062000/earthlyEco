@@ -4,7 +4,7 @@ import {
     fetchCategoriesSuccess,
     fetchCategoriesError,
 } from "../slices/categorySlice";
-import { getCategories } from "../api/getCategories";
+import { getCategories } from "../api";
 
 export const fetchCategories =
   () =>

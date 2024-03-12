@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import { removeProductFromCartOfUser } from "../../store/api/removeProductFromCartOfUser";
 import { loadScript } from "../../helpers/loadRazorpayScript";
 import { proceedForPayment } from "../../helpers/proceedForPayment.js";
-import { createOrder } from "../../store/api/createOrder";
-import { clearCartOfUser } from "../../store/api/clearCartOfUser";
+import { createOrder, clearCartOfUser, removeProductFromCartOfUser } from "../../store/api";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchAddress } from "../../store/actions/addressActions";
 import { decreaseQuantityOfProduct, fetchCart, increaseQuantityOfProduct, moveToWishlistFromCart, removeProductFromCart, setCartErrorMessage, setCartSuccessMessage, updateCartProducts } from "../../store/actions/cartActions";
 import { Button, Icon, Message, MessageModal, SelectAddressModal, SortBy, Spinner } from "..";
 import { CartProductInfo, CategoryWithProductsInfo, Address } from "../../store/interfaces";
+import { memoizedCartSelectors} from "../../store/selectors";
 
 const Cart = () => {
-    const { auth, address, cart } = useAppSelector(state => state);
+    const { auth, address, cart } = useAppSelector(memoizedCartSelectors);
     const dispatch = useAppDispatch();
     const [selectAddress, setSelectAddress] = useState<Address | null>(null);
     const [showSelectAddressModal, setShowSelectAddressModal] = useState<boolean>(false);

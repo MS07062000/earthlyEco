@@ -11,7 +11,7 @@ interface DropdownMenuItemProps {
 }
 
 const Navbar: React.FC = () => {
-    const { auth } = useAppSelector((state) => state);
+    const auth = useAppSelector((state) => state.auth);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();

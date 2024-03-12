@@ -1,4 +1,7 @@
-import { Dispatch } from "@reduxjs/toolkit";
+import { Dispatch as ReactDispatch } from "react";
+import { Dispatch as ReduxDispatch } from "@reduxjs/toolkit";
+
+//try to find out difference between dispatch from redux vs react
 import {
   fetchWishlistOfUserInitiated,
   fetchWishlistOfUserSuccess,
@@ -6,15 +9,17 @@ import {
   updateSuccessMessage,
   updateErrorMessage,
 } from "../slices/userWishlistSlice";
-import { updateWishlistForUser } from "../api/updateWishlistForUser";
-import { addProductToCartOfUser } from "../api/addProductToCartOfUser";
-import ProductInfo from "../interfaces/productInfo";
-import { getUserWishlistWithProductDetails } from "../api/getUserWishlistWithProductDetails";
+import {
+  updateWishlistForUser,
+  addProductToCartOfUser,
+  getUserWishlistWithProductDetails,
+} from "../api";
+import { ProductInfo } from "../interfaces";
 
 export const fetchWishlist =
   (userUID: string) =>
   async (
-    dispatch: Dispatch<
+    dispatch: ReduxDispatch<
       | ReturnType<typeof fetchWishlistOfUserInitiated>
       | ReturnType<typeof fetchWishlistOfUserSuccess>
       | ReturnType<typeof fetchWishlistOfUserFailed>
@@ -31,49 +36,66 @@ export const fetchWishlist =
 
 export const addToOrRemoveFromWishlist =
   (userUID: string, product: string, isAdd: boolean) =>
-  async () => {
+  async (
+    dispatch: ReactDispatch<
+      | ReturnType<typeof setWishlistErrorMessage>
+      | ReturnType<typeof setWishlistSuccessMessage>
+      | ReturnType<typeof fetchWishlist>
+    >
+  ) => {
     try {
       await updateWishlistForUser(userUID, product);
     } catch (error) {
-      setWishlistErrorMessage(
-        isAdd
-          ? `Failed to add ${product} to wishlist`
-          : `Failed to remove ${product} from wishlist`
+      dispatch(
+        setWishlistErrorMessage(
+          isAdd
+            ? `Failed to add ${product} to wishlist`
+            : `Failed to remove ${product} from wishlist`
+        )
       );
       return;
     }
 
     !isAdd &&
-      setWishlistSuccessMessage(
-        `${product} removed from wishlist successfully`
+      dispatch(
+        setWishlistSuccessMessage(
+          `${product} removed from wishlist successfully`
+        )
       );
-    fetchWishlist(userUID);
+    dispatch(fetchWishlist(userUID));
   };
 
 export const moveToCartFromWishlist =
-  (userUID: string, product: string) => async () => {
+  (userUID: string, product: string) =>
+  async (
+    dispatch: ReactDispatch<
+      | ReturnType<typeof setWishlistErrorMessage>
+      | ReturnType<typeof setWishlistSuccessMessage>
+      | ReturnType<typeof fetchWishlist>
+    >
+  ) => {
     try {
       await addProductToCartOfUser(userUID, product, 1);
       await updateWishlistForUser(userUID, product);
     } catch (error) {
-      setWishlistErrorMessage(`Unable to move ${product} to cart`);
+      dispatch(setWishlistErrorMessage(`Unable to move ${product} to cart`));
       return;
     }
-    fetchWishlist(userUID);
-    setWishlistSuccessMessage(`${product} moved to cart successfully`);
+    dispatch(fetchWishlist(userUID));
+    dispatch(setWishlistSuccessMessage(`${product} moved to cart successfully`));
   };
 
 export const setWishlistSuccessMessage =
   (message: string | null) =>
-  (dispatch: Dispatch<ReturnType<typeof updateSuccessMessage>>) =>
+  (dispatch: ReduxDispatch<ReturnType<typeof updateSuccessMessage>>) =>
     dispatch(updateSuccessMessage(message));
 
 export const setWishlistErrorMessage =
   (message: string | null) =>
-  (dispatch: Dispatch<ReturnType<typeof updateErrorMessage>>) =>
+  (dispatch: ReduxDispatch<ReturnType<typeof updateErrorMessage>>) =>
     dispatch(updateErrorMessage(message));
 
 export const setWishlistProducts =
   (products: ProductInfo[]) =>
-  (dispatch: Dispatch<ReturnType<typeof fetchWishlistOfUserSuccess>>) =>
+  (dispatch: ReduxDispatch<ReturnType<typeof fetchWishlistOfUserSuccess>>) =>
     dispatch(fetchWishlistOfUserSuccess(products));

@@ -12,5 +12,5 @@ export type {default as Refund} from"./refund";
 export type {default as RefundProductInfo} from"./refundProductInfo";
 export type {default as UserCartState} from"./userCartState";
 export type {default as UserInfo} from"./userInfo";
-export type {default as UserOrdersAndRefunds} from"./userOrdersAndRefunds";
+export type {default as UserOrdersAndRefundsState} from"./userOrdersAndRefundsState";
 export type {default as UserWishlistState} from"./userWishlistState";

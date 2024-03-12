@@ -1,5 +1,5 @@
 import { Dispatch } from "@reduxjs/toolkit";
-import UserInfo from "../interfaces/userInfo";
+import { UserInfo } from "../interfaces";
 import {
   GoogleAuthProvider,
   User,

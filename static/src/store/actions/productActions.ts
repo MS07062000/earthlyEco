@@ -6,8 +6,7 @@ import {
   fetchProductsInitiated,
   fetchProductsSuccess,
 } from "../slices/productSlice";
-import { getProducts } from "../api/getProduct";
-import { addProductToCartOfUser } from "../api/addProductToCartOfUser";
+import { getProducts, addProductToCartOfUser } from "../api";
 
 export const fetchProducts =
   (category: string) =>

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import UserOrdersAndRefundsState from "../interfaces/userOrdersAndRefunds";
+import UserOrdersAndRefundsState from "../interfaces/userOrdersAndRefundsState";
 import userOrdersAndRefundsReducer from "../reducers/userOrdersAndRefundsReducers";
 
 const usersOrdersAndRefundsSlice = createSlice({

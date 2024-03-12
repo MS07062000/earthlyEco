@@ -33,8 +33,8 @@ const Category = () => {
                                 <div className="mt-10 flex flex-row flex-wrap content-center justify-center gap-2 md:gap-4">
                                     {categoryState.categories.map((category: CategoryInfo, index: number) => {
                                         return (
-                                            <figure onClick={() => { handleRedirect(category.name) }} key={index} className="w-[320px] flex flex-col justify-start items-center">
-                                                <img className="h-[320px] w-[320px] rounded-lg text-center" loading="lazy" src={category.image} alt="image description" />
+                                            <figure onClick={() => { handleRedirect(category.name) }} key={index} className="w-[320px] flex flex-col justify-start items-center ">
+                                                <img className="h-[320px] w-[320px] rounded-lg text-center shadow-[6px_6px_10px_0px_rgba(0,0,0,0.4)]" loading="lazy" src={category.image} alt="image description" />
                                                 <figcaption className="capitalize mt-2 text-center font-medium text-lg ">{category.name}</figcaption>
                                             </figure>
                                         );

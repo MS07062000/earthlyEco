@@ -1,19 +1,21 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistStore } from "redux-persist";
-import authReducer from "./slices/authSlice";
-import addressReducer from "./slices/addressSlice";
-import categoryReducer from "./slices/categorySlice";
-import productReducer from "./slices/productSlice";
-import userWishlistReducer from "./slices/userWishlistSlice";
-import userCartReducer from "./slices/userCartSlice";
-import userOrdersAndRefundsReducer from "./slices/userOrdersAndRedundsSlice";
+import {
+  authReducer,
+  addressReducer,
+  categoryReducer,
+  productReducer,
+  userCartReducer,
+  userOrdersAndRefundsReducer,
+  userWishlistReducer,
+} from "./slices";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     address: addressReducer,
     category: categoryReducer,
-    cart:  userCartReducer,
+    cart: userCartReducer,
     ordersAndRefunds: userOrdersAndRefundsReducer,
     product: productReducer,
     wishlist: userWishlistReducer,

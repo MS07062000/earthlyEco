@@ -1,11 +1,10 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import UserWishlistState from "../interfaces/userWishlistState";
-import ProductInfo from "../interfaces/productInfo";
+import { UserWishlistState, ProductInfo } from "../interfaces";
 
 export default {
   updateErrorMessage(
     state: UserWishlistState,
-    action: PayloadAction<string|null>
+    action: PayloadAction<string | null>
   ) {
     state = {
       ...state,
@@ -16,7 +15,7 @@ export default {
   },
   updateSuccessMessage(
     state: UserWishlistState,
-    action: PayloadAction<string|null>
+    action: PayloadAction<string | null>
   ) {
     state = {
       ...state,

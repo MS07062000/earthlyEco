@@ -1,5 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import {ProductState, ProductInfo } from "../interfaces";
+import { ProductState, ProductInfo } from "../interfaces";
 
 export default {
   fetchProductsInitiated(state: ProductState) {
@@ -34,7 +34,7 @@ export default {
   },
   updateProductSuccessMessage(
     state: ProductState,
-    action: PayloadAction<string|null>
+    action: PayloadAction<string | null>
   ) {
     state = {
       ...state,
@@ -45,7 +45,7 @@ export default {
   },
   updateProductErrorMessage(
     state: ProductState,
-    action: PayloadAction<string|null>
+    action: PayloadAction<string | null>
   ) {
     state = {
       ...state,

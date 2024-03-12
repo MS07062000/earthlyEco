@@ -1,4 +1,5 @@
-import { Dispatch } from "react";
+import { Dispatch as ReactDispatch } from "react";
+import { Dispatch as ReduxDispatch } from "@reduxjs/toolkit";
 import {
   updateCartOfUserSuccess,
   updateCartOfUserFailed,
@@ -6,12 +7,15 @@ import {
   fetchCartOfUserInitiated,
   fetchCartOfUserSuccess,
 } from "../slices/userCartSlice";
-import { addProductToCartOfUser } from "../api/addProductToCartOfUser";
-import { removeProductFromCartOfUser } from "../api/removeProductFromCartOfUser";
-import { clearCartOfUser } from "../api/clearCartOfUser";
-import { getCartOfUser } from "../api/getCartOfUser";
-import { updateWishlistForUser } from "../api/updateWishlistForUser";
+import {
+  addProductToCartOfUser,
+  removeProductFromCartOfUser,
+  clearCartOfUser,
+  getUserCart,
+  updateWishlistForUser,
+} from "../api";
 import { CartProductInfo } from "../interfaces";
+
 const processCartData = async (userUID: string, data: CartProductInfo[]) => {
   let totalAmount = 0;
   const products = await Promise.all(
@@ -42,7 +46,7 @@ const processCartData = async (userUID: string, data: CartProductInfo[]) => {
 export const fetchCart =
   (userUID: string) =>
   async (
-    dispatch: Dispatch<
+    dispatch: ReduxDispatch<
       | ReturnType<typeof fetchCartOfUserInitiated>
       | ReturnType<typeof fetchCartOfUserSuccess>
       | ReturnType<typeof fetchCartOfUserFailed>
@@ -50,7 +54,7 @@ export const fetchCart =
   ) => {
     dispatch(fetchCartOfUserInitiated());
     try {
-      const cart = await getCartOfUser(userUID);
+      const cart = await getUserCart(userUID);
       const { products, totalAmount } = await processCartData(userUID, cart);
       dispatch(fetchCartOfUserSuccess({ products, totalAmount }));
     } catch (error) {
@@ -61,7 +65,7 @@ export const fetchCart =
 export const removeProductFromCart =
   (userUID: string, product: string, quantity: number) =>
   async (
-    dispatch: Dispatch<
+    dispatch: ReactDispatch<
       | ReturnType<typeof setCartSuccessMessage>
       | ReturnType<typeof fetchCart>
       | ReturnType<typeof setCartErrorMessage>
@@ -72,9 +76,7 @@ export const removeProductFromCart =
       dispatch(setCartSuccessMessage(`${product} added to cart successfully`));
       dispatch(fetchCart(userUID));
     } catch (error) {
-      dispatch(
-        setCartErrorMessage(`${product} removed from cart successfully`)
-      );
+      dispatch(setCartErrorMessage(`Unable to remove ${product} from cart.`));
       return;
     }
   };
@@ -82,7 +84,7 @@ export const removeProductFromCart =
 export const clearCart =
   (userUID: string) =>
   async (
-    dispatch: Dispatch<
+    dispatch: ReactDispatch<
       ReturnType<typeof fetchCart> | ReturnType<typeof setCartErrorMessage>
     >
   ) => {
@@ -97,7 +99,7 @@ export const clearCart =
 export const moveToWishlistFromCart =
   (userUID: string, product: string, quantity: number) =>
   async (
-    dispatch: Dispatch<
+    dispatch: ReactDispatch<
       | ReturnType<typeof setCartSuccessMessage>
       | ReturnType<typeof fetchCart>
       | ReturnType<typeof setCartErrorMessage>
@@ -123,8 +125,8 @@ export const increaseQuantityOfProduct =
     index: number
   ) =>
   async (
-    dispatch: Dispatch<
-      | ReturnType<typeof fetchCartOfUserSuccess>
+    dispatch: ReactDispatch<
+      | ReturnType<typeof updateCartProducts>
       | ReturnType<typeof setCartErrorMessage>
     >
   ) => {
@@ -134,24 +136,27 @@ export const increaseQuantityOfProduct =
         productQuantity < cartProducts[index].quantityAvailable &&
         productQuantity < 10
       ) {
+        const updatedCartProducts = [...cartProducts];
+        const updatedProduct = {
+          ...updatedCartProducts[index],
+          quantityByUser: productQuantity + 1,
+        };
+        updatedCartProducts[index] = updatedProduct;
         await removeProductFromCartOfUser(
           userUID,
           cartProducts[index].name,
           productQuantity
         );
-        const updatedCartProducts = [...cartProducts];
-        updatedCartProducts[index].quantityByUser =
-          updatedCartProducts[index].quantityByUser + 1;
         await addProductToCartOfUser(
           userUID,
           cartProducts[index].name,
           updatedCartProducts[index].quantityByUser
         );
         dispatch(
-          fetchCartOfUserSuccess({
-            products: updatedCartProducts,
-            totalAmount: currentTotalAmount + cartProducts[index].price,
-          })
+          updateCartProducts(
+            updatedCartProducts,
+            currentTotalAmount + cartProducts[index].price
+          )
         );
       } else {
         dispatch(
@@ -177,8 +182,8 @@ export const decreaseQuantityOfProduct =
     index: number
   ) =>
   async (
-    dispatch: Dispatch<
-      | ReturnType<typeof fetchCartOfUserSuccess>
+    dispatch: ReactDispatch<
+      | ReturnType<typeof updateCartProducts>
       | ReturnType<typeof setCartErrorMessage>
     >
   ) => {
@@ -191,18 +196,21 @@ export const decreaseQuantityOfProduct =
           productQuantity
         );
         const updatedCartProducts = [...cartProducts];
-        updatedCartProducts[index].quantityByUser =
-          updatedCartProducts[index].quantityByUser - 1;
+        const updatedProduct = {
+          ...updatedCartProducts[index],
+          quantityByUser: productQuantity - 1,
+        };
+        updatedCartProducts[index] = updatedProduct;
         await addProductToCartOfUser(
           userUID,
           cartProducts[index].name,
           updatedCartProducts[index].quantityByUser
         );
         dispatch(
-          fetchCartOfUserSuccess({
-            products: updatedCartProducts,
-            totalAmount: currentTotalAmount + cartProducts[index].price,
-          })
+          updateCartProducts(
+            updatedCartProducts,
+            currentTotalAmount + cartProducts[index].price
+          )
         );
       } else {
         dispatch(
@@ -220,15 +228,15 @@ export const decreaseQuantityOfProduct =
 
 export const setCartErrorMessage =
   (error: string | null) =>
-  (dispatch: Dispatch<ReturnType<typeof updateCartOfUserFailed>>) =>
+  (dispatch: ReduxDispatch<ReturnType<typeof updateCartOfUserFailed>>) =>
     dispatch(updateCartOfUserFailed(error));
 
 export const setCartSuccessMessage =
   (successMessage: string | null) =>
-  (dispatch: Dispatch<ReturnType<typeof updateCartOfUserSuccess>>) =>
+  (dispatch: ReduxDispatch<ReturnType<typeof updateCartOfUserSuccess>>) =>
     dispatch(updateCartOfUserSuccess(successMessage));
 
 export const updateCartProducts =
   (products: CartProductInfo[], totalAmount: number) =>
-  (dispatch: Dispatch<ReturnType<typeof fetchCartOfUserSuccess>>) =>
+  (dispatch: ReduxDispatch<ReturnType<typeof fetchCartOfUserSuccess>>) =>
     dispatch(fetchCartOfUserSuccess({ products, totalAmount }));

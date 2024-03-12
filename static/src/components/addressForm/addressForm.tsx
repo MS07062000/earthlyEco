@@ -1,27 +1,11 @@
 import { useState } from "react";
-import { addNewAddress } from "../../store/api/addNewAddress";
-import { editAddress } from "../../store/api/editAddress";
-import { useUserAuth } from "../../context/AuthContext";
+import { addNewAddress, editUserAddress } from "../../store/api";
 import { Button, MessageModal } from "..";
 import { useNavigate } from "react-router-dom";
 import { Address } from "../../store/interfaces";
-interface InputProps {
-    id: string;
-    label: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    required?: boolean;
-    type?: string;
-    pattern?: string;
-}
-interface SelectProps {
-    id: string;
-    label: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-    options: string[];
-    required?: boolean;
-}
+import { useAppSelector } from "../../store/hooks";
+import Select from "./AddressFormSelect";
+import Input from "./AddressFormInput";
 
 const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressInfo?: Address }) => {
     const navigate = useNavigate();
@@ -48,7 +32,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
         country: 'India',
         isDefault: false
     };
-    const { user } = useUserAuth();
+    const auth = useAppSelector((state) => state.auth);
     const [addressCard, setAddressCard] = useState<Address>(initialAddress);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -63,13 +47,13 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
             setErrorMessage('Please fill in all fields');
         } else {
             setErrorMessage(null);
-            if (user != null) {
+            if (auth.user != null) {
                 if (isAdd) {
-                    await addNewAddress(user.uid, addressCard);
+                    await addNewAddress(auth.user.uid, addressCard);
                     setSuccessMessage('Address added successfully');
 
                 } else {
-                    await editAddress(user.uid, initialAddress, addressCard);
+                    await editUserAddress(auth.user.uid, initialAddress, addressCard);
                     setSuccessMessage('Address edited successfully');
                 }
             }
@@ -168,41 +152,3 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
     );
 }
 export default AddressForm;
-
-const Input: React.FC<InputProps> = ({ id, label, value, onChange, required, type, pattern }) => {
-    return (
-        <div key={id} className="space-y-2">
-            <label className="text-sm font-medium text-black" htmlFor={id}>{label}</label>
-            <input
-                className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5"
-                id={id}
-                placeholder={`Enter your ${label.toLowerCase()}`}
-                value={value}
-                onChange={onChange}
-                required={required}
-                type={type}
-                pattern={pattern}
-            />
-        </div>
-    );
-};
-
-const Select: React.FC<SelectProps> = ({ id, label, value, onChange, options, required }) => {
-    return (
-        <div className="space-y-2">
-            <label htmlFor={id} className="block mb-2 text-sm font-medium text-gray-900">{label}</label>
-            <select
-                id={id}
-                value={value}
-                onChange={onChange}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                required={required}
-            >
-                <option value=''>Choose {label.toLowerCase()}</option>
-                {options.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                ))}
-            </select>
-        </div>
-    );
-};

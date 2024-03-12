@@ -1,11 +1,10 @@
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async (userUID: string, product: string) => {
+export default async (userUID: string) => {
   const requestOptions = {
-    url: "wishlist",
+    url: "getUserCart",
     data: {
       userUID,
-      product,
     },
   };
   return await makeApiRequest(requestOptions);

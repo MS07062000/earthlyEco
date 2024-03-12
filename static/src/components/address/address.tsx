@@ -4,9 +4,9 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchAddress } from "../../store/actions/addressActions";
 import { AddressCard, Button, Message, Spinner } from "..";
 import { Address as address } from "../../store/interfaces";
-
+import { memoizedAddressSelectors } from "../../store/selectors";
 const Address = () => {
-    const { auth, address } = useAppSelector(state => state);
+    const { auth, address } = useAppSelector(memoizedAddressSelectors);
     const dispatch=useAppDispatch();
     useEffect(() => {
         if (auth.user != null) {

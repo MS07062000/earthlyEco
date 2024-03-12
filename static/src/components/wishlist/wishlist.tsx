@@ -4,10 +4,11 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addToOrRemoveFromWishlist, fetchWishlist, moveToCartFromWishlist, setWishlistSuccessMessage, setWishlistErrorMessage, setWishlistProducts } from "../../store/actions/wishlistActions";
 import { ProductInfo } from "../../store/interfaces";
 import { Button, Icon, Message, MessageModal, SortBy, Spinner } from "..";
+import { memoizedWishlistSelectors } from "../../store/selectors";
 
 
 const Wishlist = () => {
-    const { auth, wishlist } = useAppSelector(state => state);
+    const { auth, wishlist } = useAppSelector(memoizedWishlistSelectors);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 

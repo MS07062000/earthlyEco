@@ -1,6 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import AuthState from "../interfaces/authState";
-import UserInfo from "../interfaces/userInfo";
+import { AuthState, UserInfo } from "../interfaces";
 
 export default {
   authInitiated(state: AuthState) {
@@ -13,10 +12,7 @@ export default {
     };
     return state;
   },
-  authSuccess(
-    state: AuthState,
-    action: PayloadAction<UserInfo>
-  ) {
+  authSuccess(state: AuthState, action: PayloadAction<UserInfo>) {
     state = {
       ...state,
       loading: false,
@@ -26,10 +22,7 @@ export default {
     };
     return state;
   },
-  authFailed(
-    state: AuthState,
-    action: PayloadAction<string>
-  ) {
+  authFailed(state: AuthState, action: PayloadAction<string>) {
     state = {
       ...state,
       loading: false,

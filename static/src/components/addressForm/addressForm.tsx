@@ -49,11 +49,11 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
             setErrorMessage(null);
             if (auth.user != null) {
                 if (isAdd) {
-                    await addNewAddress(auth.user.uid, addressCard);
+                    await addNewAddress(addressCard);
                     setSuccessMessage('Address added successfully');
 
                 } else {
-                    await editUserAddress(auth.user.uid, initialAddress, addressCard);
+                    await editUserAddress( initialAddress, addressCard);
                     setSuccessMessage('Address edited successfully');
                 }
             }
@@ -109,7 +109,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                         <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
                             <Input id="pincode"
                                 value={addressCard.pincode}
-                                onChange={(e) => handleChange('fullname', e.target.value)}
+                                onChange={(e) => handleChange('pincode', e.target.value)}
                                 label={"Pincode"}
                                 pattern="[0-9]{6}"
                                 required={true} />
@@ -136,7 +136,7 @@ const AddressForm = ({ isAdd, editAddressInfo }: { isAdd: boolean, editAddressIn
                             options={['United States', 'Canada', 'France', 'Germany', 'India']}
                             required={true}
                         />
-                        <Button type="submit" text={isAdd ? "Add Address" : "Save Address"} isTextVisible={true} buttonClass="w-full text-sm px-5 py-2.5" />
+                        <Button id="submitAddress" type="submit" text={isAdd ? "Add Address" : "Save Address"} isTextVisible={true} buttonClass="w-full text-sm px-5 py-2.5" />
                         {
                             successMessage != null && <MessageModal isSuccess={true} message={successMessage} setMessage={setSuccessMessage} postProcessingFunction={postProcessingFunction} />
                         }

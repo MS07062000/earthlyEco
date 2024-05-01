@@ -10,7 +10,7 @@ import { deleteUserAddress, editUserAddress, getUserAddresses } from "../api";
 import { Address } from "../interfaces";
 
 export const fetchAddress =
-  (userUID: string) =>
+  () =>
   async (
     dispatch: ReduxDispatch<
       | ReturnType<typeof fetchAddressesInitiated>
@@ -21,11 +21,11 @@ export const fetchAddress =
   ) => {
     dispatch(fetchAddressesInitiated());
     try {
-      const data = await getUserAddresses(userUID);
-      const defaultAddress = data.find(
+      const { data: addresses } = await getUserAddresses();
+      const defaultAddress = addresses.find(
         (address: Address) => address.isDefault === true
       );
-      const updatedAddressList = data.filter(
+      const updatedAddressList = addresses.filter(
         (address: Address) => address !== defaultAddress
       );
       if (defaultAddress) {
@@ -43,39 +43,39 @@ export const fetchAddress =
   };
 
 export const deleteAddress =
-  (userUID: string, address: Address) =>
+  (address: Address) =>
   async (dispatch: ReactDispatch<ReturnType<typeof fetchAddress>>) => {
     try {
-      await deleteUserAddress(userUID, address);
-      dispatch(fetchAddress(userUID));
+      await deleteUserAddress(address);
+      dispatch(fetchAddress());
     } catch (error) {
       console.log(error);
     }
   };
 
 export const editAddress =
-  (userUID: string, defaultAddress: Address, address: Address) =>
+  (defaultAddress: Address, address: Address) =>
   async (dispatch: ReactDispatch<ReturnType<typeof fetchAddress>>) => {
     try {
-      await editUserAddress(userUID, defaultAddress, address);
-      dispatch(fetchAddress(userUID));
+      await editUserAddress(defaultAddress, address);
+      dispatch(fetchAddress());
     } catch (error) {
       console.log(error);
     }
   };
 
 export const changeDefaultAddress =
-  (userUID: string, defaultAddress: Address | null, address: Address) =>
+  (defaultAddress: Address | null, address: Address) =>
   async (dispatch: ReactDispatch<ReturnType<typeof fetchAddress>>) => {
     try {
       if (defaultAddress != null) {
-        await editUserAddress(userUID, defaultAddress, {
+        await editUserAddress(defaultAddress, {
           ...defaultAddress,
           isDefault: false,
         });
       }
-      await editUserAddress(userUID, address, { ...address, isDefault: true });
-      dispatch(fetchAddress(userUID));
+      await editUserAddress(address, { ...address, isDefault: true });
+      dispatch(fetchAddress());
     } catch (error) {
       console.log(error);
     }

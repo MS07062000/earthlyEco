@@ -16,19 +16,19 @@ import {
 } from "../api";
 import { CartProductInfo } from "../interfaces";
 
-const processCartData = async (userUID: string, data: CartProductInfo[]) => {
+const processCartData = async (data: CartProductInfo[]) => {
   let totalAmount = 0;
   const products = await Promise.all(
     data.map(async (product: CartProductInfo, index: number) => {
       let updatedProduct = { ...product };
       if (product.quantityByUser > product.quantityAvailable) {
         await removeProductFromCartOfUser(
-          userUID,
+          
           product.name,
           product.quantityByUser
         );
         await addProductToCartOfUser(
-          userUID,
+          
           product.name,
           product.quantityAvailable
         );
@@ -44,7 +44,7 @@ const processCartData = async (userUID: string, data: CartProductInfo[]) => {
 };
 
 export const fetchCart =
-  (userUID: string) =>
+  () =>
   async (
     dispatch: ReduxDispatch<
       | ReturnType<typeof fetchCartOfUserInitiated>
@@ -54,8 +54,8 @@ export const fetchCart =
   ) => {
     dispatch(fetchCartOfUserInitiated());
     try {
-      const cart = await getUserCart(userUID);
-      const { products, totalAmount } = await processCartData(userUID, cart);
+      const { data: cart } = await getUserCart();
+      const { products, totalAmount } = await processCartData( cart);
       dispatch(fetchCartOfUserSuccess({ products, totalAmount }));
     } catch (error) {
       dispatch(fetchCartOfUserFailed("Unable to get cart products"));
@@ -63,7 +63,7 @@ export const fetchCart =
   };
 
 export const removeProductFromCart =
-  (userUID: string, product: string, quantity: number) =>
+  (product: string, quantity: number) =>
   async (
     dispatch: ReactDispatch<
       | ReturnType<typeof setCartSuccessMessage>
@@ -72,9 +72,9 @@ export const removeProductFromCart =
     >
   ) => {
     try {
-      await removeProductFromCartOfUser(userUID, product, quantity);
+      await removeProductFromCartOfUser( product, quantity);
       dispatch(setCartSuccessMessage(`${product} added to cart successfully`));
-      dispatch(fetchCart(userUID));
+      dispatch(fetchCart());
     } catch (error) {
       dispatch(setCartErrorMessage(`Unable to remove ${product} from cart.`));
       return;
@@ -82,22 +82,22 @@ export const removeProductFromCart =
   };
 
 export const clearCart =
-  (userUID: string) =>
+  () =>
   async (
     dispatch: ReactDispatch<
       ReturnType<typeof fetchCart> | ReturnType<typeof setCartErrorMessage>
     >
   ) => {
     try {
-      await clearCartOfUser(userUID);
-      dispatch(fetchCart(userUID));
+      await clearCartOfUser();
+      dispatch(fetchCart());
     } catch (error) {
       dispatch(setCartErrorMessage("Failed to add product to cart"));
     }
   };
 
 export const moveToWishlistFromCart =
-  (userUID: string, product: string, quantity: number) =>
+  (product: string, quantity: number) =>
   async (
     dispatch: ReactDispatch<
       | ReturnType<typeof setCartSuccessMessage>
@@ -106,12 +106,12 @@ export const moveToWishlistFromCart =
     >
   ) => {
     try {
-      await removeProductFromCartOfUser(userUID, product, quantity);
-      await updateWishlistForUser(userUID, product);
+      await removeProductFromCartOfUser( product, quantity);
+      await updateWishlistForUser( product);
       dispatch(
         setCartSuccessMessage(`${product} moved to wishlist successfully`)
       );
-      dispatch(fetchCart(userUID));
+      dispatch(fetchCart());
     } catch (error) {
       dispatch(setCartErrorMessage(`Unable to move ${product} to wishlist`));
     }
@@ -119,7 +119,7 @@ export const moveToWishlistFromCart =
 
 export const increaseQuantityOfProduct =
   (
-    userUID: string,
+    
     cartProducts: CartProductInfo[],
     currentTotalAmount: number,
     index: number
@@ -143,12 +143,12 @@ export const increaseQuantityOfProduct =
         };
         updatedCartProducts[index] = updatedProduct;
         await removeProductFromCartOfUser(
-          userUID,
+          
           cartProducts[index].name,
           productQuantity
         );
         await addProductToCartOfUser(
-          userUID,
+          
           cartProducts[index].name,
           updatedCartProducts[index].quantityByUser
         );
@@ -176,7 +176,6 @@ export const increaseQuantityOfProduct =
 
 export const decreaseQuantityOfProduct =
   (
-    userUID: string,
     cartProducts: CartProductInfo[],
     currentTotalAmount: number,
     index: number
@@ -191,7 +190,6 @@ export const decreaseQuantityOfProduct =
       const productQuantity = cartProducts[index].quantityByUser;
       if (productQuantity > 1) {
         await removeProductFromCartOfUser(
-          userUID,
           cartProducts[index].name,
           productQuantity
         );
@@ -201,8 +199,8 @@ export const decreaseQuantityOfProduct =
           quantityByUser: productQuantity - 1,
         };
         updatedCartProducts[index] = updatedProduct;
+        console.log(updatedCartProducts[index]);
         await addProductToCartOfUser(
-          userUID,
           cartProducts[index].name,
           updatedCartProducts[index].quantityByUser
         );

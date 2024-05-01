@@ -1,8 +1,8 @@
 import { Dispatch } from "@reduxjs/toolkit";
 import {
-    fetchCategoriesInitiated,
-    fetchCategoriesSuccess,
-    fetchCategoriesError,
+  fetchCategoriesInitiated,
+  fetchCategoriesSuccess,
+  fetchCategoriesError,
 } from "../slices/categorySlice";
 import { getCategories } from "../api";
 
@@ -17,8 +17,8 @@ export const fetchCategories =
   ) => {
     dispatch(fetchCategoriesInitiated());
     try {
-      const data = await getCategories();
-      dispatch(fetchCategoriesSuccess(data));
+      const { data: categories } = await getCategories();
+      dispatch(fetchCategoriesSuccess(categories));
     } catch (error) {
       dispatch(fetchCategoriesError("Unable to fetch categories"));
     }

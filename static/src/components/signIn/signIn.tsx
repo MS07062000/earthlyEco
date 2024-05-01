@@ -49,7 +49,7 @@ const SignIn = () => {
               <span className="self-center text-2xl font-semibold whitespace-nowrap ">Earthly Eco</span>
             </a>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-black md:text-2xl">
-              Sign in to your account
+              Sign in
             </h1>
             {
               auth.errorMessage &&
@@ -58,10 +58,11 @@ const SignIn = () => {
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Email</label>
-                <input type="email" name="email" id="email" className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                <input type="email" name="email" id='signInEmail'
                   placeholder='xyz@gmail.com'
                   value={signInFormData.email}
                   onChange={(e) => handleSignInFormDataChange("email", e)}
+                  className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   required />
               </div>
               <div>
@@ -69,7 +70,7 @@ const SignIn = () => {
                 <input type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   name="password"
-                  id="password"
+                  id="signInPassword"
                   value={signInFormData.password}
                   onChange={(e) => handleSignInFormDataChange("password", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
@@ -77,12 +78,12 @@ const SignIn = () => {
               <div>
                 <a href="/forgetPassword" className="text-sm text-blue-600 font-medium text-primary-600 hover:underline">Forgot password?</a>
               </div>
-              <Button type='submit' text="Sign in" isTextVisible={true} buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
+              <Button type='submit' id="signInButton" text="Sign in" isTextVisible={true} buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
               <p className="text-sm font-medium text-black">
                 <span>Don’t have an account yet ?</span><a href="/signUp" className="font-bold text-blue-700 hover:underline"> Sign up</a>
               </p>
             </form>
-            <Button text="Sign in with Google" icon={<Icon type="google" iconClass="h-4 w-4 mr-2" />} buttonClass="w-full text-sm px-5 py-2.5 mr-2 mb-2 inline-flex items-center justify-center" isTextVisible={true} onClick={handleGoogleLogin} />
+            <Button text="Sign in with Google" id="signInWithGoogle" icon={<Icon type="google" iconClass="h-4 w-4 mr-2" />} buttonClass="w-full text-sm px-5 py-2.5 mr-2 mb-2 inline-flex items-center justify-center" isTextVisible={true} onClick={handleGoogleLogin} />
           </div>
         </div>
       </div>

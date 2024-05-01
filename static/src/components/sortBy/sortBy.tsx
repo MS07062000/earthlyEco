@@ -21,6 +21,7 @@ const sortBy = <T extends { price: number }>({ products, setProducts }: ProductS
 
     return (<div className="flex flex-col flex-nowrap items-end gap-1 fixed z-[40] right-4 top-[6.5rem] bg-[#fdd35b] w-full py-1">
         <button
+            id="sortBy"
             onClick={() => { setSortDropdownDisplay(!isSortDropdownDisplay) }}
             className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center" type="button">Sort By {
                 isSortDropdownDisplay ?
@@ -31,10 +32,10 @@ const sortBy = <T extends { price: number }>({ products, setProducts }: ProductS
         </button>
         <div id="dropdown" className={`${isSortDropdownDisplay ? '' : 'hidden'} z-10 divide-y divide-gray-100 rounded-lg shadow min-w-min max-w-xs absolute top-[3rem] bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-md`}>
             <ul className="py-2 text-sm text-white " aria-labelledby="dropdownDefaultButton">
-                <li onClick={() => sortByPrice(true)} className="block px-4 py-2 hover:bg-gray-100 ">
+                <li id="sortLowToHigh" onClick={() => sortByPrice(true)} className="block px-4 py-2 hover:bg-gray-100 ">
                     Price (Low to High)
                 </li>
-                <li onClick={() => sortByPrice(false)}>
+                <li id="sortHighToLow" onClick={() => sortByPrice(false)}>
                     <p className="block px-4 py-2 hover:bg-gray-100 ">Price (High to Low)</p>
                 </li>
             </ul>

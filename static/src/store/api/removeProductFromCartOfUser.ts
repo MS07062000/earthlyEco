@@ -1,10 +1,10 @@
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async (userUID: string, product: string, quantity: number) => {
+export default async ( product: string, quantity: number) => {
   const requestOptions = {
-    url: "removeFromCart",
+    url: "api/v1/cart/remove",
+    method: "DELETE",
     data: {
-      userUID,
       product,
       quantity,
     },

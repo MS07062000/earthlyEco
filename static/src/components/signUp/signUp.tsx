@@ -58,7 +58,7 @@ const SignUp = () => {
               <span className="self-center text-2xl font-semibold whitespace-nowrap ">Earthly Eco</span>
             </a>
             <h1 className="text-xl font-bold leading-tight tracking-tight text-black md:text-2xl">
-              Create a account
+              Create an account
             </h1>
             {
               auth.errorMessage &&
@@ -70,6 +70,7 @@ const SignUp = () => {
                 <input
                   type="email"
                   placeholder="xyz@gmail.com"
+                  id="signUpEmail"
                   value={signUpFormData.email}
                   onChange={(e) => handleSignUpFormDataChange("email", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
@@ -79,6 +80,7 @@ const SignUp = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
+                  id="signUpPassword"
                   value={signUpFormData.password}
                   onChange={(e) => handleSignUpFormDataChange("password", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
@@ -92,12 +94,12 @@ const SignUp = () => {
                   onChange={(e) => handleSignUpFormDataChange("confirmPassword", e)}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required />
               </div>
-              <Button type='submit' isTextVisible={true} text="Create an account" buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
+              <Button type='submit' id="signUpButton" isTextVisible={true} text="Create an account" buttonClass='w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
               <p className="text-sm font-medium">
                 Already have an account? <a href="/signIn" className="font-bold text-blue-700 hover:underline"> Sign in</a>
               </p>
             </form>
-            <Button text="Sign up with Google" isTextVisible={true} icon={<Icon type="google" iconClass="h-4 w-4 mr-2" />} buttonClass="w-full text-sm px-5 py-2.5 mr-2 mb-2 inline-flex items-center justify-center" onClick={handleGoogleSignUp} />
+            <Button text="Sign up with Google" id="signUpWithGoogle" isTextVisible={true} icon={<Icon type="google" iconClass="h-4 w-4 mr-2" />} buttonClass="w-full text-sm px-5 py-2.5 mr-2 mb-2 inline-flex items-center justify-center" onClick={handleGoogleSignUp} />
           </div>
         </div>
       </div>

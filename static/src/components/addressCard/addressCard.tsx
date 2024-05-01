@@ -16,13 +16,13 @@ const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo
 
     const handleDelete = async () => {
         if (auth.user != null) {
-           dispatch(deleteAddress(auth.user.uid, addressInfo));
+           dispatch(deleteAddress(addressInfo));
         }
     }
 
     const handleDefault = async () => {
         if (auth.user != null) {
-            dispatch(changeDefaultAddress(auth.user.uid, defaultAddress, addressInfo));
+            dispatch(changeDefaultAddress(defaultAddress, addressInfo));
         }
     }
 
@@ -60,11 +60,11 @@ const AddressCard = ({ addressInfo, defaultAddress, showButtons }: { addressInfo
             {showButtons &&
                 <>
                     <div className="flex jusify-start pt-2">
-                        <Button text="Edit Address" isTextVisible={false} icon={<Icon type="edit" />} onClick={handleEdit} buttonClass="text-md p-2 mr-2" />
-                        <Button text="Delete Address" isTextVisible={false} icon={<Icon type="delete" />} onClick={handleDelete} buttonClass="text-md p-2" />
+                        <Button id="editAddress" text="Edit Address" isTextVisible={false} icon={<Icon type="edit" />} onClick={handleEdit} buttonClass="text-md p-2 mr-2" />
+                        <Button id="deleteAddress" text="Delete Address" isTextVisible={false} icon={<Icon type="delete" />} onClick={handleDelete} buttonClass="text-md p-2" />
                     </div>
                     <div className="pt-2">
-                        {!addressInfo.isDefault && <Button text="Make Default" isTextVisible={true} onClick={handleDefault} buttonClass="w-full text-md p-2" />}
+                        {!addressInfo.isDefault && <Button id="makeDefault" text="Make Default" isTextVisible={true} onClick={handleDefault} buttonClass="w-full text-md p-2" />}
                     </div>
                 </>
             }

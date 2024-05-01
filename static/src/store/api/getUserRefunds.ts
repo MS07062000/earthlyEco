@@ -1,11 +1,9 @@
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async (userUID: string) => {
+export default async () => {
   const requestOptions = {
-    url: "getUserRefunds",
-    data: {
-      userUID,
-    },
+    url: "api/v1/refund",
+    method: "GET"
   };
 
   return await makeApiRequest(requestOptions);

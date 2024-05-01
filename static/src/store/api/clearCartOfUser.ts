@@ -1,12 +1,10 @@
 
 import makeApiRequest from '../../utils/apiUtils';
 
-export default async (userUID:string) => {
+export default async () => {
     const requestOptions = {
-        url: 'clearCartOfUser',
-        data:{
-            userUID,
-        },
+        url: 'api/v1/cart/clear',
+        method: 'DELETE',
     };
     
     return await makeApiRequest(requestOptions);

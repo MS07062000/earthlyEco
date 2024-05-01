@@ -1,11 +1,11 @@
 import makeApiRequest from "../../utils/apiUtils";
 import { Address } from "../interfaces";
 
-export default async ( userUID: string, oldAddress: Address, newAddress: Address ) => {
+export default async ( oldAddress: Address, newAddress: Address ) => {
   const requestOptions = {
-    url: "editAddress",
+    url: "api/v1/address",
+    method: "PUT",
     data: {
-      userUID,
       oldAddress,
       newAddress,
     },

@@ -14,21 +14,21 @@ const Wishlist = () => {
 
     useEffect(() => {
         if (auth.user != null) {
-            dispatch(fetchWishlist(auth.user.uid));
+            dispatch(fetchWishlist());
         } else {
-            navigate("/login");
+            navigate("/signIn");
         }
     }, [auth.user]);
 
     const deleteFromWishlist = async (productName: string) => {
         if (auth.user != null) {
-            dispatch(addToOrRemoveFromWishlist(auth.user.uid, productName, false));
+            dispatch(addToOrRemoveFromWishlist(productName, false, true));
         }
     }
 
     const moveToCart = async (productName: string) => {
         if (auth.user != null) {
-            dispatch(moveToCartFromWishlist(auth.user.uid, productName));
+            dispatch(moveToCartFromWishlist(productName));
         }
     }
 
@@ -68,13 +68,13 @@ const Wishlist = () => {
                                                         <p className="text-xl font-bold py-1">&#x20B9;{product.price}</p>
                                                     </div>
                                                     <div className="w-full flex flex-row justify-start flex-nowrap gap-2">
-                                                        <Button isTextVisible={false} text="Delete" icon={<Icon type="delete" iconClass="h-5 w-5" />} onClick={() => { deleteFromWishlist(product.name); }} buttonClass="text-sm p-2.5" />
-                                                        <Button isTextVisible={false} disabled={product.quantityAvailable <= 0} text="Add To Cart" icon={<Icon type="add_to_cart" iconClass="h-5 w-5" />} onClick={() => { moveToCart(product.name); }} buttonClass="text-sm p-2.5" />
+                                                        <Button id={`deleteFromWishlist-${product.name}`} isTextVisible={false} text="Delete" icon={<Icon type="delete" iconClass="h-5 w-5" />} onClick={() => { deleteFromWishlist(product.name); }} buttonClass="text-sm p-2.5" />
+                                                        <Button id={`moveToCart-${product.name}`} isTextVisible={false} disabled={product.quantityAvailable <= 0} text="Add To Cart" icon={<Icon type="add_to_cart" iconClass="h-5 w-5" />} onClick={() => { moveToCart(product.name); }} buttonClass="text-sm p-2.5" />
                                                     </div>
                                                 </div>
                                                 {
                                                     product.quantityAvailable <= 0 &&
-                                                    <div className="w-full flex absolute bg-[white] h-full opacity-[0.65] items-center justify-center left-0 top-0 rounded-lg">
+                                                    <div id={`outOfStock-${product.name}`} className="w-full flex absolute bg-[white] h-full opacity-[0.65] items-center justify-center left-0 top-0 rounded-lg">
                                                         <p className="text-xl font-bold text-red-700">Out of stock</p>
                                                     </div>
                                                 }

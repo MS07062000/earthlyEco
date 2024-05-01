@@ -1,6 +1,9 @@
+import Order from "./order";
+import Refund from "./refund";
+
 export default interface UserOrdersAndRefundsState {
   loading: boolean;
-  orders:any[];
-  refunds:any[];
+  orders: Order[];
+  refunds: Refund[];
   error: string | null;
 }

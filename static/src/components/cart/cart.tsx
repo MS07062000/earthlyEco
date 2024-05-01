@@ -7,9 +7,11 @@ import { fetchAddress } from "../../store/actions/addressActions";
 import { decreaseQuantityOfProduct, fetchCart, increaseQuantityOfProduct, moveToWishlistFromCart, removeProductFromCart, setCartErrorMessage, setCartSuccessMessage, updateCartProducts } from "../../store/actions/cartActions";
 import { Button, Icon, Message, MessageModal, SelectAddressModal, SortBy, Spinner } from "..";
 import { CartProductInfo, CategoryWithProductsInfo, Address } from "../../store/interfaces";
-import { memoizedCartSelectors} from "../../store/selectors";
+import { memoizedCartSelectors } from "../../store/selectors";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+    const navigate = useNavigate();
     const { auth, address, cart } = useAppSelector(memoizedCartSelectors);
     const dispatch = useAppDispatch();
     const [selectAddress, setSelectAddress] = useState<Address | null>(null);
@@ -18,13 +20,15 @@ const Cart = () => {
 
     useEffect(() => {
         if (auth.user != null) {
-            dispatch(fetchCart(auth.user.uid));
+            dispatch(fetchCart());
             getListOfAddressesOfUser();
+        } else {
+            navigate('/signIn');
         }
     }, [auth.user]);
 
     const getListOfAddressesOfUser = () => {
-        dispatch(fetchAddress(auth.user!.uid));
+        dispatch(fetchAddress());
         if (address.addresses.length > 0) {
             setSelectAddress(address.addresses[0]);
         }
@@ -32,22 +36,22 @@ const Cart = () => {
 
     const onDeleteFromCart = async (productName: string, quantityByUser: number) => {
         if (auth.user != null) {
-            dispatch(removeProductFromCart(auth.user!.uid, productName, quantityByUser));
+            dispatch(removeProductFromCart(productName, quantityByUser));
         }
     }
 
     const moveFromCartToWishlist = async (productName: string, quantityByUser: number) => {
         if (auth.user != null) {
-            dispatch(moveToWishlistFromCart(auth.user!.uid, productName, quantityByUser));
+            dispatch(moveToWishlistFromCart(productName, quantityByUser));
         }
     }
 
     const incrementQuantity = async (index: number) => {
-        dispatch(increaseQuantityOfProduct(auth.user!.uid, cart.products, cart.totalAmount, index));
+        dispatch(increaseQuantityOfProduct(cart.products, cart.totalAmount, index));
     }
 
     const decrementQuantity = async (index: number) => {
-        dispatch(decreaseQuantityOfProduct(auth.user!.uid, cart.products, cart.totalAmount, index));
+        dispatch(decreaseQuantityOfProduct(cart.products, cart.totalAmount, index));
     }
 
     // const onChangeOfQuantity = async (event: any, index: number) => {
@@ -56,10 +60,10 @@ const Cart = () => {
     //         const newproductQuantity = Number(event.target.value);
     //         console.log(productQuantity, newproductQuantity);
     //         if (newproductQuantity >= 1 && newproductQuantity <= cartProducts[index].quantityAvailable && newproductQuantity <= 10) {
-    //             await removeProductFromCartOfUser(auth.user!.uid, cartProducts[index].name, productQuantity);
+    //             await removeProductFromCartOfUser( cartProducts[index].name, productQuantity);
     //             const updatedCartProducts = [...cartProducts];
     //             updatedCartProducts[index].quantityByUser = newproductQuantity;
-    //             await addProductToCartOfUser(auth.user!.uid, cartProducts[index].name, updatedCartProducts[index].quantityByUser);
+    //             await addProductToCartOfUser( cartProducts[index].name, updatedCartProducts[index].quantityByUser);
     //             setCartProducts(updatedCartProducts);
     //             setTotalAmount(totalAmount + ((newproductQuantity - productQuantity) * cartProducts[index].price));
     //         } else {
@@ -102,14 +106,14 @@ const Cart = () => {
             }, []);
 
             try {
-                const orderID = await createOrder(auth.user!.uid, categoryWithProducts, cart.totalAmount, selectAddress!);
+                const orderID = await createOrder(categoryWithProducts, cart.totalAmount, selectAddress!);
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
                             proceedForPayment(auth.user!.email, orderID).then(async (isPaymentSuccess) => {
                                 if (isPaymentSuccess) {
-                                    await clearCartOfUser(auth.user!.uid);
-                                    dispatch(fetchCart(auth.user!.uid));
+                                    await clearCartOfUser();
+                                    dispatch(fetchCart());
                                     dispatch(setCartSuccessMessage(`Your order has been processed with order id ${orderID}.`));
                                 }
                             });
@@ -129,14 +133,14 @@ const Cart = () => {
         if (auth.user != null && singleProduct != null) {
             const categoryWithProducts: CategoryWithProductsInfo[] = [{ category: singleProduct.category, products: [{ name: singleProduct.name, image: singleProduct.image, quantity: singleProduct.quantityByUser, price: singleProduct.price }] }];
             try {
-                const orderID = await createOrder(auth.user!.uid, categoryWithProducts, singleProduct.quantityByUser * singleProduct.price, selectAddress!);
+                const orderID = await createOrder(categoryWithProducts, singleProduct.quantityByUser * singleProduct.price, selectAddress!);
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
                             proceedForPayment(auth.user!.email, orderID).then(async (isPaymentSuccess) => {
                                 if (isPaymentSuccess) {
-                                    await removeProductFromCartOfUser(auth.user!.uid, singleProduct.name, singleProduct.quantityByUser);
-                                    dispatch(fetchCart(auth.user!.uid));
+                                    await removeProductFromCartOfUser(singleProduct.name, singleProduct.quantityByUser);
+                                    dispatch(fetchCart());
                                     dispatch(setCartSuccessMessage(`Your order for the product ${singleProduct.name} with a quantity of ${singleProduct.quantityByUser} has been processed with order id ${orderID}.`));
                                 }
                             });
@@ -207,7 +211,7 @@ const Cart = () => {
                                                     </div>
 
                                                     <div className="flex items-center gap-x-1.5">
-                                                        <Button text="" buttonClass="p-2 text-sm" icon={<Icon type="minus" />} onClick={() => decrementQuantity(index)} isTextVisible={false} />
+                                                        <Button id={`decrement-${index}`} text="" buttonClass="p-2 text-sm" icon={<Icon type="minus" />} onClick={() => decrementQuantity(index)} isTextVisible={false} />
                                                         <input className="p-0 w-6 bg-transparent border-0 text-center focus:outline-none focus:ring-0 text-black " type="number"
                                                             min={1}
                                                             max={Math.min(product.quantityAvailable, 10)}
@@ -215,15 +219,15 @@ const Cart = () => {
                                                             readOnly={true}
                                                         />
                                                         {/*onChange={(e) => onChangeOfQuantity(e, index)}*/}
-                                                        <Button text="" buttonClass="p-2 text-sm" icon={<Icon type="plus" />} isTextVisible={false} onClick={() => incrementQuantity(index)} />
+                                                        <Button id={`increment-${index}`} text="" buttonClass="p-2 text-sm" icon={<Icon type="plus" />} isTextVisible={false} onClick={() => incrementQuantity(index)} />
                                                     </div>
 
                                                     <div className="w-full flex flex-row justify-start flex-nowrap gap-2">
-                                                        <Button isTextVisible={false} text="Delete" icon={<Icon type="delete" iconClass="h-5 w-5" />} onClick={() => { onDeleteFromCart(product.name, product.quantityByUser); }} buttonClass="text-sm p-2.5" />
-                                                        <Button isTextVisible={false} disabled={product.quantityAvailable <= 0} text="Move to Wishlist" icon={<Icon type="red_heart" iconClass="h-5 w-5" />} onClick={() => { moveFromCartToWishlist(product.name, product.quantityByUser) }} buttonClass="text-sm p-2.5" />
-                                                        <Button isTextVisible={true} disabled={product.quantityAvailable <= 0} text="Buy Now" onClick={() => { processBuyNow(product) }} buttonClass="hidden md:block w-auto text-md p-2" />
+                                                        <Button id={`delete-${index}`} isTextVisible={false} text="Delete" icon={<Icon type="delete" iconClass="h-5 w-5" />} onClick={() => { onDeleteFromCart(product.name, product.quantityByUser); }} buttonClass="text-sm p-2.5" />
+                                                        <Button id={`move-to-wishlist-${index}`} isTextVisible={false} disabled={product.quantityAvailable <= 0} text="Move to Wishlist" icon={<Icon type="red_heart" iconClass="h-5 w-5" />} onClick={() => { moveFromCartToWishlist(product.name, product.quantityByUser) }} buttonClass="text-sm p-2.5" />
+                                                        <Button id={`buy-now-${index}`} isTextVisible={true} disabled={product.quantityAvailable <= 0} text="Buy Now" onClick={() => { processBuyNow(product) }} buttonClass="hidden md:block w-auto text-md p-2" />
                                                     </div>
-                                                    <Button isTextVisible={true} disabled={product.quantityAvailable <= 0} text="Buy Now" onClick={() => { processBuyNow(product) }} buttonClass="block md:hidden w-auto text-md p-2" />
+                                                    <Button id={`buy-now-${index}`} isTextVisible={true} disabled={product.quantityAvailable <= 0} text="Buy Now" onClick={() => { processBuyNow(product) }} buttonClass="block md:hidden w-auto text-md p-2" />
                                                 </div>
                                                 {
                                                     product.quantityAvailable <= 0 &&
@@ -237,7 +241,7 @@ const Cart = () => {
                                 </div>
                                 <div className="fixed bottom-0 left-0 z-50 w-full h-24 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700  flex flex-col  justify-between items-stretch p-2 md:h-16 md:flex-row md:items-center">
                                     <p className="text-2xl font-medium text-white">Subtotal: &#x20B9;{cart.totalAmount} </p>
-                                    <button type="button" onClick={() => { processCompleteOrder() }} className="text-black bg-[#fdd35b] focus:ring-4 focus:outline-none hover:bg-yellow-300 focus:ring-yellow-200 font-medium rounded-lg text-xl p-2 text-center">
+                                    <button id="place-order" type="button" onClick={() => { processCompleteOrder() }} className="text-black bg-[#fdd35b] focus:ring-4 focus:outline-none hover:bg-yellow-300 focus:ring-yellow-200 font-medium rounded-lg text-xl p-2 text-center">
                                         Place Order
                                     </button>
                                 </div>

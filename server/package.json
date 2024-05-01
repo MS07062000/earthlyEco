@@ -1,15 +1,17 @@
 {
   "scripts": {
-    "start": "node app.ts",
+    "start": "ts-node app.ts",
     "dev": "nodemon app.ts",
     "build": "tsc"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "firebase": "^10.7.1",
+    "firebase-admin": "^12.0.0",
     "razorpay": "^2.9.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"

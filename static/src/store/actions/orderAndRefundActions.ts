@@ -8,7 +8,7 @@ import { getUserOrders, getUserRefunds } from "../api";
 import { Refund, Order } from "../interfaces";
 
 export const fetchOrdersAndRefunds =
-  (userUID: string) =>
+  () =>
   async (
     dispatch: Dispatch<
       | ReturnType<typeof fetchOrdersAndRefundsOfUserInitiated>
@@ -18,8 +18,9 @@ export const fetchOrdersAndRefunds =
   ) => {
     dispatch(fetchOrdersAndRefundsOfUserInitiated());
     try {
-      const orders: Order[] = await getUserOrders(userUID);
-      const refunds: Refund[] = await getUserRefunds(userUID);
+      const { data: orders }: { data: Order[] } = await getUserOrders();
+      const { data: refunds }: { data: Refund[] } = await getUserRefunds();  
+      // console.log(orders, refunds);    
       dispatch(fetchOrdersAndRefundsOfUserSuccess({ orders, refunds }));
     } catch (error) {
       dispatch(

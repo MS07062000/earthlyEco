@@ -1,11 +1,11 @@
 import makeApiRequest from "../../utils/apiUtils";
 import { Address } from "../interfaces";
 
-export default async (userUID: string, address: Address) => {
+export default async (address: Address) => {
   const requestOptions = {
-    url: "deleteAddress",
+    url: "api/v1/address",
+    method: "DELETE",
     data: {
-      userUID: userUID,
       address: address,
     },
   };

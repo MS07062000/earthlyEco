@@ -20,9 +20,10 @@ import { useAppDispatch } from './store/hooks';
 
 export default function App() {
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(authStateChange());
-  }, []);
+  // useEffect(() => {
+  //   console.log("App mounted and dispatching authStateChange");
+  //   dispatch(authStateChange());
+  // }, []);
 
   return (
     <Routes>

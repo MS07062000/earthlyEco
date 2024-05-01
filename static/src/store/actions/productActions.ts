@@ -19,15 +19,15 @@ export const fetchProducts =
   ) => {
     dispatch(fetchProductsInitiated());
     try {
-      const data = await getProducts(category);
-      dispatch(fetchProductsSuccess(data));
+      const { data: products } = await getProducts(category);
+      dispatch(fetchProductsSuccess(products));
     } catch (error) {
       dispatch(fetchProductsError("Unable to fetch categories"));
     }
   };
 
 export const addProductToCart =
-  (userUID: string, product: string, quantity: number) =>
+  (product: string, quantity: number) =>
   async (
     dispatch: Dispatch<
       | ReturnType<typeof updateProductErrorMessage>
@@ -35,7 +35,7 @@ export const addProductToCart =
     >
   ) => {
     try {
-      await addProductToCartOfUser(userUID, product, quantity);
+      await addProductToCartOfUser(product, quantity);
       dispatch(
         updateProductSuccessMessage(`${product} added to cart successfully`)
       );

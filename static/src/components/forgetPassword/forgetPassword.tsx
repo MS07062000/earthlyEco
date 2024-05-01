@@ -19,8 +19,8 @@ const ForgetPassword = () => {
   }
 
   useEffect(() => {
-    if (auth.user === null) {
-      navigate('/signIn');
+    if (auth.user !== null) {
+      navigate('/', { replace: true });
     }
   }, [auth])
 
@@ -37,13 +37,13 @@ const ForgetPassword = () => {
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               <div>
                 <label htmlFor="email" className="block mb-2 text-sm font-medium text-black">Enter the email address associated with your account and we'll send you a link to reset your password.</label>
-                <input type="email" placeholder="Email" value={email}
+                <input type="email" placeholder="Email" value={email} id="email"
                   onChange={handleEmailChange}
                   className="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mb-4"
                   required />
                 {auth.errorMessage != null && <Message type="error" message={auth.errorMessage} />}
                 {auth.successMessage!= null && <Message type="success" message={auth.successMessage} />}
-                <Button type="submit" text="Continue" isTextVisible={true} buttonClass='w-full w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
+                <Button id="forgetPasswordButton" type="submit" text="Continue" isTextVisible={true} buttonClass='w-full w-full mr-2 mb-2 px-5 py-2.5 text-sm' />
               </div>
             </form>
             <p className="text-sm font-medium text-primary-600 hover:underline">

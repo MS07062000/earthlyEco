@@ -1,11 +1,9 @@
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async (userUID: string) => {
+export default async () => {
   const requestOptions = {
-    url: "getAddress",
-    data: {
-      userUID,
-    },
+    url: "api/v1/address",
+    method: "GET"
   };
 
   return await makeApiRequest(requestOptions);

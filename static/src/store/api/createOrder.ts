@@ -1,11 +1,11 @@
 import { Address, CategoryWithProductsInfo } from "../interfaces";
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async (userUID: string, categoryWithProductsInfo: CategoryWithProductsInfo[], amount: number, deliveryAddress: Address ) => {
+export default async (categoryWithProductsInfo: CategoryWithProductsInfo[], amount: number, deliveryAddress: Address ) => {
   const requestOptions = {
-    url: "createOrder",
+    url: "api/v1/order/create",
+    method: "POST",
     data: {
-      userUID,
       categoryWithProductsInfo,
       amount,
       deliveryAddress,

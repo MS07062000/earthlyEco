@@ -24,10 +24,10 @@ const Products = () => {
     const [quantityToBuyNow, setQuantityToBuyNow] = useState<number>(1);
 
     const getWishlistProducts = () => {
-        dispatch(fetchWishlist(auth.user!.uid));
+        dispatch(fetchWishlist());
     }
     const getListOfAddressesOfUser = () => {
-        dispatch(fetchAddress(auth.user!.uid));
+        dispatch(fetchAddress());
         if (address.addresses.length > 0) {
             setSelectAddress(address.addresses[0]);
         }
@@ -41,8 +41,6 @@ const Products = () => {
         if (auth.user != null) {
             getWishlistProducts();
             getListOfAddressesOfUser();
-        } else {
-            navigate("/login");
         }
     }, [auth.user]);
 
@@ -56,13 +54,17 @@ const Products = () => {
 
     const onWishlist = async (productName: string, index: number) => {
         if (auth.user != null) {
-            dispatch(addToOrRemoveFromWishlist(auth.user.uid, productName, productsPresentInWishlist[index]));
+            dispatch(addToOrRemoveFromWishlist(productName, !productsPresentInWishlist[index], false));
+        }else{
+            navigate("/signIn");
         }
     }
 
     const onAddToCart = async (productName: string, quantity: number) => {
         if (auth.user != null) {
-            dispatch(addProductToCart(auth.user.uid, productName, quantity));
+            dispatch(addProductToCart(productName, quantity));
+        }else {
+            navigate("/signIn");
         }
     }
 
@@ -95,7 +97,7 @@ const Products = () => {
         if (auth.user != null && singleProduct != null) {
             const categoryWithProducts: CategoryWithProductsInfo[] = [{ category: category, products: [{ name: singleProduct.name, image: singleProduct.image, quantity: quantityToBuyNow, price: singleProduct.price }] }];
             try {
-                const orderID = await createOrder(auth.user!.uid, categoryWithProducts, quantityToBuyNow * singleProduct.price, selectAddress!);
+                const orderID = await createOrder(categoryWithProducts, quantityToBuyNow * singleProduct.price, selectAddress!);
                 if (orderID) {
                     loadScript().then((isScriptLoaded) => {
                         if (isScriptLoaded) {
@@ -112,10 +114,17 @@ const Products = () => {
             } catch (error) {
                 dispatch(setProductErrorMessage("Unable to place order"));
             }
+        }else{
+            navigate("/signIn");
         }
     }
 
     const processBuyNow = (index: number, product: ProductInfo) => {
+        if(auth.user == null){
+            navigate("/signIn");
+            return;
+        }
+
         if (address.addresses.length === 0) {
             dispatch(setProductErrorMessage("Please add address for delivery in your profile"));
             return;
@@ -160,7 +169,7 @@ const Products = () => {
                                         }
                                         <div className="py-2" data-hs-input-number>
                                             <div className="flex items-center gap-x-1.5">
-                                                <Button text="" buttonClass="p-2 text-sm" icon={<Icon type="minus" />} onClick={() => decrementQuantity(index)} isTextVisible={false} />
+                                                <Button id="decrement-button" text="" buttonClass="p-2 text-sm" icon={<Icon type="minus" />} onClick={() => decrementQuantity(index)} isTextVisible={false} />
                                                 <input className="p-0 w-6 bg-transparent border-0 text-center focus:outline-none focus:ring-0 text-black " type="number"
                                                     min={1}
                                                     max={Math.min(product.quantityAvailable, 10)}
@@ -168,12 +177,12 @@ const Products = () => {
                                                     readOnly={true}
                                                 />
                                                 {/*onChange={(e) => onChangeOfQuantity(e, index)}*/}
-                                                <Button text="" buttonClass="p-2 text-sm" icon={<Icon type="plus" />} isTextVisible={false} onClick={() => incrementQuantity(index)} />
+                                                <Button id="increment-button" text="" buttonClass="p-2 text-sm" icon={<Icon type="plus" />} isTextVisible={false} onClick={() => incrementQuantity(index)} />
                                             </div>
                                         </div>
                                         <div className="flex flex-row justify-center items-stretch w-full">
-                                            <Button text="Add to cart" buttonClass={"w-1/2 text-md p-2 mr-2"} isTextVisible={true} onClick={() => onAddToCart(product.name, quantityOfEachProduct[index])} />
-                                            <Button text="Buy now" buttonClass={"w-1/2 text-md p-2"} isTextVisible={true} onClick={() => processBuyNow(index, product)} />
+                                            <Button id="add-to-cart-button" text="Add to cart" buttonClass={"w-1/2 text-md p-2 mr-2"} isTextVisible={true} onClick={() => onAddToCart(product.name, quantityOfEachProduct[index])} />
+                                            <Button id="buy-now-button" text="Buy now" buttonClass={"w-1/2 text-md p-2"} isTextVisible={true} onClick={() => processBuyNow(index, product)} />
                                         </div>
                                     </div>
                                 );

@@ -15,9 +15,13 @@ import {
   getUserWishlistWithProductDetails,
 } from "../api";
 import { ProductInfo } from "../interfaces";
+import {
+  setProductErrorMessage,
+  setProductSuccessMessage,
+} from "./productActions";
 
 export const fetchWishlist =
-  (userUID: string) =>
+  () =>
   async (
     dispatch: ReduxDispatch<
       | ReturnType<typeof fetchWishlistOfUserInitiated>
@@ -27,7 +31,7 @@ export const fetchWishlist =
   ) => {
     dispatch(fetchWishlistOfUserInitiated());
     try {
-      const wishlist = await getUserWishlistWithProductDetails(userUID);
+      const { data: wishlist } = await getUserWishlistWithProductDetails();
       dispatch(fetchWishlistOfUserSuccess(wishlist));
     } catch (error) {
       dispatch(fetchWishlistOfUserFailed("Failed to fetch wishlist"));
@@ -35,38 +39,52 @@ export const fetchWishlist =
   };
 
 export const addToOrRemoveFromWishlist =
-  (userUID: string, product: string, isAdd: boolean) =>
+  (product: string, isAdd: boolean, isActionDispatchedFromWishlist: boolean) =>
   async (
     dispatch: ReactDispatch<
       | ReturnType<typeof setWishlistErrorMessage>
       | ReturnType<typeof setWishlistSuccessMessage>
+      | ReturnType<typeof setProductErrorMessage>
+      | ReturnType<typeof setProductSuccessMessage>
       | ReturnType<typeof fetchWishlist>
     >
   ) => {
     try {
-      await updateWishlistForUser(userUID, product);
+      await updateWishlistForUser(product);
+      dispatch(
+        isActionDispatchedFromWishlist
+          ? setWishlistSuccessMessage(
+              isAdd
+                ? `${product} added to wishlist successfully`
+                : `${product} removed from wishlist successfully`
+            )
+          : setProductSuccessMessage(
+              isAdd
+                ? `${product} added to wishlist successfully`
+                : `${product} removed from wishlist successfully`
+            )
+      );
+      dispatch(fetchWishlist());
     } catch (error) {
       dispatch(
-        setWishlistErrorMessage(
-          isAdd
-            ? `Failed to add ${product} to wishlist`
-            : `Failed to remove ${product} from wishlist`
-        )
+        isActionDispatchedFromWishlist
+          ? setWishlistErrorMessage(
+              isAdd
+                ? `Failed to add ${product} to wishlist`
+                : `Failed to remove ${product} from wishlist`
+            )
+          : setProductErrorMessage(
+              isAdd
+                ? `Failed to add ${product} to wishlist`
+                : `Failed to remove ${product} from wishlist`
+            )
       );
       return;
     }
-
-    !isAdd &&
-      dispatch(
-        setWishlistSuccessMessage(
-          `${product} removed from wishlist successfully`
-        )
-      );
-    dispatch(fetchWishlist(userUID));
   };
 
 export const moveToCartFromWishlist =
-  (userUID: string, product: string) =>
+  (product: string) =>
   async (
     dispatch: ReactDispatch<
       | ReturnType<typeof setWishlistErrorMessage>
@@ -75,14 +93,16 @@ export const moveToCartFromWishlist =
     >
   ) => {
     try {
-      await addProductToCartOfUser(userUID, product, 1);
-      await updateWishlistForUser(userUID, product);
+      await addProductToCartOfUser(product, 1);
+      await updateWishlistForUser(product);
     } catch (error) {
       dispatch(setWishlistErrorMessage(`Unable to move ${product} to cart`));
       return;
     }
-    dispatch(fetchWishlist(userUID));
-    dispatch(setWishlistSuccessMessage(`${product} moved to cart successfully`));
+    dispatch(fetchWishlist());
+    dispatch(
+      setWishlistSuccessMessage(`${product} moved to cart successfully`)
+    );
   };
 
 export const setWishlistSuccessMessage =

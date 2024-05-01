@@ -7,9 +7,9 @@ dotenv.config();
 
 const app: Express = express();
 const port = 5000;
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 
-app.disable('x-powered-by');
+app.disable("x-powered-by");
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
@@ -17,7 +17,10 @@ const corsOptions: cors.CorsOptions = {
     const allowedOrigins: string[] =
       environment === "development"
         ? ["http://localhost:5173", "http://127.0.0.1:5173"]
-        : ["https://maniecommercestore.web.app"];
+        : [
+            "https://maniecommercestore.web.app",
+            "https://maniecommercestore.firebaseapp.com",
+          ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {

@@ -11,7 +11,10 @@
             "src": "/(.*)",
             "dest": "app.ts",
             "headers": {
-                "Access-Control-Allow-Origin": "https://maniecommercestore.web.app"
+                "Access-Control-Allow-Origin": [
+                    "https://maniecommercestore.web.app",
+                    "https://maniecommercestore.firebaseapp.com"
+                ]
             }
         }
     ]

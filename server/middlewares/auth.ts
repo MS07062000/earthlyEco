@@ -14,6 +14,6 @@ export default (req: Request, res: Response, next: any) => {
     })
     .catch((error) => {
       // Session is invalid. Redirect to login.
-      res.sendStatus(401);
+      res.sendStatus(403);
     });
 };

@@ -9,6 +9,7 @@ export default {
       errorMessage: null,
       successMessage: null,
       user: null,
+      sessionError: false,
     };
     return state;
   },
@@ -48,6 +49,7 @@ export default {
       errorMessage: null,
       successMessage: null,
       user: null,
+      sessionError: false,
     };
     return state;
   },
@@ -90,4 +92,11 @@ export default {
     };
     return state;
   },
+  updateSessionError(state: AuthState) {
+    state = {
+      ...state,
+      sessionError: true,
+    };
+    return state;
+  }
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
-  categoryWithProductsInfo,
   createOrderInDatabase,
+  orderProduct,
 } from "../services/orderProcessingOperations/createOrder";
 import { getOrders } from "../services/orderProcessingOperations/getOrders";
 import { orderPaid } from "../services/orderProcessingOperations/orderPaid";
@@ -12,13 +12,13 @@ export default {
     try {
       const amount: number = req.body?.amount;
       const userUID: string = req.body?.userUID;
-      const categoryWithProductsInfo: categoryWithProductsInfo[] =
-        req.body?.categoryWithProductsInfo;
+      const products: orderProduct[] =
+        req.body?.products;
       const deliveryAddress: Address = req.body?.deliveryAddress;
       const orderID = await createOrderInDatabase(
         amount,
         userUID,
-        categoryWithProductsInfo,
+        products,
         deliveryAddress
       );
       res.status(200).send(orderID);

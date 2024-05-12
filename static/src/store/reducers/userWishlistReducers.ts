@@ -1,8 +1,8 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import { UserWishlistState, ProductInfo } from "../interfaces";
+import { UserWishlistState, Product } from "../interfaces";
 
 export default {
-  updateErrorMessage(
+  updateWishlistErrorMessage(
     state: UserWishlistState,
     action: PayloadAction<string | null>
   ) {
@@ -13,7 +13,7 @@ export default {
     };
     return state;
   },
-  updateSuccessMessage(
+  updateWishlistSuccessMessage(
     state: UserWishlistState,
     action: PayloadAction<string | null>
   ) {
@@ -35,25 +35,13 @@ export default {
   },
   fetchWishlistOfUserSuccess(
     state: UserWishlistState,
-    action: PayloadAction<ProductInfo[]>
+    action: PayloadAction<Product[]>
   ) {
     state = {
       ...state,
       loading: false,
       products: action.payload,
       errorMessage: null,
-    };
-    return state;
-  },
-  fetchWishlistOfUserFailed(
-    state: UserWishlistState,
-    action: PayloadAction<string>
-  ) {
-    state = {
-      ...state,
-      loading: false,
-      products: [],
-      errorMessage: action.payload,
     };
     return state;
   },

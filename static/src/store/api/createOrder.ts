@@ -1,12 +1,16 @@
-import { Address, CategoryWithProductsInfo } from "../interfaces";
+import { Address, ProductOrder } from "../interfaces";
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async (categoryWithProductsInfo: CategoryWithProductsInfo[], amount: number, deliveryAddress: Address ) => {
+export default async (
+  products: ProductOrder[],
+  amount: number,
+  deliveryAddress: Address
+) => {
   const requestOptions = {
     url: "api/v1/order/create",
     method: "POST",
     data: {
-      categoryWithProductsInfo,
+      products,
       amount,
       deliveryAddress,
     },

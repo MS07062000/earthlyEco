@@ -1,21 +1,22 @@
-import { Dispatch as ReduxDispatch } from "@reduxjs/toolkit";
-import { Dispatch as ReactDispatch } from "react";
+import { Dispatch } from "@reduxjs/toolkit";
 import {
   fetchAddressesInitiated,
-  fetchAddressesFailed,
-  fetchAddressesSuccess,
+  updateAddressError,
+  updateAddressesSuccess,
   updateDefaultAddress,
 } from "../slices/addressSlice";
-import { deleteUserAddress, editUserAddress, getUserAddresses } from "../api";
+import { getUserAddresses } from "../api";
 import { Address } from "../interfaces";
+import apiErrorHandler from "./utils/apiErrorHandler";
+import { updateSessionError } from "../slices/authSlice";
 
 export const fetchAddress =
   () =>
   async (
-    dispatch: ReduxDispatch<
+    dispatch: Dispatch<
       | ReturnType<typeof fetchAddressesInitiated>
-      | ReturnType<typeof fetchAddressesFailed>
-      | ReturnType<typeof fetchAddressesSuccess>
+      | ReturnType<typeof updateAddressError>
+      | ReturnType<typeof updateAddressesSuccess>
       | ReturnType<typeof updateDefaultAddress>
     >
   ) => {
@@ -32,57 +33,33 @@ export const fetchAddress =
         updatedAddressList.unshift(defaultAddress);
       }
       dispatch(
-        fetchAddressesSuccess({
+        updateAddressesSuccess({
           addresses: updatedAddressList,
           defaultAddress: defaultAddress,
         })
       );
     } catch (error) {
-      dispatch(fetchAddressesFailed("Error in getting addresses"));
-    }
-  };
-
-export const deleteAddress =
-  (address: Address) =>
-  async (dispatch: ReactDispatch<ReturnType<typeof fetchAddress>>) => {
-    try {
-      await deleteUserAddress(address);
-      dispatch(fetchAddress());
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-export const editAddress =
-  (defaultAddress: Address, address: Address) =>
-  async (dispatch: ReactDispatch<ReturnType<typeof fetchAddress>>) => {
-    try {
-      await editUserAddress(defaultAddress, address);
-      dispatch(fetchAddress());
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-export const changeDefaultAddress =
-  (defaultAddress: Address | null, address: Address) =>
-  async (dispatch: ReactDispatch<ReturnType<typeof fetchAddress>>) => {
-    try {
-      if (defaultAddress != null) {
-        await editUserAddress(defaultAddress, {
-          ...defaultAddress,
-          isDefault: false,
-        });
-      }
-      await editUserAddress(address, { ...address, isDefault: true });
-      dispatch(fetchAddress());
-    } catch (error) {
-      console.log(error);
+      apiErrorHandler(
+        error,
+        "Error in getting addresses",
+        updateAddressError
+      )(dispatch);
     }
   };
 
 export const setDefaultAddress =
   (address: any) =>
-  async (dispatch: ReduxDispatch<ReturnType<typeof updateDefaultAddress>>) => {
+  async (dispatch: Dispatch<ReturnType<typeof updateDefaultAddress>>) => {
     dispatch(updateDefaultAddress(address));
+  };
+
+export const addressErrorHandler =
+  (error: any, errorMessage: string) =>
+  (
+    dispatch: Dispatch<
+      | ReturnType<typeof updateAddressError>
+      | ReturnType<typeof updateSessionError>
+    >
+  ) => {
+    apiErrorHandler(error, errorMessage, updateAddressError)(dispatch);
   };

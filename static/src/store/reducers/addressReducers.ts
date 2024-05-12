@@ -10,16 +10,15 @@ export default {
     };
     return state;
   },
-  fetchAddressesFailed(state: AddressState, action: PayloadAction<string>) {
+  updateAddressError(state: AddressState, action: PayloadAction<string>) {
     state = {
       ...state,
       loading: false,
-      addresses: [],
       error: action.payload,
     };
     return state;
   },
-  fetchAddressesSuccess(
+  updateAddressesSuccess(
     state: AddressState,
     action: PayloadAction<{ addresses: Address[]; defaultAddress: Address }>
   ) {

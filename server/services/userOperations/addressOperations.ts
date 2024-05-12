@@ -1,5 +1,4 @@
 import { db } from "../../firebase";
-import { FieldValue } from "firebase-admin/firestore";
 
 export interface Address {
   fullname: string;
@@ -15,36 +14,28 @@ export interface Address {
 }
 
 export const addAddress = async (userUID: string, address: Address) => {
-  await db.doc(`Users/${userUID}`).set(
-    {
-      Addresses: FieldValue.arrayUnion(address),
-    },
-    { merge: true }
-  );
+  await db.collection(`Users/${userUID}/Addresses`).add(address);
 };
 
-export const deleteAddress = async (userUID: string, address: Address) => {
-  await db.doc(`Users/${userUID}`).update({
-    Addresses: FieldValue.arrayRemove(address),
-  });
+export const deleteAddress = async (userUID: string, addressId: string) => {
+  await db.collection(`Users/${userUID}/Addresses`).doc(addressId).delete();
 };
 
 export const editAddress = async (
   userUID: string,
-  oldAddress: Address,
+  addressId: string,
   newAddress: Address
 ) => {
-  await deleteAddress(userUID, oldAddress);
-  await addAddress(userUID, newAddress);
+  await db.collection(`Users/${userUID}/Addresses`).doc(addressId).set(
+    newAddress,{ merge: true }
+  );
 };
 
 export const getAddress = async (userUID: string) => {
-  const userDoc = await db.doc(`Users/${userUID}`).get();
-  if (userDoc.exists) {
-    const userAddresses = userDoc.get("Addresses");
-    if (Array.isArray(userAddresses)) {
-      return userAddresses;
-    }
+  const userAddressesCollection = await db.collection(`Users/${userUID}/Addresses`).get();
+  if (userAddressesCollection.empty) {
+    return [];
+  }else{
+    return userAddressesCollection.docs.map((doc) => ({...doc.data(), id:doc.id, }));
   }
-  return [];
 };

@@ -6,10 +6,10 @@ const ordersAndRefundsSelector = (state: RootState) => state.ordersAndRefunds;
 
 //memoized ordersAndRefunds selector created using reselect
 export default createSelector(
-    authSelector,
-    ordersAndRefundsSelector,
-    (auth, ordersAndRefunds) => ({
-        auth,
-        ordersAndRefunds
-    })
-)
+  authSelector,
+  ordersAndRefundsSelector,
+  (auth, ordersAndRefunds) => ({
+    auth,
+    ordersAndRefunds,
+  })
+);

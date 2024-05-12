@@ -17,7 +17,6 @@ const userCartSlice = createSlice({
 export const {
   updateCartOfUserFailed,
   updateCartOfUserSuccess,
-  fetchCartOfUserFailed,
   fetchCartOfUserSuccess,
   fetchCartOfUserInitiated,
 } = userCartSlice.actions;

@@ -1,7 +1,8 @@
-import { DocumentData, FieldPath } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { db } from "../firebase";
 
-interface Product {
+export interface Product {
+  id: string;
   name: string;
   image: string;
   quantityAvailable: number;
@@ -9,30 +10,61 @@ interface Product {
 }
 
 export async function getProducts(category: string): Promise<Product[]> {
-  //capitalizing the category first letter because database has first letter capitalized
-  const capitalizedCategory =
-    category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-  const products: Product[] = [];
-  const categoriesQuerySnapshot = await db
+  const categoryId = await db
     .collection("Categories")
-    .where(FieldPath.documentId(), "==", capitalizedCategory)
+    .where("name", "==", category)
+    .get()
+    .then((querySnapshot) => {
+      if (querySnapshot.empty) {
+        throw new Error("Category does not exist");
+      }
+      return querySnapshot.docs[0].id;
+    });
+
+  const productsSnapshot = await db
+    .collection("Products")
+    .where("categoryId", "==", categoryId)
     .get();
 
-  const categoryDoc = categoriesQuerySnapshot.docs[0];
+  const productsData = productsSnapshot.docs.map((productDoc) => ({
+    ...productDoc.data(),
+    id: productDoc.id,
+  })) as Product[];
 
-  if (categoryDoc.exists) {
-    const categoryData = categoryDoc.data() as DocumentData;
-    const productsData = categoryData["Products"];
-    products.push(
-      ...productsData.map((product: DocumentData) => ({
-        name: product["Name"] ?? "",
-        image: product["Image"] ?? "",
-        quantityAvailable: product["Quantity Available"] ?? 0,
-        price: product["Price"] ?? 0,
-      }))
+  return productsData;
+}
+
+export async function createProduct(
+  categoryId: string,
+  name: string,
+  image: string,
+  quantityAvailable: number,
+  price: number
+): Promise<void> {
+  await db
+    .collection("Products")
+    .add({ categoryId, name, image, quantityAvailable, price });
+}
+
+export async function editProduct(
+  productId: string,
+  name: string,
+  image: string,
+  quantityAvailable: number,
+  price: number
+) {
+  //
+}
+
+export async function deleteProduct(
+  productId: string,
+  userUID: string
+): Promise<void> {
+  await db
+    .collection("Products")
+    .doc(productId)
+    .set(
+      { deletedTimeStamp: FieldValue.serverTimestamp(), deletedById: userUID },
+      { merge: true }
     );
-  }
-
-  // console.log(products);
-  return products;
 }

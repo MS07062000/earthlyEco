@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import {
-  getProductDetailsOfWishlistProducts,
+  getWishlistProductsWithProductDetails,
   getWishlist,
   wishlist,
 } from "../services/userOperations/wishlistOperations";
@@ -9,10 +9,10 @@ export default {
   wishlist: async (req: Request, res: Response) => {
     try {
       const userUID = req.body?.userUID;
-      const product = req.body?.product;
+      const productId = req.body?.productId;
 
-      if (userUID && product) {
-        await wishlist(userUID, product);
+      if (userUID && productId) {
+        await wishlist(userUID, productId);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request body" });
@@ -31,6 +31,7 @@ export default {
         res.status(400).json({ message: "Invalid request body" });
       }
     } catch (error) {
+      console.log(error);
       res.sendStatus(400);
     }
   },
@@ -39,12 +40,14 @@ export default {
       const userUID = req.body?.userUID;
       if (userUID) {
         const userWishlistWithProductDetails =
-          await getProductDetailsOfWishlistProducts(userUID);
+          await getWishlistProductsWithProductDetails(userUID);
+       
         res.status(200).send({ data: userWishlistWithProductDetails });
       } else {
         res.status(400).json({ message: "Invalid request body" });
       }
     } catch (error) {
+      console.log(error);
       res.sendStatus(400);
     }
   },

@@ -2,71 +2,61 @@ import { db } from "../../firebase";
 import { FieldValue } from "firebase-admin/firestore";
 
 interface ProductInfo {
+  id: string;
   name: string;
   image: string;
   quantityAvailable: number;
   price: number;
 }
 
-export async function getProductDetailsOfWishlistProducts(userUID: string) {
-  const wishlist = await getWishlist(userUID);
-  if (wishlist.length === 0) {
+export async function getWishlistProductsWithProductDetails(userUID: string) {
+  const userWishlistProductIds = await getWishlist(userUID);
+  if (!userWishlistProductIds || userWishlistProductIds.length === 0) {
     return [];
   }
 
-  const products: ProductInfo[] = [];
-  const categoriesDocsSnapshot = await db.collection("Categories").get();
-  categoriesDocsSnapshot.forEach((doc) => {
-    const productsArray = doc.get("Products");
+  const productRefs = userWishlistProductIds.map((productId: string) =>
+    db.collection("Products").doc(productId)
+  );
 
-    if (productsArray && Array.isArray(productsArray)) {
-      productsArray.forEach((product) => {
-        if (wishlist.includes(product.Name)) {
-          products.push({
-            name: product["Name"],
-            image: product["Image"],
-            quantityAvailable: product["Quantity Available"],
-            price: product["Price"],
-          });
-        }
-      });
+  const productSnapshots = await db.getAll(...productRefs);
+
+  return productSnapshots.map((snapshot) => {
+    const product = snapshot.data();
+    if(!product) {
+      return;
     }
-  });
 
-  return products;
+    product.id = snapshot.id;
+
+    return product as ProductInfo;
+  });
 }
+
 
 export async function getWishlist(userUID: string): Promise<string[]> {
-  const userDoc = await db.doc(`Users/${userUID}`).get();
-  if (userDoc.exists) {
-    const userWishlistInfo = userDoc.get("Wishlist");
-    if (userWishlistInfo && Array.isArray(userWishlistInfo)) {
-      return userWishlistInfo;
-    }
-  }
-  return [];
+  const userDocRef = db.doc(`Users/${userUID}`);
+  const userWishlistProductIds = (await userDocRef.get()).get("Wishlist");
+  return userWishlistProductIds || [];
 }
 
-export async function wishlist(userUID: string, product: string) {
+export async function wishlist(userUID: string, productId: string) {
   const userWishlistInfo: string[] = await getWishlist(userUID);
-  if (!userWishlistInfo.includes(product)) {
-    await addToWishlist(userUID, product);
+  if (!userWishlistInfo.includes(productId)) {
+    await addToWishlist(userUID, productId);
   } else {
-    await removeFromWishlist(userUID, product);
+    await removeFromWishlist(userUID, productId);
   }
 }
 
-async function addToWishlist(userUID: string, product: string) {
-  await db.doc(`Users/${userUID}`).set(
-    {
-      Wishlist: FieldValue.arrayUnion(product),
-    },
-    { merge: true }
-  );
+async function addToWishlist(userUID: string, productId: string) {
+  await db.doc(`Users/${userUID}`).update({
+    Wishlist: FieldValue.arrayUnion(productId),
+  }); 
 }
 
-async function removeFromWishlist(userUID: string, product: string) {
+async function removeFromWishlist(userUID: string, productId: string) {
   await db.doc(`Users/${userUID}`).update({
-    Wishlist: FieldValue.arrayRemove(product),
+    Wishlist: FieldValue.arrayRemove(productId),
   });
 }

@@ -1,22 +1,23 @@
-import {
-  arrayRemove,
-  arrayUnion,
-  doc,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
 import { db } from "../../firebase";
-import { categoryWithProductsInfo, order } from "./createOrder";
+import { orderProduct } from "./createOrder";
 import { createRefundInDatabase } from "./createRefund";
 import { validatePayment } from "./validatePayment";
 import { sendEmail } from "./sendMail";
+import { Address } from "../userOperations/addressOperations";
+import { Product } from "../getProducts";
 
-export interface productInfoOfInsufficientQuantity {
+export interface orderProductInfo extends orderProduct {
   name: string;
-  quantity: number;
-  price: number;
-  image: string;
 }
+
+interface orderDetails {
+  products: orderProductInfo[];
+  insufficientQuantities: orderProduct[];
+  refundAmount: number;
+  deliveryAddress: Address;
+  id: string;
+}
+
 
 export async function orderPaid(response: any) {
   const processedOrderInfo = response.body;
@@ -34,36 +35,27 @@ export async function orderPaid(response: any) {
     const userUID = notes["userUID"]; //userUID;
     const email = processedOrderInfo.payload.payment.entity.email;
 
-    const orderDetails = await getOrderDetails(userUID, orderID);
-    console.log(orderDetails);
+    const orderDetails = await getProcessedOrderDetails(userUID, orderID);
 
-    if (orderDetails === null) {
-      throw Error("Order details not found");
-      //handle case where we could not find order in user's orders
+    if(orderDetails === null){
+      throw Error("Order not found");
     }
 
-    const insufficientQuantities = await modifyQuantityAvailable(
-      orderDetails!["categoryWithProducts"]
-    );
-    const totalAmountToBeRefunded = calculateTotalAmountToBeRefunded(
-      insufficientQuantities
-    );
-
-    await updateOrders(userUID, orderDetails!);
+    await updateOrders(userUID, orderID);
     await sendEmail(
       email,
       "order",
       orderID,
-      orderDetails!["deliveryAddress"],
-      orderDetails!["categoryWithProducts"]
+      orderDetails.products,
+      orderDetails.deliveryAddress
     );
 
-    if (totalAmountToBeRefunded > 0) {
+    if (orderDetails.refundAmount > 0) {
       await createRefundInDatabase(
         paymentId,
-        totalAmountToBeRefunded,
+        orderDetails.refundAmount,
         userUID,
-        insufficientQuantities
+        orderDetails.insufficientQuantities
       );
     }
     // }
@@ -73,89 +65,83 @@ export async function orderPaid(response: any) {
   }
 }
 
-async function modifyQuantityAvailable(
-  categoryWithProductsAndItsQuantity: categoryWithProductsInfo[]
-) {
-  const insufficientQuantities: productInfoOfInsufficientQuantity[] = [];
+async function getProcessedOrderDetails(userUID: string, orderID: string) {
+  // Step 1: Retrieve the order document snapshot
+  const orderDocSnapshot = await db
+    .doc(`Users/${userUID}/Orders/${orderID}`)
+    .get();
 
-  for (const categoryAndItsProduct of categoryWithProductsAndItsQuantity) {
-    const categoryDocSnapshot = await db
-      .collection("Categories")
-      .doc(categoryAndItsProduct.category)
-      .get();
+  // Step 2: Check if the order document exists
+  if (!orderDocSnapshot.exists) {
+    return null;
+  }
 
-    if (!categoryDocSnapshot.exists) {
-      continue;
-    }
+  // Step 3: Retrieve the collection of ordered products
+  const orderProductsRef = orderDocSnapshot.ref.collection("Products");
+  const orderProductsSnapshot = await orderProductsRef.get();
 
-    const categoryData = categoryDocSnapshot.data();
-    if (
-      categoryData &&
-      categoryData.Products &&
-      Array.isArray(categoryData.Products)
-    ) {
-      const updatedProducts = categoryData.Products.map((product) => {
-        const foundProduct = categoryAndItsProduct.products.find(
-          (p) => p.name === product.Name
-        );
-        if (foundProduct) {
-          if (product["Quantity Available"] >= foundProduct.quantity) {
-            product["Quantity Available"] -= foundProduct.quantity;
-          } else {
-            insufficientQuantities.push({
-              name: product.Name,
-              quantity: foundProduct.quantity,
-              image: product.Image,
-              price: product.Price,
-            });
-          }
+  // Step 4: Initialize arrays for products and insufficient quantities
+  const products: orderProductInfo[] = [];
+  const insufficientQuantities: orderProduct[] = [];
+  let refundAmount = 0;
+
+  // Step 5: Process each ordered product
+  await Promise.all(
+    orderProductsSnapshot.docs.map(async (doc) => {
+      const orderedProductInfo = doc.data() as orderProduct;
+
+      // Step 6: Retrieve product details from the database
+      const productDocSnapshot = await db.doc(`Products/${doc.id}`).get();
+
+      if (productDocSnapshot.exists && !productDocSnapshot.data()) {
+        const productInfoFromDB = productDocSnapshot.data() as Product;
+
+        // Step 7: Check product availability
+        if (productInfoFromDB.quantityAvailable >= orderedProductInfo.quantity) {
+          // Sufficient quantity available
+          productInfoFromDB.quantityAvailable -= orderedProductInfo.quantity;
+          refundAmount += orderedProductInfo.quantity * productInfoFromDB.price;
+
+          // Update product quantity in the database
+          await productDocSnapshot.ref.update({
+            quantityAvailable: productInfoFromDB.quantityAvailable,
+          });
+        } else {
+          // Insufficient quantity available
+          insufficientQuantities.push({
+            id: doc.id,
+            quantity: orderedProductInfo.quantity - productInfoFromDB.quantityAvailable,
+            price: productInfoFromDB.price,
+          });
+
+          refundAmount += (orderedProductInfo.quantity - productInfoFromDB.quantityAvailable) * productInfoFromDB.price;
+
+          // Set product quantity to 0 in the database
+          await productDocSnapshot.ref.update({ quantityAvailable: 0 });
         }
-        return product;
-      });
 
-      await db
-        .collection("Categories")
-        .doc(categoryAndItsProduct.category)
-        .update({
-          Products: updatedProducts,
+        // Step 8: Add processed product info to the products array
+        products.push({
+          ...orderedProductInfo,
+          name: productInfoFromDB.name,
+          id: doc.id,
         });
-    }
-  }
-  return insufficientQuantities;
-}
-
-async function getOrderDetails(userUID: string, orderID: string) {
-  const userDocSnapshot = await db.doc(`Users/${userUID}`).get();
-  if (userDocSnapshot.exists) {
-    const userOrders = userDocSnapshot.get("Orders Created");
-    if (userOrders && Array.isArray(userOrders)) {
-      const orderDetails: order = userOrders.find(
-        (order: order) => order.orderID === orderID
-      );
-      return orderDetails;
-    }
-  }
-  return null;
-}
-
-async function updateOrders(userUID: string, orderDetails: order) {
-  await db.doc(`Users/${userUID}`).set(
-    {
-      "Orders Processed": arrayUnion(orderDetails),
-      "Orders Created": arrayRemove(orderDetails),
-    },
-    {
-      merge: true,
-    }
+      }
+    })
   );
+
+  // Step 9: Return processed order details
+  return {
+    products,
+    insufficientQuantities,
+    refundAmount,
+    ...orderDocSnapshot.data(),
+  } as orderDetails;
 }
 
-function calculateTotalAmountToBeRefunded(
-  listOfProductInfoWithInsufficientQuantity: productInfoOfInsufficientQuantity[]
-): number {
-  let totalAmountToBeRefunded: number = 0;
-  listOfProductInfoWithInsufficientQuantity.forEach((product) => {
-    totalAmountToBeRefunded += product.price * product.quantity;
+
+async function updateOrders(userUID: string, orderId: string) {
+  await db.doc(`Users/${userUID}/Orders/${orderId}`).update({
+    status: "Processed",
   });
-  return totalAmountToBeRefunded;
 }

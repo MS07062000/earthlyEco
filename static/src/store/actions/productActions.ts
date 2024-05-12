@@ -7,6 +7,7 @@ import {
   fetchProductsSuccess,
 } from "../slices/productSlice";
 import { getProducts, addProductToCartOfUser } from "../api";
+import { Product } from "../interfaces";
 
 export const fetchProducts =
   (category: string) =>
@@ -19,7 +20,7 @@ export const fetchProducts =
   ) => {
     dispatch(fetchProductsInitiated());
     try {
-      const { data: products } = await getProducts(category);
+      const { data: products }: { data: Product[] } = await getProducts(category);
       dispatch(fetchProductsSuccess(products));
     } catch (error) {
       dispatch(fetchProductsError("Unable to fetch categories"));
@@ -27,7 +28,7 @@ export const fetchProducts =
   };
 
 export const addProductToCart =
-  (product: string, quantity: number) =>
+  (productId: string, productName: string, quantity: number) =>
   async (
     dispatch: Dispatch<
       | ReturnType<typeof updateProductErrorMessage>
@@ -35,12 +36,12 @@ export const addProductToCart =
     >
   ) => {
     try {
-      await addProductToCartOfUser(product, quantity);
+      await addProductToCartOfUser(productId, quantity);
       dispatch(
-        updateProductSuccessMessage(`${product} added to cart successfully`)
+        updateProductSuccessMessage(`${productName} added to cart successfully`)
       );
     } catch (error) {
-      dispatch(updateProductErrorMessage(`Unable to add ${product} to cart`));
+      dispatch(updateProductErrorMessage(`Unable to add ${productName} to cart`));
     }
   };
 
@@ -53,3 +54,5 @@ export const setProductSuccessMessage =
   (successMessage: string | null) =>
   (dispatch: Dispatch<ReturnType<typeof updateProductSuccessMessage>>) =>
     dispatch(updateProductSuccessMessage(successMessage));
+
+

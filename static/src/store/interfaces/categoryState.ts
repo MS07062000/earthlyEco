@@ -1,7 +1,7 @@
-import CategoryInfo from "./categoryInfo";
+import Category from "./category";
 
 export default interface CategoryState {
   loading: boolean;
-  categories: CategoryInfo[];
+  categories: Category[];
   error: string | null;
 }

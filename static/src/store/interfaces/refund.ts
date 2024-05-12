@@ -1,7 +1,11 @@
-import RefundProductInfo from "./refundProductInfo";
-
 export default interface Refund {
-    refundID: string;
+    id: string;
     paymentID: string;
-    categoryWithProducts: RefundProductInfo[];
+    products: {
+      id: string;
+      image: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }[];
 }

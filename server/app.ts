@@ -3,6 +3,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import authMiddleWare from "./middlewares/auth";
+import { getCategories } from "./services/getCategories";
 dotenv.config();
 
 const app: Express = express();
@@ -54,6 +55,7 @@ app.listen(port, () => {
   console.log("Server started on port: ", port);
 });
 
+getCategories();
 //helmet and compressor
 //declare all routes in index.ts file and import it
 //route should be like api/v1/something for versioning so that if you wish to upgrade you can use v2,v3,etc.

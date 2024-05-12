@@ -12,7 +12,7 @@ function isVoidFunction(value: any): value is () => void {
     return typeof value === 'function';
 }
 
-const MessageModal = ({ isSuccess, message, setMessage, postProcessingFunction }: MessageModalProps) => {
+const MessageModal: React.FC<MessageModalProps> = ({ isSuccess, message, setMessage, postProcessingFunction }) => {
     const closeModal = () => {
         if (isVoidFunction(setMessage)) {
             setMessage();
@@ -28,7 +28,7 @@ const MessageModal = ({ isSuccess, message, setMessage, postProcessingFunction }
         <div id="messageModal" className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center mx-1">
             <div className="mt-14 relative p-4 w-full max-w-xs max-h-full">
                 <div className="relative bg-black rounded-lg shadow">
-                    <Button id="closeButton" icon={<Icon type="close" iconClass="w-3 h-3" />} onClick={closeModal} buttonClass="absolute top-3 end-2.5 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center font-medium" isTextVisible={false} text={"close"} />
+                    <Button id="closeButton" icon={<Icon type="close" iconClass="w-3 h-3" />} onClick={closeModal} buttonClass="absolute top-3 end-2.5 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center font-medium shadow-none" isTextVisible={false} text={"close"} />
                     <div className="p-4 md:p-5 text-center">
                         {isSuccess ? <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48" className="m-auto">
                             <path fill="#C8E6C9" d="M44,24c0,11-9,20-20,20S4,35,4,24S13,4,24,4S44,13,44,24z"></path>
@@ -42,7 +42,7 @@ const MessageModal = ({ isSuccess, message, setMessage, postProcessingFunction }
                         <h3 className="mb-2 text-lg font-normal text-white">{
                             message
                         }</h3>
-                        <Button id="closeButton" text="Close" buttonClass="p-2 text-md" isTextVisible={true} onClick={closeModal} />
+                        <Button id="closeButton" text="Close" buttonClass="p-2 text-md shadow-none" isTextVisible={true} onClick={closeModal} />
                     </div>
                 </div>
             </div>

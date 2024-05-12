@@ -1,8 +1,8 @@
-import  ProductInfo from "./productInfo";
+import Product from "./product";
 
 export default interface ProductState {
   loading: boolean;
-  products: ProductInfo[];
+  products: Product[];
   successMessage: string | null;
   errorMessage: string | null;
 }

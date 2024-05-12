@@ -1,11 +1,11 @@
 import makeApiRequest from "../../utils/apiUtils";
 
-export default async(product: string) => {
+export default async(productId: string) => {
   const requestOptions = {
     url: "api/v1/wishlist",
     method: "POST",
     data: {
-      product,
+      productId,
     }
   };
   

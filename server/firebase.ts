@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 require('dotenv').config({path:'../.env'});
 
 // require('dotenv').config();
@@ -23,6 +24,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-
+export const bucket = getStorage(app).bucket();
 //firestore
 export const db = getFirestore(app);

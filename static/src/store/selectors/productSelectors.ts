@@ -8,14 +8,14 @@ const addressSelector = (state: RootState) => state.address;
 
 //memoized product selector created using reselect
 export default createSelector(
-    authSelector,
-    productSelector,
-    wishlistSelector,
-    addressSelector,
-    (auth, product, wishlist, address) => ({
-        auth,
-        product,
-        wishlist,
-        address
-    })
-)
+  authSelector,
+  productSelector,
+  wishlistSelector,
+  addressSelector,
+  (auth, product, wishlist, address) => ({
+    auth,
+    product,
+    wishlist,
+    address,
+  })
+);

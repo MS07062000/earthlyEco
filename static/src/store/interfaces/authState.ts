@@ -5,4 +5,5 @@ export default interface AuthState {
   errorMessage: string | null;
   loading: boolean;
   successMessage: string| null;
+  sessionError: boolean;
 }

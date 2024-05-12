@@ -1,12 +1,12 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import { CategoryState } from "../interfaces";
+import { Category, CategoryState } from "../interfaces";
 
 export default {
   fetchCategoriesInitiated(state: CategoryState) {
     state = { loading: true, error: null, categories: [] };
     return state;
   },
-  fetchCategoriesSuccess(state: CategoryState, action: PayloadAction<any[]>) {
+  fetchCategoriesSuccess(state: CategoryState, action: PayloadAction<Category[]>) {
     state = { loading: false, error: null, categories: action.payload };
     return state;
   },

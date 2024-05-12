@@ -1,136 +1,110 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { db } from "../../firebase";
 
-interface CartProduct {
-  product: string;
-  quantity: number;
-}
-
 interface ProductDetails {
+  id: string;
   name: string;
   price: string;
   image: string;
   quantityAvailable: number;
   quantityByUser: number;
-  category: string;
 }
 
 export async function getCartWithProductDetails(
   userUID: string
 ): Promise<ProductDetails[]> {
-  try {
-    const cart = await getCart(userUID);
-    if (cart.length === 0) {
-      return [];
-    }
+  const userCartRef = db.collection(`Users/${userUID}/Cart`);
+  const productRefs = await userCartRef.listDocuments();
 
-    const cartWithProductDetails: ProductDetails[] = [];
+  if (productRefs.length === 0) return [];
 
-    const categoriesSnapshot = await db.collection("Categories").get();
+  const productDocs = await Promise.all(productRefs.map((ref) => ref.get()));
+  const productData = await Promise.all(productDocs.map(async doc => {
+    const productRef = db.collection('Products').doc(doc.id);
+    const productSnapshot = await productRef.get();
+    const product = productSnapshot.data();
+    return {
+      id: doc.id,
+      quantityByUser: doc.data()?.quantity,
+      ...product
+    };
+  }));
 
-    categoriesSnapshot.forEach((categoryDoc) => {
-      const products = categoryDoc.get("Products");
-      if (!products) {
-        return;
-      }
-
-      cart.forEach((cartItem: CartProduct) => {
-        const productInCategory = products.find(
-          (product: { Name: string }) => product.Name === cartItem.product
-        );
-
-        if (productInCategory) {
-          const {
-            Name,
-            Price,
-            Image,
-            "Quantity Available": QuantityAvailable,
-          } = productInCategory;
-          const { quantity } = cartItem;
-
-          const productDetails: ProductDetails = {
-            name: Name,
-            price: Price,
-            image: Image,
-            quantityAvailable: QuantityAvailable,
-            quantityByUser: quantity,
-            category: categoryDoc.id,
-          };
-
-          cartWithProductDetails.push(productDetails);
-        }
-      });
-    });
-
-    return cartWithProductDetails;
-  } catch (error) {
-    console.error("Error fetching product details:", error);
-    return [];
-  }
+  return productData as ProductDetails[];
 }
 
-export async function getCart(userUID: string): Promise<CartProduct[]> {
-  const userDoc = await db.doc(`Users/${userUID}`).get();
-  if (userDoc.exists) {
-    const userCartInfo = userDoc.get("Cart");
-    if (Array.isArray(userCartInfo)) {
-      return userCartInfo;
-    }
-  }
-  return [];
+export async function getCart(userUID: string) {
+  return db
+    .collection(`Users/${userUID}/Cart`)
+    .get()
+    .then((snapshot) => snapshot.docs);
 }
 
 export async function addProductToCart(
   userUID: string,
-  product: string,
+  productId: string,
   quantity: number
 ) {
-  const userCartInfo: CartProduct[] = await getCart(userUID);
+  const cartRef = db.collection(`Users/${userUID}/Cart`).doc(productId);
+  const doc = await cartRef.get();
 
-  const existingProductIndex = userCartInfo.findIndex(
-    (cartProduct: CartProduct) => cartProduct.product === product
-  );
-
-  if (existingProductIndex !== -1) {
-    const existingProduct = userCartInfo[existingProductIndex];
-    const updatedQuantity = existingProduct.quantity + quantity;
-
-    await removeFromCart(userUID, product, existingProduct.quantity);
-    await addToCart(userUID, product, updatedQuantity);
+  if (doc.exists && doc.data() && doc.data()?.quantity) {
+    const updatedQuantity = doc.data()?.quantity || 0 + quantity;
+    await cartRef.update({ quantity: updatedQuantity });
   } else {
-    await addToCart(userUID, product, quantity);
+    await cartRef.set({ quantity });
   }
-}
-
-async function addToCart(userUID: string, product: string, quantity: number) {
-  await db.doc(`Users/${userUID}`).set(
-    {
-      Cart: FieldValue.arrayUnion({
-        product: product,
-        quantity: quantity,
-      }),
-    },
-    { merge: true }
-  );
 }
 
 export async function removeFromCart(
   userUID: string,
-  product: string,
+  productId: string,
   quantity: number
 ) {
-  await db.doc(`Users/${userUID}`).update({
-    Cart: FieldValue.arrayRemove(
-      {
-        product: product,
-        quantity: quantity,
-      },
-    ),
-  });
+  const cartRef = db.collection(`Users/${userUID}/Cart`).doc(productId);
+  const doc = await cartRef.get();
+
+  if (doc.exists && doc.data() && doc.data()?.quantity) {
+    const updatedQuantity = doc.data()?.quantity - quantity;
+    if (updatedQuantity <= 0) {
+      await cartRef.delete();
+    } else {
+      await cartRef.update({ quantity: updatedQuantity });
+    }
+  } else {
+    throw new Error("Product not found in cart");
+  }
 }
 
-export async function clearCart(userUID: string) {
-  await db.doc(`Users/${userUID}`).update({
-    Cart: [],
-  });
+export async function clearCart(userUID: string): Promise<void> {
+  await db
+    .collection(`Users/${userUID}/Cart`)
+    .get()
+    .then(async (querySnapshot) => {
+      querySnapshot.docs.forEach((doc) => {
+        doc.ref.delete();
+      });
+    });
 }
+
+// Not sure whether firebase will throw error in free plan so commented.
+// export async function clearCart(userUID: string): Promise<void> {
+//   await db
+//     .collection(`Users/${userUID}/Cart`)
+//     .get()
+//     .then(async (querySnapshot) => {
+//       const batches: WriteBatch[] = [db.batch()];
+
+//       //Firestore batch limit is 500 operations. Splitting into batches
+//       querySnapshot.docs.forEach((doc, index) => {
+//         const batchIndex = index % 499;
+//         if (batchIndex < batches.length) {
+//           batches[batchIndex].delete(doc.ref);
+//         } else {
+//           batches.push(db.batch());
+//           batches[batchIndex].delete(doc.ref);
+//         }
+//       });
+
+//       await Promise.all(batches.map((batch) => batch.commit()));
+//     });
+// }

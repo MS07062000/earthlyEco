@@ -1,6 +1,8 @@
 import axios, { AxiosError } from "axios";
 import { BASEURL, ORIGIN } from "../config";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../store/hooks/apphook";
+import { logoutSuccess } from "../store/slices/authSlice";
 
 interface RequestOptions {
   method: string;
@@ -25,20 +27,9 @@ const makeApiRequest = async ({
     origin: ORIGIN,
     withCredentials: true,
   };
-
-  try {
-    const response = await axios.request(requestOptions);
-    return response.data ?? undefined;
-  } catch (error: AxiosError | any) {
-    if (error.response && error.response.status === 403) {
-      // Redirect to sign-in page if response status is 403 (Forbidden)
-      const navigate = useNavigate();
-      navigate("/signIn", { replace: true });
-      // Adjust the route as per your application's routing setup
-    }
-    // Re-throw the error to be caught by the caller
-    throw error;
-  }
+  
+  const response = await axios.request(requestOptions);
+  return response.data ?? undefined;
 };
 
 export default makeApiRequest;

@@ -11,29 +11,30 @@ export default {
   addToCart: async (req: Request, res: Response) => {
     try {
       const userUID = req.body?.userUID;
-      const product = req.body?.product;
+      const productId = req.body?.productId;
       const quantity = req.body?.quantity;
 
-      if (userUID && product && quantity) {
-        console.log("Adding to cart:", userUID, product, quantity);
-        await addProductToCart(userUID, product, quantity);
+      // console.log("Adding to cart:", userUID, productId, quantity);
+      if (userUID && productId && quantity) {
+        await addProductToCart(userUID, productId, quantity);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request body" });
       }
     } catch (error) {
+      console.log(error);
       res.sendStatus(400);
     }
   },
   removeFromCart: async (req: Request, res: Response) => {
     try {
       const userUID = req.body?.userUID;
-      const product = req.body?.product;
+      const productId = req.body?.productId;
       const quantity = req.body?.quantity;
 
-      if (userUID && product && quantity) {
-        console.log("Removing from cart:", userUID, product, quantity);
-        await removeFromCart(userUID, product, quantity);
+      if (userUID && productId && quantity) {
+        console.log("Removing from cart:", userUID, productId, quantity);
+        await removeFromCart(userUID, productId, quantity);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request body" });
@@ -49,11 +50,13 @@ export default {
 
       if (userUID) {
         const userCartInfo = await getCartWithProductDetails(userUID);
+        // console.log(userCartInfo);
         res.status(200).json({ data: userCartInfo });
       } else {
         res.status(400).json({ message: "Invalid request body" });
       }
     } catch (error) {
+      console.log(error);
       res.sendStatus(400);
     }
   },

@@ -1,20 +1,15 @@
 import { instance } from "./razorpay";
 import { db } from "../../firebase";
 import { Address } from "../userOperations/addressOperations";
-import { FieldValue } from "firebase-admin/firestore";
-export interface categoryWithProductsInfo {
-  category: string;
-  products: {
-    name: string;
-    image: string;
-    quantity: number;
-    price: number;
-  }[];
+export interface orderProduct {
+  id: string;
+  quantity: number;
+  price: number;
 }
 
 export interface order {
   orderID: string;
-  categoryWithProducts: categoryWithProductsInfo[];
+  products: orderProduct[];
   deliveryAddress: Address;
 }
 
@@ -33,19 +28,24 @@ export async function createOrderInRazorPay(amount: number, userUID: string) {
 export async function createOrderInDatabase(
   amount: number,
   userUID: string,
-  categoryWithProductsInfo: categoryWithProductsInfo[],
+  products: orderProduct[],
   deliveryAddress: Address
 ) {
   const orderID = await createOrderInRazorPay(amount, userUID);
-  await db.doc(`Users/${userUID}`).set(
-    {
-      "Orders Created": FieldValue.arrayUnion({
-        orderID: orderID,
-        categoryWithProducts: categoryWithProductsInfo,
-        deliveryAddress: deliveryAddress,
-      }),
-    },
-    { merge: true }
-  );
+  await db.doc(`Users/${userUID}/Orders/${orderID}`).set({
+    status: "Created",
+    deliveryAddress: deliveryAddress,
+  });
+
+  products.forEach(async (product) => {
+    await db
+      .doc(`Users/${userUID}/Orders/${orderID}/Products/${product.id}`)
+      .set({
+        quantity: product.quantity,
+        price: product.price,
+      });
+  });
+
   return orderID;
 }
+

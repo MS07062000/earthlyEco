@@ -1,5 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import { ProductState, ProductInfo } from "../interfaces";
+import { ProductState, Product } from "../interfaces";
 
 export default {
   fetchProductsInitiated(state: ProductState) {
@@ -13,7 +13,7 @@ export default {
   },
   fetchProductsSuccess(
     state: ProductState,
-    action: PayloadAction<ProductInfo[]>
+    action: PayloadAction<Product[]>
   ) {
     state = {
       loading: false,

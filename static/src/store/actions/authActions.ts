@@ -86,6 +86,7 @@ export const loginWithEmailAndPassword = (email: string, password: string) => {
 
       if (userInfo != null) {
         const token = await res.user.getIdToken();
+        console.log(token);
         await createSession(token);
         dispatch(authSuccess(userInfo));
       } else {
@@ -124,7 +125,7 @@ export const signInWithGoogle =
   };
 
 export const logout =
-  () =>
+  (isSessionInvalidated: boolean) =>
   async (
     dispatch: Dispatch<
       | ReturnType<typeof logoutInitiated>
@@ -134,7 +135,9 @@ export const logout =
   ) => {
     dispatch(logoutInitiated());
     try {
-      await deleteSession();
+      if (!isSessionInvalidated) {
+        await deleteSession();
+      }
       await signOut(auth);
     } catch (err) {
       dispatch(logoutFailed("Error logging out"));
@@ -174,7 +177,7 @@ export const authStateChange =
         const userInfo: UserInfo | null = await getCurrentUserInfo(user);
         if (userInfo != null) {
           const token = await user.getIdToken();
-          console.log("Create session executed");
+          await deleteSession();
           await createSession(token);
           dispatch(authSuccess(userInfo));
         }

@@ -11,6 +11,7 @@ const authSlicer = createSlice({
     errorMessage: null,
     loading: false,
     successMessage: null,
+    sessionError: false,
   } as AuthState,
   reducers: authReducer,
 });
@@ -35,6 +36,7 @@ export const {
   forgetPasswordInitiated,
   forgetPasswordSuccess,
   forgetPasswordFailed,
+  updateSessionError,
 } = authSlicer.actions;
 
 export default persistedAuthReducer;

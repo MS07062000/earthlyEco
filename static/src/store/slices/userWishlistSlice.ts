@@ -6,7 +6,7 @@ const userWishlistSlice = createSlice({
   name: "userWishlist",
   initialState: {
     loading: false,
-    products: [],
+    products: null,
     successMessage:null,
     errorMessage: null,
   } as UserWishlistState,
@@ -16,8 +16,7 @@ const userWishlistSlice = createSlice({
 export const {
   fetchWishlistOfUserInitiated,
   fetchWishlistOfUserSuccess,
-  fetchWishlistOfUserFailed,
-  updateErrorMessage,
-  updateSuccessMessage,
+  updateWishlistSuccessMessage,
+  updateWishlistErrorMessage,
 } = userWishlistSlice.actions;
 export default userWishlistSlice.reducer;

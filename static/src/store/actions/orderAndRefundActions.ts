@@ -6,6 +6,7 @@ import {
 } from "../slices/userOrdersAndRedundsSlice";
 import { getUserOrders, getUserRefunds } from "../api";
 import { Refund, Order } from "../interfaces";
+import apiErrorHandler from "./utils/apiErrorHandler";
 
 export const fetchOrdersAndRefunds =
   () =>
@@ -19,12 +20,14 @@ export const fetchOrdersAndRefunds =
     dispatch(fetchOrdersAndRefundsOfUserInitiated());
     try {
       const { data: orders }: { data: Order[] } = await getUserOrders();
-      const { data: refunds }: { data: Refund[] } = await getUserRefunds();  
-      // console.log(orders, refunds);    
+      const { data: refunds }: { data: Refund[] } = await getUserRefunds();
+      // console.log(orders, refunds);
       dispatch(fetchOrdersAndRefundsOfUserSuccess({ orders, refunds }));
     } catch (error) {
-      dispatch(
-        fetchOrdersAndRefundsOfUserFailed("Failed to fetch Orders and Refunds")
-      );
+      apiErrorHandler(
+        error,
+        "Failed to fetch Orders and Refunds",
+        fetchOrdersAndRefundsOfUserFailed
+      )(dispatch);
     }
   };

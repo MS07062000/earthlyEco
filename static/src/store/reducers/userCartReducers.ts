@@ -26,15 +26,7 @@ export default {
       ...state,
       successMessage: action.payload,
       errorMessage: null,
-    };
-    return state;
-  },
-  fetchCartOfUserFailed(state: UserCartState, action: PayloadAction<string>) {
-    state = {
-      ...state,
-      loading: false,
-      products: [],
-      errorMessage: action.payload,
+
     };
     return state;
   },

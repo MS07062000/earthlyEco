@@ -1,6 +1,5 @@
 import { Address } from "../userOperations/addressOperations";
-import { categoryWithProductsInfo } from "./createOrder";
-import { productInfoOfInsufficientQuantity } from "./orderPaid";
+import { orderProductInfo } from "./orderPaid";
 require("dotenv").config({ path: "../../.env" });
 
 type ProcessType = "order" | "refund";
@@ -9,9 +8,8 @@ export const sendEmail = async (
   receiverMail: string,
   processType: ProcessType,
   processID: string,
+  products: orderProductInfo[],
   shippingAddress?: Address,
-  categoryWithProductsInfo?: categoryWithProductsInfo[],
-  productInfoOfInsufficientQuantity?: productInfoOfInsufficientQuantity[]
 ) => {
   const url = process.env.VITE_EMAIL_SERVER_URL as string; // Replace this with your email API endpoint
 
@@ -22,53 +20,33 @@ export const sendEmail = async (
 
   if (processType === "order") {
     messageHeader = `Thank you for shopping with us. Your order has been successfully placed. Your order ID is ${processID}.`;
-    if (categoryWithProductsInfo) {
-      categoryWithProductsInfo.forEach((category) => {
-        category.products.forEach((item, index) => {
-          amount += item.quantity * item.price;
-          invoiceTableHTML += `
-            <tr>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">${index}</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">${
-                item.name
-              }</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">${
-                item.quantity
-              }</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
-                item.price
-              }</td>
-              <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
-                item.quantity * item.price
-              }</td>
-            </tr>
-          `;
-        });
-      });
-    }
   } else if (processType === "refund") {
     messageHeader = `Thank you for shopping with us. We are sorry to inform you that some products has went out of stock. Your refund has been successfully processed. Your refund ID is ${processID}.`;
-    if (productInfoOfInsufficientQuantity) {
-      productInfoOfInsufficientQuantity.forEach((product, index) => {
-        amount += product.quantity * product.price;
-        invoiceTableHTML += `
+  }
+
+  if (products) {
+    products.forEach((item, index) => {
+      amount += item.quantity * item.price;
+      invoiceTableHTML += `
           <tr>
-            <td style="border: 1px solid black; text-align: left; padding: 8px;">${index}</td>
             <td style="border: 1px solid black; text-align: left; padding: 8px;">${
-              product.name
+              index + 1
             }</td>
             <td style="border: 1px solid black; text-align: left; padding: 8px;">${
-              product.quantity
+              item.name
+            }</td>
+            <td style="border: 1px solid black; text-align: left; padding: 8px;">${
+              item.quantity
             }</td>
             <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
-              product.price
+              item.price
             }</td>
             <td style="border: 1px solid black; text-align: left; padding: 8px;">&#x20B9;${
-              product.quantity * product.price
+              item.quantity * item.price
             }</td>
-          </tr>`;
-      });
-    }
+          </tr>
+        `;
+    });
   }
 
   if (shippingAddress != null) {
@@ -82,9 +60,9 @@ export const sendEmail = async (
             : ""
         }
         ${shippingAddress.landmark ? `<p>${shippingAddress.landmark}</p>` : ""}
-        <p style="margin:0">${shippingAddress.city}, ${shippingAddress.state}, ${
-      shippingAddress.country
-    }-${shippingAddress.pincode}</p>
+        <p style="margin:0">${shippingAddress.city}, ${
+      shippingAddress.state
+    }, ${shippingAddress.country}-${shippingAddress.pincode}</p>
         <p style="margin:0">Phone Number: ${shippingAddress.mobileNumber}</p>
     `;
   }

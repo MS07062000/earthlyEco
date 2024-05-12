@@ -5,6 +5,7 @@ import {
   fetchCategoriesError,
 } from "../slices/categorySlice";
 import { getCategories } from "../api";
+import { Category } from "../interfaces";
 
 export const fetchCategories =
   () =>
@@ -17,7 +18,7 @@ export const fetchCategories =
   ) => {
     dispatch(fetchCategoriesInitiated());
     try {
-      const { data: categories } = await getCategories();
+      const { data: categories }: { data: Category[] } = await getCategories();
       dispatch(fetchCategoriesSuccess(categories));
     } catch (error) {
       dispatch(fetchCategoriesError("Unable to fetch categories"));

@@ -1,5 +1,10 @@
-import CategoryWithProductsInfo from "./categoryWithProductsInfo";
 export default interface Order {
-    orderID: string;
-    categoryWithProducts: CategoryWithProductsInfo[];
+  id: string;
+  products: {
+    id: string;
+    image: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
 }

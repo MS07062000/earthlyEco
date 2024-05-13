@@ -23,7 +23,7 @@ const sortBy = <T extends { price: number }>({ products, setProducts }: ProductS
         <button
             id="sortBy"
             onClick={() => { setSortDropdownDisplay(!isSortDropdownDisplay) }}
-            className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center" type="button">Sort By {
+            className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300  font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center shadow-[-5px_5px_10px_#d7b34d,5px_-5px_10px_#fff369]" type="button">Sort By {
                 isSortDropdownDisplay ?
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-2.8 ms-3" viewBox="0 0 512 512" fill="currentColor"><path d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z" /></svg>
                     :
@@ -32,11 +32,11 @@ const sortBy = <T extends { price: number }>({ products, setProducts }: ProductS
         </button>
         <div id="dropdown" className={`${isSortDropdownDisplay ? '' : 'hidden'} z-10 divide-y divide-gray-100 rounded-lg shadow min-w-min max-w-xs absolute top-[3rem] bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-md`}>
             <ul className="py-2 text-sm text-white " aria-labelledby="dropdownDefaultButton">
-                <li id="sortLowToHigh" onClick={() => sortByPrice(true)} className="block px-4 py-2 hover:bg-gray-100 ">
+                <li id="sortLowToHigh" onClick={() => sortByPrice(true)} className="block px-4 py-2 hover:bg-gray-100 hover:text-black ">
                     Price (Low to High)
                 </li>
                 <li id="sortHighToLow" onClick={() => sortByPrice(false)}>
-                    <p className="block px-4 py-2 hover:bg-gray-100 ">Price (High to Low)</p>
+                    <p className="block px-4 py-2 hover:bg-gray-100 hover:text-black ">Price (High to Low)</p>
                 </li>
             </ul>
         </div>

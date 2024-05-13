@@ -26,9 +26,9 @@ const MessageModal: React.FC<MessageModalProps> = ({ isSuccess, message, setMess
     }
     return (
         <div id="messageModal" className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center mx-1">
-            <div className="mt-14 relative p-4 w-full max-w-xs max-h-full">
-                <div className="relative bg-black rounded-lg shadow">
-                    <Button id="closeButton" icon={<Icon type="close" iconClass="w-3 h-3" />} onClick={closeModal} buttonClass="absolute top-3 end-2.5 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center font-medium shadow-none" isTextVisible={false} text={"close"} />
+            <div className="relative p-4 w-full max-w-xs max-h-full">
+                <div className="relative bg-[#FDD35B] shadow-[inset_-8px_-8px_13px_#d7b34d,inset_8px_8px_13px_#fff369] rounded-lg ">
+                    <Button id="closeButton" icon={<Icon type="close" iconClass="w-3 h-3" />} onClick={closeModal} buttonClass="absolute top-3 end-2.5 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center font-medium" isTextVisible={false} text={"close"} />
                     <div className="p-4 md:p-5 text-center">
                         {isSuccess ? <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48" className="m-auto">
                             <path fill="#C8E6C9" d="M44,24c0,11-9,20-20,20S4,35,4,24S13,4,24,4S44,13,44,24z"></path>
@@ -39,10 +39,10 @@ const MessageModal: React.FC<MessageModalProps> = ({ isSuccess, message, setMess
                             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48" className="m-auto">
                                 <path fill="#f44336" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"></path><path fill="#fff" d="M29.656,15.516l2.828,2.828l-14.14,14.14l-2.828-2.828L29.656,15.516z"></path><path fill="#fff" d="M32.484,29.656l-2.828,2.828l-14.14-14.14l2.828-2.828L32.484,29.656z"></path>
                             </svg>}
-                        <h3 className="mb-2 text-lg font-normal text-white">{
+                        <h3 className="mb-2 text-lg font-bold text-black">{
                             message
                         }</h3>
-                        <Button id="closeButton" text="Close" buttonClass="p-2 text-md shadow-none" isTextVisible={true} onClick={closeModal} />
+                        <Button id="closeButton" text="Close" buttonClass="p-2 text-md" isTextVisible={true} onClick={closeModal} />
                     </div>
                 </div>
             </div>

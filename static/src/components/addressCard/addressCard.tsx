@@ -7,12 +7,14 @@ interface AddressCardProps {
   addressInfo: Address;
   defaultAddress: Address | null;
   showButtons: boolean;
+  className?: string;
 }
 
 const AddressCard: React.FC<AddressCardProps> = ({
   addressInfo,
   defaultAddress,
   showButtons,
+  className,
 }) => {
   const navigate = useNavigate();
   const { deleteAddress, changeDefaultAddress } = useAddressHook();
@@ -29,7 +31,7 @@ const AddressCard: React.FC<AddressCardProps> = ({
   };
 
   return (
-    <div className="rounded-lg shadow-[-10px_10px_20px_#d7b34d,10px_-10px_20px_#fff369] bg-card text-card-foreground w-full max-w-[250px] p-2 flex flex-col justify-evenly">
+    <div className={`rounded-lg w-full max-w-[250px] p-2 flex flex-col justify-evenly ${className}`}>
       {addressInfo.isDefault && <p className="text-sm font-bold">Default</p>}
       <p className="text-xl font-bold pb-2">{addressInfo.fullname}</p>
       <div className="space-y-1">

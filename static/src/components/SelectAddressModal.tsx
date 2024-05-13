@@ -31,13 +31,13 @@ const SelectAddressModal: React.FC<SelectAddressModalProps> = ({
       className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-screen md:inset-0 h-screen text-white"
     >
       <div className="mt-14 relative p-4 w-full max-w-md max-h-full">
-        <div className="relative  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-lg shadow ">
+        <div className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-lg shadow ">
           <div className="flex items-center justify-between py-2 px-4  border-b rounded-t ">
             <h3 className="text-lg font-semibold">Select Delivery Address</h3>
             <button
               type="button"
               onClick={closeModal}
-              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center"
+              className="text-white hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center"
             >
               <svg
                 className="w-3 h-3"
@@ -75,6 +75,7 @@ const SelectAddressModal: React.FC<SelectAddressModalProps> = ({
                     addressInfo={addressInfo}
                     defaultAddress={listOfAddressInfo[0]}
                     showButtons={false}
+                    className="shadow-[-10px_10px_20px_#1a3695,10px_-10px_20px_#234ac9]"
                   />
                 </li>
               ))}
@@ -84,7 +85,7 @@ const SelectAddressModal: React.FC<SelectAddressModalProps> = ({
             <div className="px-4 py-2">
               <button
                 onClick={handleNext}
-                className="text-black inline-flex w-full justify-center bg-[#FDD35B]  focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                className="text-black inline-flex w-full justify-center bg-[#FDD35B] shadow-[inset_5px_5px_10px_#d7b34d,inset_-5px_-5px_10px_#fff369] focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg  px-5 py-2.5 text-center"
               >
                 Next
               </button>

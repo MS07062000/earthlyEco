@@ -15,7 +15,7 @@ export default {
         await wishlist(userUID, productId);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       res.sendStatus(400);
@@ -28,7 +28,7 @@ export default {
         const userWishlistInfo = await getWishlist(userUID);
         res.status(200).send({ data: userWishlistInfo });
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       console.log(error);
@@ -44,7 +44,7 @@ export default {
        
         res.status(200).send({ data: userWishlistWithProductDetails });
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       console.log(error);

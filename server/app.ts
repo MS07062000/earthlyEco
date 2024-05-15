@@ -3,7 +3,9 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import authMiddleWare from "./middlewares/auth";
-import { getCategories } from "./services/getCategories";
+import { getCategories } from "./services/categoriesOperations";
+import { db, storage } from "./firebase";
+import { getDownloadURL } from "firebase-admin/storage";
 dotenv.config();
 
 const app: Express = express();

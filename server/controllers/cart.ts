@@ -19,7 +19,7 @@ export default {
         await addProductToCart(userUID, productId, quantity);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       console.log(error);
@@ -37,7 +37,7 @@ export default {
         await removeFromCart(userUID, productId, quantity);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       console.log(error);
@@ -53,7 +53,7 @@ export default {
         // console.log(userCartInfo);
         res.status(200).json({ data: userCartInfo });
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       console.log(error);
@@ -68,7 +68,7 @@ export default {
         await clearCart(userUID);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       res.sendStatus(400);

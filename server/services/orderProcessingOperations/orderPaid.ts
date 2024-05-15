@@ -4,7 +4,7 @@ import { createRefundInDatabase } from "./createRefund";
 import { validatePayment } from "./validatePayment";
 import { sendEmail } from "./sendMail";
 import { Address } from "../userOperations/addressOperations";
-import { Product } from "../getProducts";
+import { Product } from "../productOperations";
 
 export interface orderProductInfo extends orderProduct {
   name: string;

@@ -16,7 +16,7 @@ export default {
         await addAddress(userUID, address);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       res.sendStatus(400);
@@ -31,7 +31,7 @@ export default {
         await editAddress(userUID, addressId, newAddress);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       res.sendStatus(400);
@@ -45,7 +45,7 @@ export default {
         await deleteAddress(userUID, addressId);
         res.sendStatus(200);
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       res.sendStatus(400);
@@ -58,7 +58,7 @@ export default {
         const address = await getAddress(userUID);
         res.status(200).json({ data: address });
       } else {
-        res.status(400).json({ message: "Invalid request body" });
+        res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
       res.sendStatus(400);

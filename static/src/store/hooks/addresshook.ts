@@ -24,6 +24,7 @@ export default function useAddress() {
   const addAddress = async (address: Address) => {
     try {
       await addNewAddress(address);
+      dispatch(fetchAddress());
     } catch (error) {
       dispatch(addressErrorHandler(error, "Error in adding new address"));
     }
@@ -41,6 +42,7 @@ export default function useAddress() {
   const editAddress = async (addressId: string, address: Address) => {
     try {
       await editUserAddress(addressId, address);
+      dispatch(fetchAddress());
     } catch (error) {
       dispatch(addressErrorHandler(error, "Error in updating address"));
     }

@@ -37,25 +37,26 @@ export async function getCategories(): Promise<Category[]> {
   const categories: Category[] = [];
   const categoriesSnapshot = await db
     .collection("Categories")
-    .where("deletedTimeStamp", "==", null)
     .get();
 
-  categoriesSnapshot.forEach((categoryDoc) => {
+  categoriesSnapshot.docs.forEach((categoryDoc) => {
     if (categoryDoc.exists) {
       const data = categoryDoc.data();
-      const { id, name, image, deletedTimeStamp, deletedById } = data;
+      const { name, image, deletedTimeStamp, deletedById } = data;
 
       if (!deletedTimeStamp && !deletedById) {
         const category: Category = {
-          id,
+          id: categoryDoc.id,
           name,
           image: image && image.url ? image.url : null,
         };
+        // console.log(category);
         categories.push(category);
       }
     }
   });
 
+  // console.log(categories);
   return categories;
 }
 

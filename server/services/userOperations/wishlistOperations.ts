@@ -27,9 +27,13 @@ export async function getWishlistProductsWithProductDetails(userUID: string) {
       return;
     }
 
-    product.id = snapshot.id;
+    const productData = {
+      ...product,
+      image: product!.image.url,
+      id:snapshot.id
+    };
 
-    return product as ProductInfo;
+    return productData as ProductInfo;
   });
 }
 

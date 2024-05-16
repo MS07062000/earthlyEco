@@ -51,7 +51,11 @@ export async function getOrders(userUID: string) {
             .get();
 
           // Step 7: Check if product details exist
-          const productData = productDetailsSnapshot.data() || {
+          const productData = {
+            ...productDetailsSnapshot.data(),
+            name: productDetailsSnapshot.data()!.name,
+            image: productDetailsSnapshot.data()!.image.url,
+          } || {
             name: "Unnamed Product",
             image: "https://pic.onlinewebfonts.com/thumbnails/icons_342113.svg",
           };

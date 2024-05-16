@@ -30,6 +30,23 @@ export const editAddress = async (
     newAddress,{ merge: true }
   );
 };
+export const updateDefaultAddress = async (
+  userUID: string,
+  addressId: string,
+) => {
+  await db.collection(`Users/${userUID}/Addresses`).where("isDefault", "==", true).get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      db.collection(`Users/${userUID}/Addresses`).doc(doc.id).update({
+        isDefault: false
+      });
+    });
+  });
+
+  await db.collection(`Users/${userUID}/Addresses`).doc(addressId).update({
+    isDefault: true
+  });
+
+};
 
 export const getAddress = async (userUID: string) => {
   const userAddressesCollection = await db.collection(`Users/${userUID}/Addresses`).get();

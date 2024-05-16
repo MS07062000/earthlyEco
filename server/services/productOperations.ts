@@ -55,18 +55,19 @@ export async function getProducts(category: string): Promise<Product[]> {
   const productsSnapshot = await db
     .collection("Products")
     .where("categoryId", "==", categoryId)
-    .where("deletedTimeStamp", "==", null)
     .get();
 
   productsSnapshot.docs.map((productDoc) => {
     if (productDoc.exists) {
       const data = productDoc.data();
-      const product = {
-        ...data,
-        image: data.image && data.image.url ? data.image.url : null,
-        id: productDoc.id,
-      } as Product;
-      products.push(product);
+      if (!data.deletedTimeStamp && !data.deletedById) {
+        const product = {
+          ...data,
+          image: data.image && data.image.url ? data.image.url : null,
+          id: productDoc.id,
+        } as Product;
+        products.push(product);
+      }
     }
   });
 

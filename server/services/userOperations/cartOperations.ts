@@ -22,11 +22,14 @@ export async function getCartWithProductDetails(
     const productRef = db.collection('Products').doc(doc.id);
     const productSnapshot = await productRef.get();
     const product = productSnapshot.data();
-    return {
-      id: doc.id,
+    const productData = {
+      ...product,
+      image: product!.image.url,
       quantityByUser: doc.data()?.quantity,
-      ...product
+      id:doc.id
     };
+
+    return productData as ProductDetails;
   }));
 
   return productData as ProductDetails[];

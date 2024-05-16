@@ -73,7 +73,6 @@ const SelectAddressModal: React.FC<SelectAddressModalProps> = ({
                   />
                   <AddressCard
                     addressInfo={addressInfo}
-                    defaultAddress={listOfAddressInfo[0]}
                     showButtons={false}
                     className="shadow-[-10px_10px_20px_#1a3695,10px_-10px_20px_#234ac9]"
                   />

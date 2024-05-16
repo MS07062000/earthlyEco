@@ -66,8 +66,10 @@ const AddressForm: React.FC<AddressFormProps> = ({
           await addAddress(addressCard);
           setSuccessMessage("Address added successfully");
         } else {
-          await editAddress(initialAddress, addressCard);
-          setSuccessMessage("Address edited successfully");
+          if (initialAddress.id) {
+            await editAddress(initialAddress.id, addressCard);
+            setSuccessMessage("Address edited successfully");
+          }
         }
       }
     }

@@ -5,6 +5,7 @@ import { Address } from "../interfaces";
 import { useAppDispatch, useAppSelector } from "./apphook";
 import { useNavigate } from "react-router-dom";
 import { memoizedAddressSelectors } from "../selectors";
+import editDefaultAddress from "../api/editDefaultAddress";
 
 export default function useAddress() {
   const { auth, address } = useAppSelector(memoizedAddressSelectors);
@@ -37,26 +38,17 @@ export default function useAddress() {
     }
   };
 
-  const editAddress = async (defaultAddress: Address, address: Address) => {
+  const editAddress = async (addressId: string, address: Address) => {
     try {
-      await editUserAddress(defaultAddress, address);
+      await editUserAddress(addressId, address);
     } catch (error) {
       dispatch(addressErrorHandler(error, "Error in updating address"));
     }
   };
 
-  const changeDefaultAddress = async (
-    defaultAddress: Address | null,
-    address: Address
-  ) => {
+  const changeDefaultAddress = async (addressId: string) => {
     try {
-      if (defaultAddress != null) {
-        await editUserAddress(defaultAddress, {
-          ...defaultAddress,
-          isDefault: false,
-        });
-      }
-      await editUserAddress(address, { ...address, isDefault: true });
+      await editDefaultAddress(addressId);
       dispatch(fetchAddress());
     } catch (error) {
       dispatch(addressErrorHandler(error, "Error in changing default address"));

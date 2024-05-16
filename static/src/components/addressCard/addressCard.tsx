@@ -5,14 +5,12 @@ import useAddressHook from "../../store/hooks/addresshook";
 
 interface AddressCardProps {
   addressInfo: Address;
-  defaultAddress: Address | null;
   showButtons: boolean;
   className?: string;
 }
 
 const AddressCard: React.FC<AddressCardProps> = ({
   addressInfo,
-  defaultAddress,
   showButtons,
   className,
 }) => {
@@ -27,11 +25,15 @@ const AddressCard: React.FC<AddressCardProps> = ({
   };
 
   const handleDefault = async () => {
-    changeDefaultAddress(defaultAddress, addressInfo);
+    if (addressInfo.id) {
+      changeDefaultAddress(addressInfo.id);
+    }
   };
 
   return (
-    <div className={`rounded-lg w-full max-w-[250px] p-2 flex flex-col justify-evenly ${className}`}>
+    <div
+      className={`rounded-lg w-full max-w-[250px] p-2 flex flex-col justify-evenly ${className}`}
+    >
       {addressInfo.isDefault && <p className="text-sm font-bold">Default</p>}
       <p className="text-xl font-bold pb-2">{addressInfo.fullname}</p>
       <div className="space-y-1">

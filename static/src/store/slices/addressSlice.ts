@@ -7,7 +7,6 @@ const addressSlice = createSlice({
   initialState: {
     loading: false,
     addresses: null,
-    defaultAddress: null,
     error: null,
   } as addressState,
   reducers: addressReducers,

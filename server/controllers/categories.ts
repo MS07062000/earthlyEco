@@ -13,6 +13,7 @@ export default {
       const categories = await getCategories();
       res.status(200).json({ data: categories });
     } catch (error) {
+      // console.log(error);
       res.sendStatus(400);
     }
   },

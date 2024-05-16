@@ -20,7 +20,6 @@ const Address: React.FC = () => {
               <AddressCard
                 key={index}
                 addressInfo={addressInfo}
-                defaultAddress={address.defaultAddress}
                 showButtons={true}
                 className="bg-[#FDD35B] shadow-[-10px_10px_20px_#d7b34d,10px_-10px_20px_#fff369]"
               />

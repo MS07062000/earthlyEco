@@ -20,6 +20,7 @@ const corsOptions: cors.CorsOptions = {
         : [
             "https://maniecommercestore.web.app",
             "https://maniecommercestore.firebaseapp.com",
+            "https://earthly-eco-tvsq.vercel.app"
           ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);

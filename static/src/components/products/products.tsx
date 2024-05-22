@@ -11,7 +11,7 @@ import useProduct from "../../store/hooks/producthook";
 
 const Products: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
-  const category: string = searchParams.get("category") ?? "nuts";
+  const category: string = searchParams.get("category") ?? "Nuts";
 
   const {
     product,

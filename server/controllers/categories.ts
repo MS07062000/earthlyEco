@@ -4,6 +4,7 @@ import {
   deleteCategory,
   getAllCategories,
   getCategories,
+  restoreCategory,
   updateCategory,
 } from "../services/categoriesOperations";
 
@@ -28,9 +29,9 @@ export default {
   },
   createCategory: async (req: Request, res: Response) => {
     try {
-      const category = req.body;
+      const { category, userUID } = req.body;
       if (category) {
-        await createCategory(category);
+        await createCategory(category, userUID);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request" });
@@ -42,15 +43,15 @@ export default {
   },
   updateCategory: async (req: Request, res: Response) => {
     try {
-      const category = req.body;
+      const { category, userUID } = req.body;
       if (category) {
-        await updateCategory(category);
+        await updateCategory(category, userUID);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       res.sendStatus(400);
     }
   },
@@ -60,6 +61,21 @@ export default {
       const { userUID } = req.body;
       if (categoryId) {
         await deleteCategory(categoryId, userUID);
+        res.sendStatus(200);
+      } else {
+        res.status(400).json({ message: "Invalid request" });
+      }
+    } catch (error) {
+      // console.log(error);
+      res.sendStatus(400);
+    }
+  },
+  restoreCategory: async (req: Request, res: Response) => {
+    try {
+      const { categoryId } = req.params;
+      const { userUID } = req.body;
+      if (categoryId) {
+        await restoreCategory(categoryId, userUID);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request" });

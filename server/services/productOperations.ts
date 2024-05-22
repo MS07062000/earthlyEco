@@ -1,6 +1,8 @@
 import { getDownloadURL } from "firebase-admin/storage";
 import { db, storage } from "../firebase";
 import { FieldValue } from "firebase-admin/firestore";
+import { getCategories } from "./categoriesOperations";
+import { isValidHttpUrl } from "./utils";
 
 export interface Product {
   id: string;
@@ -9,34 +11,27 @@ export interface Product {
   quantityAvailable: number;
   price: number;
   categoryId: string;
+  categoryName: string;
 }
 
-export interface CreateProduct extends Omit<Product, "id" | "image"> {
-  image: {
-    data: string;
-    extension: string;
-  };
-}
+export interface CreateProduct extends Omit<Product, "id"> {}
 
 export interface UpdateProductData {
   id: string;
   name?: string;
-  image?: {
-    data: string;
+  image?: string;
+  updatedImage?: {
+    url: string;
     extension: string;
   };
   quantityAvailable?: number;
   price?: number;
   categoryId?: string;
-  updatedImage?: {
-    url: string | undefined;
-    extension: string;
-  };
 }
 
 export interface ProductWithTimestamp extends Product {
   createdTimeStamp: string;
-  deletedTimeStamp: FieldValue | null;
+  deletedTimeStamp: string | null;
 }
 
 export async function getProducts(category: string): Promise<Product[]> {
@@ -60,7 +55,7 @@ export async function getProducts(category: string): Promise<Product[]> {
   productsSnapshot.docs.map((productDoc) => {
     if (productDoc.exists) {
       const data = productDoc.data();
-      if (!data.deletedTimeStamp && !data.deletedById) {
+      if (!data.deletedTimeStamp) {
         const product = {
           ...data,
           image: data.image && data.image.url ? data.image.url : null,
@@ -75,39 +70,62 @@ export async function getProducts(category: string): Promise<Product[]> {
 }
 
 export async function getAllProducts(): Promise<ProductWithTimestamp[]> {
-  const products: ProductWithTimestamp[] = [];
-  const productsSnapshot = await db.collection("Products").get();
-  productsSnapshot.docs.forEach((productDoc) => {
-    if (productDoc.exists) {
+  const activeCategories = await getCategories();
+
+  const productPromises = activeCategories.map(async (category) => {
+    const productsSnapshot = await db
+      .collection("Products")
+      .where("categoryId", "==", category.id)
+      .get();
+
+    return productsSnapshot.docs.map((productDoc) => {
       const data = productDoc.data();
-      const product = {
+      return {
         ...data,
         image: data.image && data.image.url ? data.image.url : null,
+        categoryName: category.name,
         createdTimeStamp: productDoc.createTime.toDate().toISOString(),
+        deletedTimeStamp: data.deletedTimeStamp ? data.deletedTimeStamp.toDate() : null,
         id: productDoc.id,
       } as ProductWithTimestamp;
-      products.push(product);
-    }
+    });
   });
 
-  return products;
+  const productArrays = await Promise.all(productPromises);
+
+  // console.log("All Products", ...productArrays.flat());
+  return [...productArrays.flat()];
 }
 
-export async function createProduct(product: CreateProduct): Promise<void> {
+export async function createProduct(
+  product: CreateProduct,
+  userUID: string
+): Promise<void> {
   const { image, ...restdata } = product;
+
   // Add product to Firestore database
   const productRef = await db.collection("Products").add({
     ...restdata,
+    updatedById: userUID,
   });
 
   // Get the document ID of the newly added product
   const productId = productRef.id;
 
+  // Get extension of image
+  const extension = image.split(";")[0].split("/")[1];
+
   // Upload image to Firebase Storage
-  const imageFile = storage
-    .bucket()
-    .file(`Products/${productId}.${product.image.extension}`);
-  imageFile.save(image.data);
+  const imageFile = storage.bucket().file(`Products/${productId}.${extension}`);
+
+  // Convert base64 string to image buffer
+  const base64ToImageBuffer = Buffer.from(
+    product.image.split(",")[1],
+    "base64"
+  );
+
+  // Save image buffer to Firebase Storage
+  await imageFile.save(base64ToImageBuffer);
 
   // Get the download URL for the uploaded image
   const imageURL = await getDownloadURL(imageFile);
@@ -118,16 +136,23 @@ export async function createProduct(product: CreateProduct): Promise<void> {
     .doc(productId)
     .set(
       {
-        image: { url: imageURL, extension: product.image.extension },
+        image: {
+          url: imageURL,
+          extension: extension,
+        },
+        updatedById: userUID,
       },
       { merge: true }
     );
 }
 
-export async function updateProduct(product: UpdateProductData) {
+export async function updateProduct(
+  product: UpdateProductData,
+  userUID: string
+): Promise<void> {
   const productInfo = await db.doc(`Products/${product.id}`).get();
   // If image data is provided, upload the new image to Firebase Storage
-  if (product.image && productInfo.exists) {
+  if (product.image && !isValidHttpUrl(product.image) && productInfo.exists) {
     const data = productInfo.data();
 
     if (data && data.image && data.image.extension) {
@@ -138,28 +163,45 @@ export async function updateProduct(product: UpdateProductData) {
         .delete();
     }
 
+    // Get extension of image
+    const newExtension = product.image.split(";")[0].split("/")[1];
+
     // Upload the new image to Firebase Storage
     const imageFile = storage
       .bucket()
-      .file(`Products/${product.id}.${product.image.extension}`);
-    imageFile.save(product.image.data);
+      .file(`Products/${product.id}.${newExtension}`);
+
+    // Convert base64 string to image buffer
+    const base64ToImageBuffer = Buffer.from(
+      product.image.split(",")[1],
+      "base64"
+    );
+
+    // Save image buffer to Firebase Storage
+    imageFile.save(base64ToImageBuffer);
+
     // Get the download URL for the uploaded image
     const imageURL = await getDownloadURL(imageFile);
 
     // Update product with the new image URL
     product.updatedImage = {
       url: imageURL,
-      extension: product.image.extension,
-    }; // Update data object with the image URL
+      extension: newExtension,
+    };
   }
-
-  const { id, image, updatedImage, ...data } = product;
   // Update product in Firestore database
+  const { image, updatedImage, ...restdata } = product;
+
   await db
     .collection("Products")
     .doc(product.id)
-    .update({ ...data, image: product.updatedImage });
+    .update({
+      ...restdata,
+      ...(updatedImage ? { image: updatedImage } : {}),
+      updatedById: userUID,
+    });
 }
+
 
 export async function deleteProduct(
   productId: string,
@@ -169,7 +211,20 @@ export async function deleteProduct(
     .collection("Products")
     .doc(productId)
     .set(
-      { deletedTimeStamp: FieldValue.serverTimestamp(), deletedById: userUID },
+      { deletedTimeStamp: FieldValue.serverTimestamp(), updatedById: userUID },
+      { merge: true }
+    );
+}
+
+export async function restoreProduct(
+  productId: string,
+  userUID: string
+): Promise<void> {
+  await db
+    .collection("Products")
+    .doc(productId)
+    .set(
+      { deletedTimeStamp: null, updatedById: userUID },
       { merge: true }
     );
 }

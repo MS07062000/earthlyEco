@@ -1,15 +1,38 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
-import { SignIn } from "./pages/signIn";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Dashboard } from "./pages/dashboard";
+import ThemeProvider from "./components/providers/ThemeProvider";
+import AuthLayout from "./components/auth/template/AuthLayout";
+import LoginPage from "./components/auth/pages/LoginPage";
+// import SignupPage from "./components/auth/SignupPage";
+import CategoryPage from "./components/category/pages/CategoryPage";
+import ProductsPage from "./components/products/pages/ProductPage";
+import { useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "./hooks/apphook";
+import { logout } from "./store/actions/authActions";
+import Layout from "@/components/Layout";
+import { Home } from "./components/Home";
 
 function App() {
+  const auth = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (auth.sessionError) {
+      dispatch(logout(true));
+    }
+  }, [auth.sessionError]);
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Routes>
-        <Route path="/" element={<SignIn />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/category" element={<CategoryPage />} />
+        </Route>
+        <Route element={<AuthLayout />}>
+          <Route path="/signin" element={<LoginPage />} />
+          {/* <Route path="/signup" element={<SignupPage />} /> */}
+        </Route>
       </Routes>
     </ThemeProvider>
   );

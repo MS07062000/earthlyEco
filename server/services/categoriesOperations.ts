@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { storage, db } from "../firebase";
 import { getDownloadURL } from "firebase-admin/storage";
+import { isValidHttpUrl } from "./utils";
 interface Category {
   id: string;
   name: string;
@@ -9,19 +10,13 @@ interface Category {
 
 interface createCategory {
   name: string;
-  image: {
-    data: string;
-    extension: string;
-  };
+  image: string;
 }
 
 interface UpdateCategoryData {
   id: string;
   name?: string;
-  image?: {
-    data: string;
-    extension: string;
-  };
+  image?: string;
   updatedImage?: {
     url: string;
     extension: string;
@@ -35,16 +30,14 @@ interface CategoryWithTimestamp extends Category {
 
 export async function getCategories(): Promise<Category[]> {
   const categories: Category[] = [];
-  const categoriesSnapshot = await db
-    .collection("Categories")
-    .get();
+  const categoriesSnapshot = await db.collection("Categories").get();
 
   categoriesSnapshot.docs.forEach((categoryDoc) => {
     if (categoryDoc.exists) {
       const data = categoryDoc.data();
-      const { name, image, deletedTimeStamp, deletedById } = data;
+      const { name, image, deletedTimeStamp } = data;
 
-      if (!deletedTimeStamp && !deletedById) {
+      if (!deletedTimeStamp) {
         const category: Category = {
           id: categoryDoc.id,
           name,
@@ -56,7 +49,7 @@ export async function getCategories(): Promise<Category[]> {
     }
   });
 
-  // console.log(categories);
+  // console.log("Categories: ", categories);
   return categories;
 }
 
@@ -71,29 +64,48 @@ export async function getAllCategories(): Promise<CategoryWithTimestamp[]> {
         ...data,
         image: data.image && data.image.url ? data.image.url : null,
         createdTimeStamp: categoryDoc.createTime.toDate().toISOString(),
+        deletedTimeStamp: data.deletedTimeStamp
+          ? data.deletedTimeStamp.toDate()
+          : null,
         id: categoryDoc.id,
       } as CategoryWithTimestamp;
       categories.push(categoryWithTimestamp);
     }
   });
 
+  // console.log("All Categories: ", categories);
+
   return categories;
 }
 
-export async function createCategory(category: createCategory): Promise<void> {
+export async function createCategory(
+  category: createCategory,
+  userUID: string
+): Promise<void> {
   // Add category to Firestore database
   const categoryRef = await db
     .collection("Categories")
-    .add({ name: category.name });
+    .add({ name: category.name, updatedById: userUID });
 
   // Get the document ID of the newly added category
   const categoryId = categoryRef.id;
 
+  // Get extension of image
+  const imageExtension = category.image.split(";")[0].split("/")[1];
+
   // Upload image to Firebase Storage
   const imageFile = storage
     .bucket()
-    .file(`Categories/${categoryId}.${category.image.extension}`);
-  await imageFile.save(category.image.data);
+    .file(`Categories/${categoryId}.${imageExtension}`);
+
+  // Convert base64 string to image buffer
+  const base64ToImageBuffer = Buffer.from(
+    category.image.split(",")[1],
+    "base64"
+  );
+
+  // Save image buffer to Firebase Storage
+  await imageFile.save(base64ToImageBuffer);
 
   // Get the download URL for the uploaded image
   const imageURL = await getDownloadURL(imageFile);
@@ -104,17 +116,28 @@ export async function createCategory(category: createCategory): Promise<void> {
     .doc(categoryId)
     .set(
       {
-        image: { url: imageURL, extension: category.image.extension },
+        image: {
+          url: imageURL,
+          extension: imageExtension,
+        },
+        updatedById: userUID,
       },
       { merge: true }
     );
 }
 
-export async function updateCategory(category: UpdateCategoryData) {
+export async function updateCategory(
+  category: UpdateCategoryData,
+  userUID: string
+) {
   const categoryInfo = await db.doc(`Categories/${category.id}`).get();
 
   // If image data is provided, upload the new image to Firebase Storage
-  if (category.image && categoryInfo.exists) {
+  if (
+    category.image &&
+    !isValidHttpUrl(category.image) &&
+    categoryInfo.exists
+  ) {
     const data = categoryInfo.data();
 
     if (data && data.image && data.image.extension) {
@@ -125,11 +148,22 @@ export async function updateCategory(category: UpdateCategoryData) {
         .delete();
     }
 
+    // Get extension of image
+    const newImageExtension = category.image.split(";")[0].split("/")[1];
+
     // Upload the new image to Firebase Storage
     const imageFile = storage
       .bucket()
-      .file(`Categories/${category.id}.${category.image.extension}`);
-    await imageFile.save(category.image.data);
+      .file(`Categories/${category.id}.${newImageExtension}`);
+
+    // Convert base64 string to image buffer
+    const base64ToImageBuffer = Buffer.from(
+      category.image.split(",")[1],
+      "base64"
+    );
+
+    // Save image buffer to Firebase Storage
+    await imageFile.save(base64ToImageBuffer);
 
     // Get the download URL for the uploaded image
     const imageURL = await getDownloadURL(imageFile);
@@ -137,28 +171,44 @@ export async function updateCategory(category: UpdateCategoryData) {
     // Update category with the new image URL
     category.updatedImage = {
       url: imageURL,
-      extension: category.image.extension,
+      extension: newImageExtension,
     };
   }
 
-  const { id, image, updatedImage, ...data } = category;
+  const { id, image, updatedImage, ...restdata } = category;
 
   // Update category in Firestore database
   await db
     .collection("Categories")
     .doc(category.id)
-    .update({ ...data, image: category.updatedImage });
+    .update({
+      ...restdata,
+      ...(updatedImage ? { image: updatedImage } : {}),
+      updatedById: userUID,
+    });
 }
 
 export async function deleteCategory(
   categoryId: string,
   userUID: string
 ): Promise<void> {
-  const categoryRef = db.collection("Categories").doc(categoryId);
-  categoryRef.set(
+  await  db.collection("Categories").doc(categoryId).set(
     {
       deletedTimeStamp: FieldValue.serverTimestamp(),
-      deletedById: userUID,
+      updatedById: userUID,
+    },
+    { merge: true }
+  );
+}
+
+export async function restoreCategory(
+  categoryId: string,
+  userUID: string
+): Promise<void> {
+  await db.collection("Categories").doc(categoryId).set(
+    {
+      deletedTimeStamp: null,
+      updatedById: userUID,
     },
     { merge: true }
   );

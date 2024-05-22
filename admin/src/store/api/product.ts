@@ -1,43 +1,21 @@
-import axios from 'axios';
+import axiosInstance from "../../utils/apiUtils";
+import { CreateProduct, UpdateProduct } from "../interfaces";
 
-export const fetchProducts = async () => {
-  try {
-    const response = await axios.get('/api/products');
-    return response.data; // Array of products
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    // Handle error appropriately (e.g., dispatch an error action in Redux)
-  }
+export default {
+  fetchProducts: async () => {
+    const response = await axiosInstance.get("api/v1/product/all");
+    return response.data;
+  },
+  createProduct: async (product: CreateProduct) => {
+    return await axiosInstance.post("api/v1/product", { product });
+  },
+  updateProduct: async (product: UpdateProduct) => {
+    return await axiosInstance.put(`api/v1/product`, { product });
+  },
+  deleteProduct: async (productId: string) => {
+    return await axiosInstance.delete(`api/v1/product/${productId}`);
+  },
+  restoreProduct: async (productId: string) => {
+    return await axiosInstance.put(`api/v1/product/restore/${productId}`);
+  },
 };
-
-const addProduct = async (productData) => {
-    try {
-      const response = await axios.post('/api/products', productData);
-      return response.data; // Newly created product object
-    } catch (error) {
-      console.error('Error adding product:', error);
-      // Handle error appropriately (e.g., dispatch an error action in Redux)
-    }
-  };
-
-  
-  const editProduct = async (productData) => {
-    try {
-      const response = await axios.put(`/api/products`, productData);
-      return response.data; // Updated product object
-    } catch (error) {
-      console.error('Error editing product:', error);
-      // Handle error appropriately (e.g., dispatch an error action in Redux)
-    }
-  };
-
-  
-  const deleteProduct = async (productId: string) => {
-    try {
-      await axios.delete(`/api/products/${productId}`);
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      // Handle error appropriately (e.g., dispatch an error action in Redux)
-    }
-  };
-  

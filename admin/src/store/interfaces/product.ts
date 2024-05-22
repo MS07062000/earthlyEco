@@ -1,11 +1,11 @@
 export default interface Product {
   id: string;
   name: string;
+  image: string;
   price: number;
   quantityAvailable: number;
-  category: {
-    id: string;
-    name: string;
-  };
-  imageUrl: string;
+  categoryId: string;
+  categoryName: string;
+  createdTimeStamp: string;
+  deletedTimeStamp: string | null;
 }

@@ -5,6 +5,7 @@ import {
   getProducts,
   getAllProducts,
   deleteProduct,
+  restoreProduct,
 } from "../services/productOperations";
 
 export default {
@@ -28,37 +29,37 @@ export default {
       const products = await getAllProducts();
       res.status(200).json({ data: products });
     } catch (error) {
-      // console.log(error);
+      //console.log(error);
       res.sendStatus(400);
     }
   },
 
   createProduct: async (req: Request, res: Response) => {
     try {
-      const product = req.body;
+      const { product, userUID } = req.body;
       if (product) {
-        await createProduct(product);
+        await createProduct(product, userUID);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       res.sendStatus(400);
     }
   },
 
   updateProduct: async (req: Request, res: Response) => {
     try {
-      const product = req.body;
+      const { product, userUID } = req.body;
       if (product) {
-        await updateProduct(product);
+        await updateProduct(product, userUID);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request" });
       }
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       res.sendStatus(400);
     }
   },
@@ -68,6 +69,21 @@ export default {
       const { userUID } = req.body;
       if (productId) {
         await deleteProduct(productId, userUID);
+        res.sendStatus(200);
+      } else {
+        res.status(400).json({ message: "Invalid request" });
+      }
+    } catch (error) {
+      // console.log(error);
+      res.sendStatus(400);
+    }
+  },
+  restoreProduct: async (req: Request, res: Response) => {
+    try {
+      const { productId } = req.params;
+      const { userUID } = req.body;
+      if (productId) {
+        await restoreProduct(productId, userUID);
         res.sendStatus(200);
       } else {
         res.status(400).json({ message: "Invalid request" });

@@ -1,8 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { BASEURL, ORIGIN } from "../config";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../store/hooks/apphook";
-import { logoutSuccess } from "../store/slices/authSlice";
 
 interface RequestOptions {
   method: string;

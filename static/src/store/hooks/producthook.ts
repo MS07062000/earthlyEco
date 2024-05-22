@@ -57,11 +57,13 @@ const useProduct = (category: string) => {
     }
   };
 
-  const productsPresentInWishlist = product.products.map((product: Product) =>
-    wishlist.products!.some(
-      (wishlistProduct: Product) => wishlistProduct.id === product.id
-    )
-  );
+  const productsPresentInWishlist = wishlist.products
+    ? product.products.map((product: Product) =>
+        wishlist.products!.some(
+          (wishlistProduct: Product) => wishlistProduct.id === product.id
+        )
+      )
+    : [];
 
   const onWishlist = async (productId: string, index: number) => {
     if (auth.user !== null) {

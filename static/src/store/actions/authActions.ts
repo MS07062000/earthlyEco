@@ -86,7 +86,7 @@ export const loginWithEmailAndPassword = (email: string, password: string) => {
 
       if (userInfo != null) {
         const token = await res.user.getIdToken();
-        console.log(token);
+        // console.log(token);
         await createSession(token);
         dispatch(authSuccess(userInfo));
       } else {

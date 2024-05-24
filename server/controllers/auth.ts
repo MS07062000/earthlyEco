@@ -44,7 +44,6 @@ export default {
     }
   },
   clearSession: (req: Request, res: Response) => {
-    res.clearCookie("session");
-    res.sendStatus(200);
+    res.clearCookie("session").end(JSON.stringify({ status: "success" }));
   },
 };
